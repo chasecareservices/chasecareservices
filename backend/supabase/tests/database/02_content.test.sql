@@ -43,7 +43,7 @@ set local role anon;
 select is((select count(*)::int from public.pages where slug like 'test-%'), 1, 'visitors see published pages only');
 select is((select count(*)::int from public.posts where slug like 'test-%'), 1, 'visitors do not see scheduled (future) posts');
 select is((select count(*)::int from public.courses where status = 'draft'), 0, 'visitors do not see draft courses');
-select is((select count(*)::int from public.page_revisions), 0, 'visitors cannot read page history');
+select throws_ok($$ select count(*) from public.page_revisions $$, '42501', null, 'visitors cannot read page history');
 select throws_ok(
   $$ insert into public.pages (slug, title) values ('test-hack', 'Nope') $$,
   '42501', null, 'visitors cannot create pages');

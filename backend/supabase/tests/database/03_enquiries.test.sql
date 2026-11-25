@@ -30,7 +30,7 @@ select throws_ok(
 select throws_ok(
   $$ insert into public.enquiries (enquiry_type, full_name, email, consent_given) values ('contact', 'Direct', 'd@example.com', true) $$,
   '42501', null, 'visitors cannot insert into the inbox directly');
-select is((select count(*)::int from public.enquiries), 0, 'visitors cannot read the inbox');
+select throws_ok($$ select count(*) from public.enquiries $$, '42501', null, 'visitors cannot read the inbox');
 
 -- Honeypot: pretend success, store nothing.
 reset role;
