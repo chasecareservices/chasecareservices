@@ -68,3 +68,74 @@ body {
     animation: none !important;
   }
 }
+
+/*
+ * Google Translate (footer "Choose language"): hide Google's own toolbar, pop-ups and
+ * highlight so only our menu shows, and stop it pushing the page down.
+ */
+iframe.skiptranslate,
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/*
+ * Accessibility menu (♿) — classes set on <html> by src/lib/a11y.ts.
+ * Sizes are in rem, so changing the root font size scales the whole site.
+ */
+html.a11y-text-1 {
+  font-size: 112.5%;
+}
+html.a11y-text-2 {
+  font-size: 125%;
+}
+html.a11y-contrast {
+  --color-ink: #000000;
+  --color-muted: #111111;
+  --color-gray-600: #000000;
+  --color-gray-700: #000000;
+  --color-brand-100: #ffffff;
+  --color-brand-200: #ffffff;
+  --color-brand-400: #2a0644;
+  --color-brand-700: #2a0644;
+  --color-accent-600: #8a4a00;
+  --color-accent-700: #7a4100;
+}
+html.a11y-contrast :focus-visible {
+  outline-width: 4px;
+  outline-color: #000000;
+}
+html.a11y-links a {
+  text-decoration-line: underline !important;
+  text-underline-offset: 3px;
+}
+html.a11y-font body,
+html.a11y-font input,
+html.a11y-font select,
+html.a11y-font textarea,
+html.a11y-font button {
+  font-family: Verdana, Tahoma, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
+html.a11y-font .font-display {
+  font-family: var(--font-display);
+}
+html.a11y-no-motion,
+html.a11y-no-motion *,
+html.a11y-no-motion *::before,
+html.a11y-no-motion *::after {
+  scroll-behavior: auto !important;
+  transition: none !important;
+  animation: none !important;
+}

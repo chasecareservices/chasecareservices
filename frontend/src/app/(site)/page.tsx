@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CourseCard, ServiceCard } from "@/components/cards";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ImpactStats } from "@/components/Impact";
 import { toBlocks } from "@/components/PageBlocks";
 import { FillPhoto } from "@/components/Photo";
 import { ButtonLink, CheckList, Container, ImageFeature, Pathway, Section } from "@/components/ui";
@@ -56,6 +57,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSlider slides={slides} />
+      <ImpactStats tone="brand" />
 
       {/* Who we are */}
       <ImageFeature image={SECTION_IMAGES.whoWeAre} eyebrow="Who we are" title="A trusted, person-centred care organisation in Ghana">

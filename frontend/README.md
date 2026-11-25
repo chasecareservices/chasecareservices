@@ -18,6 +18,7 @@ Brand colours come from the CHASE logo: deep purple `#3B0A5E`, orange `#F89A00`,
 | Shop (catalogue) | `/shop` | `products` |
 | Contact | `/contact` | Settings + contact form |
 | Request Care ("I Need Care") | `/register/client` | Care request form |
+| Search | `/search?q=…` | `search_site()` in the database (published content only) + built-in pages |
 | Wellbeing, Join Our Team, Community, Monthly Forum, Schools & Hospitals, Parent Learning, Workforce Standards, legal pages | `/<slug>` | Published `pages` row with that slug, otherwise built-in copy from the proposal (`src/lib/site-copy.ts`) |
 
 Rules the site follows:
@@ -28,6 +29,10 @@ Rules the site follows:
 - Both forms send to `submit_enquiry()` and land in the admin enquiries inbox with their type (contact, care request, partnership, course registration…). They require consent, include a hidden bot trap, and work on phones.
 - The Monthly Forum date is calculated automatically (third Thursday).
 - Pages are cached for 5 minutes, so content edits appear on the live site within 5 minutes.
+- **Accessibility menu** (orange ♿ tab on the right): text size, high contrast, underlined links, readable font, stop animations. Saved on the visitor's device only (no cookies, nothing loaded from outside). Styles are in `globals.css` under `a11y-*`.
+- **Related information** box on About, service, course and information pages, built automatically from the main menu (`src/lib/related.ts`).
+- **Impact numbers** (homepage and About) and **Recognition** (About) come from `site_settings.impact_stats` and `site_settings.recognitions`, and stay hidden until real entries are added.
+- **Choose language** (footer): Google Translate into Twi, Ga, Ewe, Hausa, French or Arabic. Google's script only loads after a visitor picks a language other than English, and the choice is remembered in a `googtrans` cookie. This is machine translation, so mention it in the Cookie and Privacy policies. Languages are listed in `src/lib/languages.ts`.
 
 ## Photos
 

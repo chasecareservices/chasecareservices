@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { DesktopNav } from "@/components/layout/DesktopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { SearchButton } from "@/components/layout/SearchButton";
 import { buildNavTree, FALLBACK_NAV, type NavLink } from "@/lib/navigation";
 import { getActiveAnnouncements, getNavigation, getSiteSettings } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
@@ -65,6 +66,8 @@ export async function Header() {
           <Logo />
           <DesktopNav links={desktopLinks} />
           <div className="flex items-center gap-2">
+            <span aria-hidden="true" className="hidden h-7 w-px bg-gray-300 xl:block" />
+            <SearchButton />
             <Link
               href={REQUEST_CARE.href}
               className="hidden min-h-11 items-center whitespace-nowrap rounded-full bg-accent-500 px-5 text-sm font-semibold text-brand-950 hover:bg-accent-400 sm:inline-flex"

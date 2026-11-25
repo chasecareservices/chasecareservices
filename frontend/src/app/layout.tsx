@@ -3,6 +3,9 @@ import "@fontsource-variable/inter";
 import "@fontsource/cinzel/600.css";
 import "@fontsource/cinzel/700.css";
 import "./globals.css";
+import { A11yMenu } from "@/components/A11yMenu";
+import { TranslateLoader } from "@/components/language/TranslateLoader";
+import { A11Y_BOOT_SCRIPT } from "@/lib/a11y";
 import { getSiteSettings } from "@/lib/content";
 
 export const viewport: Viewport = {
@@ -32,8 +35,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-GB">
-      <body className="min-h-screen antialiased">{children}</body>
+    <html lang="en-GB" suppressHydrationWarning>
+      <head>
+        {/* Applies saved accessibility choices before the page is shown (no flash). */}
+        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT_SCRIPT }} />
+      </head>
+      <body className="min-h-screen antialiased">
+        {children}
+        <A11yMenu />
+        <TranslateLoader />
+      </body>
     </html>
   );
 }

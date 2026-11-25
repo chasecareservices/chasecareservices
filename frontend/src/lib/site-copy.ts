@@ -17,8 +17,6 @@ export type PageCopy = {
   intro: string;
   sections: CopySection[];
   ctas: { label: string; href: string }[];
-  /** True for pages whose final wording must come from the client (e.g. legal text). */
-  pendingClientText?: boolean;
 };
 
 export const MISSION =
@@ -57,6 +55,40 @@ export const WHY_CHOOSE_US: { title: string; text: string }[] = [
   { title: "Competency processes", text: "Screening, reference checks and competency assessment before approval." },
   { title: "Wellbeing support", text: "Counselling, health referrals and support for the people who provide care." },
   { title: "Community partnerships", text: "We work with schools, hospitals, organisations and community partners." },
+];
+
+/** "What we do" highlight box (About page). */
+export const WHAT_WE_DO: { lead: string; href: string; text: string }[] = [
+  {
+    lead: "Care services",
+    href: "/care-services",
+    text: "for older people, people living with disability or autism, and families — at home, in the community and overnight.",
+  },
+  {
+    lead: "Care from anywhere in the world",
+    href: "/diaspora",
+    text: "for Ghanaian families abroad, with welfare visits, hospital support and care coordination, and regular updates.",
+  },
+  {
+    lead: "Respite and short stays",
+    href: "/respite",
+    text: "giving parents and carers time to rest, with safe, structured stays for young people and adults with additional needs.",
+  },
+  {
+    lead: "ChaseCare Academy",
+    href: "/academy",
+    text: "competency-based training, CPD and our signature Care Beyond Care course, plus a route into care for young people.",
+  },
+  {
+    lead: "The Wellbeing Hub",
+    href: "/wellbeing",
+    text: "counselling, health and laboratory referrals and support for the people who provide care.",
+  },
+  {
+    lead: "Community and partnerships",
+    href: "/community",
+    text: "the Monthly Community Forum, outreach and inclusion programmes, and work with schools and hospitals.",
+  },
 ];
 
 export const RECRUITMENT_PATHWAY = ["Register", "Screening", "Training / Competency Assessment", "Approval", "Placement", "Ongoing Support"];
@@ -258,26 +290,5 @@ export const PAGE_COPY: Record<string, PageCopy> = {
       { label: "Join Our Team", href: "/join-our-team" },
       { label: "View courses", href: "/academy" },
     ],
-  },
-  "privacy-policy": {
-    title: "Privacy Policy",
-    intro: "How Chase Care Services collects, uses and protects personal information.",
-    sections: [],
-    ctas: [{ label: "Contact us about your data", href: "/contact" }],
-    pendingClientText: true,
-  },
-  "terms-of-service": {
-    title: "Terms of Service",
-    intro: "The terms that apply when you use this website and our services.",
-    sections: [],
-    ctas: [{ label: "Contact us", href: "/contact" }],
-    pendingClientText: true,
-  },
-  "cookie-policy": {
-    title: "Cookie Policy",
-    intro: "How this website uses cookies.",
-    sections: [],
-    ctas: [{ label: "Contact us", href: "/contact" }],
-    pendingClientText: true,
   },
 };

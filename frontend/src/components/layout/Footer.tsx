@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { LanguageSelect } from "@/components/language/LanguageSelect";
 import { Logo } from "@/components/Logo";
 import { getNavigation, getSiteSettings } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
+import { LEGAL_DOCUMENTS } from "@/lib/legal";
 
 type OpeningHours = { days?: string; hours?: string }[];
 type SocialLinks = Record<string, string>;
@@ -15,11 +17,8 @@ const QUICK_LINKS = [
   { label: "The ChaseCare Journal", href: "/journal" },
 ];
 
-const LEGAL_FALLBACK = [
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Service", href: "/terms-of-service" },
-  { label: "Cookie Policy", href: "/cookie-policy" },
-];
+/** Used if the footer menu in the database is empty: the policies in src/lib/legal. */
+const LEGAL_FALLBACK = LEGAL_DOCUMENTS.map((d) => ({ label: d.title, href: `/${d.slug}` }));
 
 export async function Footer() {
   const [settings, footerNav] = await Promise.all([getSiteSettings(), getNavigation("footer")]);
@@ -29,9 +28,9 @@ export async function Footer() {
 
   return (
     <footer className="bg-brand-950 text-brand-100">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1fr] lg:px-8">
         <div className="lg:col-span-1">
-          <Logo inverted />
+          <Logo inverted markClassName="h-10 w-auto flex-none" />
           {settings.supporting_statement && <p className="mt-4 text-sm leading-relaxed text-brand-200">{settings.supporting_statement}</p>}
         </div>
 
@@ -108,6 +107,9 @@ export async function Footer() {
               </ul>
             </>
           )}
+          <div className={hours.length > 0 || Object.keys(social).length > 0 ? "mt-8" : ""}>
+            <LanguageSelect />
+          </div>
         </div>
       </div>
 

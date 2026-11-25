@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ServiceCard } from "@/components/cards";
+import { RelatedInfo } from "@/components/RelatedInfo";
 import { ButtonLink, CheckList, EmptyState, PageHero, Section } from "@/components/ui";
 import { getService, getServices, mediaUrl, type ServiceGroup } from "@/lib/content";
 import { PAGE_BANNERS } from "@/lib/images";
@@ -55,7 +56,9 @@ export async function ServiceDetail({ slug, group }: { slug: string; group: Serv
   return (
     <>
       <PageHero
-        image={service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : PAGE_BANNERS[SERVICE_GROUP_PATH[group].slice(1)]}
+        image={
+          service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : PAGE_BANNERS[SERVICE_GROUP_PATH[group].slice(1)]
+        }
         eyebrow={GROUP_LABEL[group]}
         title={service.name}
         intro={service.summary}
@@ -81,22 +84,25 @@ export async function ServiceDetail({ slug, group }: { slug: string; group: Serv
               </>
             )}
           </div>
-          <aside className="h-fit rounded-3xl bg-brand-50 p-6">
-            {service.audience && (
-              <>
-                <h2 className="font-semibold text-brand-900">Who it&apos;s for</h2>
-                <p className="mt-2 text-muted">{service.audience}</p>
-              </>
-            )}
-            <h2 className="mt-6 font-semibold text-brand-900 first:mt-0">Arranging care from abroad?</h2>
-            <p className="mt-2 text-muted">We support families in the diaspora with regular updates and care coordination.</p>
-            <div className="mt-5 flex flex-col gap-3">
-              <ButtonLink href={enquiryHref}>{service.cta_label || "Request this service"}</ButtonLink>
-              <ButtonLink href="/diaspora" variant="outline">
-                Diaspora services
-              </ButtonLink>
-            </div>
-          </aside>
+          <div className="h-fit space-y-6 lg:sticky lg:top-32">
+            <aside className="rounded-3xl bg-brand-50 p-6">
+              {service.audience && (
+                <>
+                  <h2 className="font-semibold text-brand-900">Who it&apos;s for</h2>
+                  <p className="mt-2 text-muted">{service.audience}</p>
+                </>
+              )}
+              <h2 className="mt-6 font-semibold text-brand-900 first:mt-0">Arranging care from abroad?</h2>
+              <p className="mt-2 text-muted">We support families in the diaspora with regular updates and care coordination.</p>
+              <div className="mt-5 flex flex-col gap-3">
+                <ButtonLink href={enquiryHref}>{service.cta_label || "Request this service"}</ButtonLink>
+                <ButtonLink href="/diaspora" variant="outline">
+                  Diaspora services
+                </ButtonLink>
+              </div>
+            </aside>
+            <RelatedInfo pathname={`${SERVICE_GROUP_PATH[group]}/${service.slug}`} />
+          </div>
         </div>
       </Section>
       {related.length > 0 && (

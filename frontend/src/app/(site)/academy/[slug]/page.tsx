@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CmsPageView, cmsPageMetadata } from "@/components/CmsPageView";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
+import { RelatedInfo } from "@/components/RelatedInfo";
 import { Badge, ButtonLink, CheckList, PageHero, Section } from "@/components/ui";
 import { getCourse } from "@/lib/content";
 import { certificationLabel, formatMoney } from "@/lib/format";
@@ -35,10 +36,12 @@ export default async function CoursePage({ params }: Props) {
   return (
     <>
       <PageHero
-        eyebrow={course.is_signature ? "Signature course" : course.category ?? "ChaseCare Academy"}
+        eyebrow={course.is_signature ? "Signature course" : (course.category ?? "ChaseCare Academy")}
         title={course.title}
         intro={course.summary}
-        actions={<ButtonLink href={`/contact?topic=course_registration&course=${course.slug}`}>Register for this course</ButtonLink>}
+        actions={
+          <ButtonLink href={`/contact?topic=course_registration&course=${course.slug}`}>Register for this course</ButtonLink>
+        }
       />
       <Section>
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
@@ -51,23 +54,26 @@ export default async function CoursePage({ params }: Props) {
               </>
             )}
           </div>
-          <aside className="h-fit rounded-3xl bg-brand-50 p-6">
-            <div className="mb-4 flex flex-wrap gap-2">
-              {course.is_signature && <Badge tone="accent">Signature course</Badge>}
-              <Badge>{certificationLabel(course.certification_type)}</Badge>
-            </div>
-            <dl className="space-y-3">
-              {facts.map((f) => (
-                <div key={f.label} className="flex justify-between gap-4 border-b border-brand-100 pb-2 text-sm">
-                  <dt className="text-muted">{f.label}</dt>
-                  <dd className="text-right font-medium text-brand-900">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <ButtonLink href={`/contact?topic=course_registration&course=${course.slug}`} className="mt-6 w-full">
-              Register for this course
-            </ButtonLink>
-          </aside>
+          <div className="h-fit space-y-6 lg:sticky lg:top-32">
+            <aside className="rounded-3xl bg-brand-50 p-6">
+              <div className="mb-4 flex flex-wrap gap-2">
+                {course.is_signature && <Badge tone="accent">Signature course</Badge>}
+                <Badge>{certificationLabel(course.certification_type)}</Badge>
+              </div>
+              <dl className="space-y-3">
+                {facts.map((f) => (
+                  <div key={f.label} className="flex justify-between gap-4 border-b border-brand-100 pb-2 text-sm">
+                    <dt className="text-muted">{f.label}</dt>
+                    <dd className="text-right font-medium text-brand-900">{f.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <ButtonLink href={`/contact?topic=course_registration&course=${course.slug}`} className="mt-6 w-full">
+                Register for this course
+              </ButtonLink>
+            </aside>
+            <RelatedInfo pathname={`/academy/${course.slug}`} />
+          </div>
         </div>
       </Section>
     </>
