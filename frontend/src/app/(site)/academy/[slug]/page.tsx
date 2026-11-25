@@ -3,7 +3,7 @@ import { CmsPageView, cmsPageMetadata } from "@/components/CmsPageView";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
 import { RelatedInfo } from "@/components/RelatedInfo";
 import { Badge, ButtonLink, CheckList, PageHero, Section } from "@/components/ui";
-import { getCourse } from "@/lib/content";
+import { getCourse, courseImage } from "@/lib/content";
 import { certificationLabel, formatMoney } from "@/lib/format";
 
 export const revalidate = 300;
@@ -36,6 +36,7 @@ export default async function CoursePage({ params }: Props) {
   return (
     <>
       <PageHero
+        image={courseImage(course) ?? undefined}
         eyebrow={course.is_signature ? "Signature course" : (course.category ?? "ChaseCare Academy")}
         title={course.title}
         intro={course.summary}

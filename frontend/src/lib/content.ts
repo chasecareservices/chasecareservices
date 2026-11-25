@@ -1,3 +1,4 @@
+import { COURSE_IMAGES as COURSE_IMAGES_FALLBACK } from "@/lib/images";
 import "server-only";
 import { cache } from "react";
 import type { Database } from "@/lib/database.types";
@@ -251,4 +252,11 @@ export async function bannerFor(key: string): Promise<import("@/lib/images").Sit
   const chosen = (settings.page_banners && typeof settings.page_banners === "object" ? settings.page_banners : {}) as Record<string, unknown>;
   const path = typeof chosen[key] === "string" ? (chosen[key] as string) : null;
   return path ? { src: mediaUrl(path), alt: "" } : PAGE_BANNERS[key] ?? { src: null, alt: "" };
+}
+
+/** The photo for a course: the one uploaded in the dashboard, else a built-in one, else none. */
+export function courseImage(course: { slug: string; image_path: string | null; title?: string }): import("@/lib/images").SiteImage | null {
+  const uploaded = mediaUrl(course.image_path);
+  if (uploaded) return { src: uploaded, alt: "" };
+  return COURSE_IMAGES_FALLBACK[course.slug] ?? null;
 }

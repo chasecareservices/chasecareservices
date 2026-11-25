@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  courseImage,
   mediaUrl,
   type Course,
   type Post,
@@ -56,11 +57,25 @@ export function ServiceCard({
 }
 
 export function CourseCard({ course }: { course: Course }) {
+  const photo = courseImage(course);
   return (
     <Link
       href={`/academy/${course.slug}`}
-      className="group flex h-full flex-col rounded-2xl border border-brand-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md"
     >
+      {photo?.src && (
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <Image
+            src={photo.src}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition duration-500 group-hover:scale-105"
+            style={photo.focus ? { objectPosition: photo.focus } : undefined}
+          />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-6">
       <div className="mb-3 flex flex-wrap gap-2">
         {course.is_signature && <Badge tone="accent">Signature course</Badge>}
         <Badge>{certificationLabel(course.certification_type)}</Badge>
@@ -85,6 +100,7 @@ export function CourseCard({ course }: { course: Course }) {
           </div>
         )}
       </dl>
+      </div>
     </Link>
   );
 }

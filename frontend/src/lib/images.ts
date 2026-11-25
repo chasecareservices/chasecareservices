@@ -128,3 +128,15 @@ export const SECTION_IMAGES = {
   wellbeing: { src: null, alt: "Care workers at a wellbeing session" },
   community: { src: null, alt: "People at the ChaseCare Community Forum" },
 } satisfies Record<string, SiteImage>;
+
+/**
+ * Built-in course photos, by course slug. A photo uploaded for the course in the
+ * dashboard (Courses → Photo) takes priority over these.
+ */
+export const COURSE_IMAGES: Record<string, SiteImage> = {
+  "dementia-care": {
+    src: "/images/courses/dementia-care.jpg",
+    alt: "A smiling caregiver holding hands with two older women in a bright living room",
+    focus: "60% 15%",
+  },
+};
