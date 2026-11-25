@@ -28,7 +28,10 @@ function PersonCard({ person }: { person: TeamMember }) {
       {photo ? (
         <Image src={photo} alt={person.full_name} width={160} height={160} className="h-24 w-24 rounded-full object-cover" />
       ) : (
-        <div aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-100 text-2xl font-bold text-brand-700">
+        <div
+          aria-hidden="true"
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-100 text-2xl font-bold text-brand-700"
+        >
           {initials(person.full_name)}
         </div>
       )}
@@ -108,13 +111,16 @@ export default async function AboutPage() {
         </Section>
       )}
 
-      {partners.length > 0 && (
-        <Section id="partners" eyebrow="Working together" title="Our Partners">
+      <Section id="partners" eyebrow="Working together" title="Our Partners">
+        {partners.length > 0 ? (
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {partners.map((p) => {
               const logo = mediaUrl(p.logo_path);
               return (
-                <li key={p.id} className="flex flex-col items-center justify-center rounded-2xl border border-brand-100 p-6 text-center">
+                <li
+                  key={p.id}
+                  className="flex flex-col items-center justify-center rounded-2xl border border-brand-100 p-6 text-center"
+                >
                   {logo ? (
                     <Image src={logo} alt={p.name} width={160} height={80} className="h-16 w-auto object-contain" />
                   ) : (
@@ -124,8 +130,12 @@ export default async function AboutPage() {
               );
             })}
           </ul>
-        </Section>
-      )}
+        ) : (
+          <EmptyState title="Partner information coming soon">
+            We work with healthcare providers, laboratories, insurers, schools, hospitals and community organisations.
+          </EmptyState>
+        )}
+      </Section>
     </>
   );
 }

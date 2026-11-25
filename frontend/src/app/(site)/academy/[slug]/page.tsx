@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { CmsPageView, cmsPageMetadata } from "@/components/CmsPageView";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
 import { Badge, ButtonLink, CheckList, PageHero, Section } from "@/components/ui";
 import { getCourse } from "@/lib/content";
@@ -12,14 +12,17 @@ type Props = { params: Promise<{ slug: string }> };
 const DELIVERY: Record<string, string> = { in_person: "In person", online: "Online", blended: "Blended" };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const course = await getCourse((await params).slug);
-  if (!course) return {};
+  const { slug } = await params;
+  const course = await getCourse(slug);
+  // Not a course: it may be an Academy page such as /academy/workforce-standards.
+  if (!course) return cmsPageMetadata(`academy/${slug}`);
   return { title: course.seo_title ?? course.title, description: course.seo_description ?? course.summary ?? undefined };
 }
 
 export default async function CoursePage({ params }: Props) {
-  const course = await getCourse((await params).slug);
-  if (!course) notFound();
+  const { slug } = await params;
+  const course = await getCourse(slug);
+  if (!course) return <CmsPageView slug={`academy/${slug}`} />;
 
   const facts = [
     { label: "Certificate", value: certificationLabel(course.certification_type) },
