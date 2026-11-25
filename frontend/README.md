@@ -18,6 +18,7 @@ Brand colours come from the CHASE logo: deep purple `#3B0A5E`, orange `#F89A00`,
 | Shop (catalogue) | `/shop` | `products` |
 | Contact | `/contact` | Settings + contact form |
 | Request Care ("I Need Care") | `/register/client` | Care request form |
+| Search | `/search?q=…` | `search_site()` in the database (published content only) + built-in pages |
 | Wellbeing, Join Our Team, Community, Monthly Forum, Schools & Hospitals, Parent Learning, Workforce Standards, legal pages | `/<slug>` | Published `pages` row with that slug, otherwise built-in copy from the proposal (`src/lib/site-copy.ts`) |
 
 Rules the site follows:

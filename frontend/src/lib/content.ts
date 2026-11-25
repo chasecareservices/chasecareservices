@@ -205,3 +205,12 @@ export function mediaUrl(path: string | null | undefined): string | null {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return base ? `${base}/storage/v1/object/public/public-media/${path}` : null;
 }
+
+/** Database search (published content only — the database enforces it). */
+export async function searchContent(query: string): Promise<import("@/lib/search").SearchResult[]> {
+  const db = getServerClient();
+  if (!db || !query.trim()) return [];
+  const { data, error } = await db.rpc("search_site", { query, max_results: 40 });
+  logError(`search "${query}"`, error);
+  return (data ?? []).map((r) => ({ ...r, kind: r.kind as import("@/lib/search").SearchKind }));
+}

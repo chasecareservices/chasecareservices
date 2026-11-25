@@ -77,6 +77,7 @@ Locally the two-factor rule for staff is switched off by the seed so you can sig
 | Academy (catalogue) | `courses` |
 | Shop (catalogue) | `product_categories`, `products` |
 | Forms inbox | `enquiries`, `enquiry_notes`; `submit_enquiry()` for all public forms |
+| Search | `search_site(query)`: ranked search over published services, courses, articles, pages and products |
 | Files | Storage buckets `public-media`, `private-documents` |
 
 Initial content from the client proposal (services, blog categories, course list, products, pages, menus) is loaded by migration `…0600_initial_content.sql`. Courses, products and pages start as **drafts** until the owner fills in details.

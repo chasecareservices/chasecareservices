@@ -1111,6 +1111,16 @@ export type Database = {
       has_permission: { Args: { perm: string }; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
+      search_site: {
+        Args: { max_results?: number; query: string };
+        Returns: {
+          kind: string;
+          rank: number;
+          summary: string;
+          title: string;
+          url: string;
+        }[];
+      };
       submit_enquiry: {
         Args: {
           consent_given: boolean;
