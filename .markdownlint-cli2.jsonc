@@ -1,0 +1,11 @@
+{
+  // Markdown style checks for project documentation.
+  "config": {
+    "default": true,
+    "MD013": false,  // line length: long table rows and prose are fine
+    "MD033": false,  // inline HTML allowed
+    "MD024": { "siblings_only": true }
+  },
+  // The client's original proposal is kept as delivered, not linted.
+  "ignores": ["doc/client-specification/**", "**/node_modules/**"]
+}

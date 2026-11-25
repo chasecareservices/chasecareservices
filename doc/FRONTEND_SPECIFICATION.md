@@ -26,6 +26,7 @@ Design-system deliverables: colour tokens, type scale, spacing, buttons (primary
 ## 2. Global Layout
 
 ### 2.1 Header / Main Navigation [§6]
+
 Home | About Us | Care Services | Training Academy | Respite & Accommodation | Wellbeing Hub | Join Our Team | Client Registration | Resources | Shop | Contact
 
 - Dropdown/mega-menus following the sitemap (§4 below).
@@ -33,6 +34,7 @@ Home | About Us | Care Services | Training Academy | Respite & Accommodation | W
 - Mobile: collapsible hamburger menu.
 
 ### 2.2 Prominent Calls to Action [§6, §39]
+
 | Audience | CTA button |
 |---|---|
 | Families in Ghana | Request Care / Find a Care Service |
@@ -47,9 +49,11 @@ Home | About Us | Care Services | Training Academy | Respite & Accommodation | W
 | Community members | Register for the Monthly Forum |
 
 ### 2.3 Footer
+
 Contact details, social media links, quick links, Privacy Policy, Terms of Service, Cookie Policy, cookie-consent banner [§31].
 
 ### 2.4 Floating / persistent actions [§28]
+
 Call Us · WhatsApp Us (click-to-chat) — especially on mobile.
 
 ---
@@ -57,6 +61,7 @@ Call Us · WhatsApp Us (click-to-chat) — especially on mobile.
 ## 3. Public Pages
 
 ### 3.1 Homepage [§7]
+
 1. **Hero** — tagline, sub-heading, buttons: *Find a Care Service*, *Join Our Team*, *Explore Our Training*; diaspora line.
 2. **Who We Are** — short intro + Read More.
 3. **What We Do** — visual cards: Elderly Care, Disability & Autism Support, Home Care, Respite Care, Nanny Services, Housekeeping, Therapy & Professional Services, Community Support.
@@ -69,26 +74,32 @@ Call Us · WhatsApp Us (click-to-chat) — especially on mobile.
 10. **Final CTA band**.
 
 ### 3.2 About Us [§1–4, §25, §27]
+
 - Who We Are · Vision & Mission · Our Values (8 values: Compassion, Dignity, Person-Centred Care, Excellence, Integrity, Inclusion, Safeguarding, Empowerment) · Board of Directors · Our Team · Partners.
 - **Leadership page**: profile cards (photo, name, position, background, experience, short bio) with detail view/modal.
 - **Partners page**: grouped by type (healthcare, laboratories, insurance, schools, hospitals, community orgs, therapists, training/accreditation, corporate). Logos shown only where permitted.
 
 ### 3.3 Care Services [§8] — one listing page + a page per service
+
 Elderly Care · Disability Support · Autism Support · Home Care · Community Support · Weekend Care · Nanny Services · Housekeeping · Therapy & Professionals · School Support · Hospital Support.
 Each page: description, list of what's included (bullets from §8), who it's for, CTA "Request this service" (pre-fills the registration form).
 
 ### 3.4 Diaspora Services [§10]
+
 Care for Loved Ones in Ghana · Elderly Care · Disability Support · Welfare Visits · Care Coordination.
 Content: "Care From Anywhere in the World", service list, how it works, CTA *I Live Abroad — Arrange Care in Ghana*.
 
 ### 3.5 Respite & Accommodation [§9]
+
 Family Respite · Young People Respite · Respite Residence · Short Stay / Airbnb ("Stay With Us").
 Residence page: accommodation info, photo gallery, facilities, location map, availability display, accessibility info, respite packages, booking-enquiry form, house rules.
 
 ### 3.6 Schools & Hospitals [§21]
+
 Working With Schools / Working With Hospitals pages; CTA *Partner With ChaseCare* (partnership enquiry form).
 
 ### 3.7 ChaseCare Academy [§14–16]
+
 - Academy landing + course catalogue (cards, filters by category/certification type).
 - Courses: Dementia Care, Health & Social Care, First Aid, Health & Safety, Care Beyond Care, Autism Awareness, Disability Support, Safeguarding, Person-Centred Care, Communication in Care, Professional Boundaries, other CPD.
 - Course detail page: outline, duration, fee, dates, **certification badge** — clearly distinguish *Chase internal certificate* / *CPD* / *Externally accredited* (only show "internationally accredited" if actually obtained).
@@ -98,37 +109,46 @@ Working With Schools / Working With Hospitals pages; CTA *Partner With ChaseCare
 - "Register for a Course" form.
 
 ### 3.8 Parent & Family Learning Centre [§17]
+
 Topic/course list (autism, communication, behaviour, inclusive education, independence, routines, emotional regulation, advocacy, working with schools, individual needs) + registration form.
 
 ### 3.9 Wellbeing Hub [§18]
+
 Counselling · Health Services · Laboratory Services · Insurance · Wellbeing Resources · Webinars. Public info pages; request forms shown to logged-in workers.
 
 ### 3.10 Join Our Team [§12]
+
 - Landing "Build Your Career in Care" + recruitment pathway graphic: Register → Screening → Training/Competency → Approval → Placement → Ongoing Support.
 - Role pages: Caregivers, Nurses, Therapists, Healthcare Professionals, Nannies, Housekeepers.
 - Application / professional-registration form (see §5).
 
 ### 3.11 Community [§22, §23]
+
 Outreach · Volunteering · Monthly Forum · Partnerships.
 **Monthly Forum page**: next date (auto-computed third Thursday), topic, registration form, past topics; future: "Join online" button (video-conference link).
 
 ### 3.12 The ChaseCare Journal (Blog / Resources) [§24]
+
 Article listing with category filter (Elderly Care, Autism, Disability, Parenting, Caregiver Support, Dementia, Health & Wellbeing, Community, Training, Diaspora Care, Young People, SEN), search, article page, related posts, share buttons.
 
 ### 3.13 Shop [§26]
+
 - Phase 1: catalogue display (Care ID cards, lanyards, T-shirts, branded clothing, training materials, merchandise).
 - Phase 3: product page → cart → checkout → payment → order confirmation.
 
 ### 3.14 Contact Us [§28]
+
 Phone, WhatsApp, email, address + map, opening hours, social links, contact form, service info; buttons *Call Us*, *WhatsApp Us*, *Request Care*, *Join Our Team*.
 
 ### 3.15 Legal pages [§31]
+
 Privacy Policy · Terms of Service · Cookie Policy.
 
 ---
 
 ## 4. Sitemap / Routing [§33]
-```
+
+```text
 /                         Home
 /about                    (who-we-are, vision-mission, values, board, team, partners)
 /care-services/:service   (11 services)
@@ -152,6 +172,7 @@ Privacy Policy · Terms of Service · Cookie Policy.
 ---
 
 ## 5. Forms (UI layer) [§11, §12, §9, §14, §17, §21, §23, §28]
+
 All forms: multi-step where long, inline validation, required-field markers, consent checkboxes, accessible labels, success/thank-you screen, mobile-friendly.
 
 | Form | Key fields | Success message |
@@ -169,17 +190,21 @@ All forms: multi-step where long, inline validation, required-field markers, con
 ---
 
 ## 6. Secure Portals (UI) [§19, §20, §30]
+
 Shared: login, password reset, 2FA prompt, dashboard layout, sidebar navigation, notifications bell, profile/account settings, role-based menus.
 
 ### 6.1 Worker Portal — "My ChaseCare"
+
 Dashboard · My Assignments (list/calendar) · Authorised client info view · **Submit Care Report** form · Upload documents · Training (course progress) · Certificates (view/download) · Availability calendar · Wellbeing resources & support requests · Policies library · Announcements.
 
 **Care Report form [§20]**: client, date, start/end time, care provided, activities, observations, incidents, medication-related observations, concerns, follow-up required (toggle), additional notes. Draft/save + submit; read-only after submission.
 
 ### 6.2 Client Portal
+
 View services · Submit requests · Book services · Appointments · Messages with ChaseCare · View relevant reports · Manage account.
 
 ### 6.3 Administrator Portal
+>
 > Full detail: see **`ADMIN_DASHBOARD_SPECIFICATION.md`** — the owner's dashboard for managing everything on the site. Content-management screens are delivered in **Phase 1**.
 
 Dashboards and data tables (search, filter, sort, export) for: clients, workers (with application pipeline stages), worker–client matching screen, services, care-report review queue, training & courses, bookings, payments, documents, partners, blog/content, shop products & orders, forum events, announcements.
@@ -187,6 +212,7 @@ Dashboards and data tables (search, filter, sort, export) for: clients, workers 
 ---
 
 ## 7. Cross-cutting Frontend Requirements
+
 - **Responsive**: mobile, tablet, desktop — tested before launch [§37]. Mobile-first (most Ghanaian users on mobile).
 - **Performance**: optimised images, lazy loading, fast on slower mobile networks.
 - **Accessibility**: WCAG 2.1 AA (fits Inclusion/Disability values) — keyboard nav, contrast, alt text, screen-reader labels.
@@ -199,6 +225,7 @@ Dashboards and data tables (search, filter, sort, export) for: clients, workers 
 ---
 
 ## 8. Frontend Delivery by Phase [§32]
+
 | Phase | Frontend work |
 |---|---|
 | 1 – Brand & Foundation | Design system, layout, Home, About, Vision/Mission, Board, Contact, Care Services, Diaspora, Join Our Team (info), Academy (info), Blog, **Admin dashboard: content management, users & settings** |

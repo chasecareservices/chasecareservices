@@ -7,6 +7,7 @@
 | `doc/` | Project documentation |
 
 ## Documentation
+
 - `doc/client-specification/` — original client proposal (`.docx`) and a Markdown copy
 - `doc/FRONTEND_SPECIFICATION.md` — frontend scope split from the proposal
 - `doc/ADMIN_DASHBOARD_SPECIFICATION.md` — owner's admin dashboard for managing everything on the site

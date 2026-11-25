@@ -8,6 +8,7 @@
 ---
 
 ## 1. Architecture Principles [§31, §37, §38]
+
 - Build as a **scalable care-management platform**, not a brochure site: Phase 1 is public content, but the data model and auth must already support Phases 2–7.
 - REST (or GraphQL) API consumed by the frontend; versioned (`/api/v1`).
 - Separation of public endpoints (content, forms) from authenticated portal endpoints.
@@ -17,6 +18,7 @@
 ---
 
 ## 2. User Roles & Access Control (RBAC) [§19, §20, §30, §31]
+
 | Role | Access |
 |---|---|
 | Public visitor | Public content, submit forms |
@@ -33,6 +35,7 @@ Permissions enforced server-side on every request; record-level checks (e.g. wor
 ---
 
 ## 3. Core Data Model (entities)
+
 - **User** (email, phone, password hash, role(s), 2FA settings, status, last login)
 - **ClientProfile** (contact, location, country of residence, diaspora flag) → **CareRecipient** (relationship: self/parent/child/spouse/relative/other, needs, location in Ghana)
 - **CareRequest** (support types[], frequency, requirements, status: new → reviewed → consultation → arranged / declined)
@@ -65,19 +68,24 @@ Permissions enforced server-side on every request; record-level checks (e.g. wor
 ## 4. Functional Modules & API
 
 ### 4.1 Content / CMS [§7–10, §21–27, §37]
+
 Admin-managed content for all public pages, services, leadership, partners, testimonials (with consent flag), blog, FAQs, media library. Public read endpoints with caching. Admin must be able to manage content without a developer [§37].
 
 ### 4.2 Forms & Enquiries (Phase 2) [§11, §12, §9, §14, §17, §21, §23, §28]
+
 Endpoints for: client registration ("I Need Care"), worker/professional registration (with document upload), course registration, parent-training registration, student programme registration, respite enquiry, service request, partnership enquiry, forum registration, contact.
 Each: server-side validation, spam protection (CAPTCHA/rate limit), stored in DB, **staff notification email** + **acknowledgement email** to submitter, appears in Admin queue.
 
 ### 4.3 Recruitment & Workforce Pipeline [§12, §13, §29]
+
 Workflow: Register → Screening → Training / Competency Assessment → Approval → Placement → Ongoing Support.
+
 - Stage tracking, notes, checklist per stage (interview, safeguarding check, references, competency assessment).
 - Rule: **no placement without completed preparation** — a worker cannot be assigned until required checks/training are marked complete.
 - Professional verification flow for healthcare professionals.
 
 ### 4.4 Client Care Management (Phase 5) [§19, §20, §30]
+
 - Care request intake → consultation → care arrangement.
 - **Matching**: admin matches workers to clients (filter by competence, location, availability).
 - Assignments/shifts, care plans, staff availability, client records.
@@ -85,34 +93,42 @@ Workflow: Register → Screening → Training / Competency Assessment → Approv
 - Incident reporting with escalation notification.
 
 ### 4.5 Bookings (Phase 3) [§9, §30]
+
 Service booking, respite booking, accommodation/short-stay availability calendar & booking, training session booking. Conflict checks, confirmations, cancellations. Optional Airbnb calendar sync (iCal) if property is on Airbnb.
 
 ### 4.6 Payments & Shop (Phase 3) [§26, §32]
+
 - Payment gateway supporting Ghana (Mobile Money + cards) **and** international cards for diaspora — e.g. Paystack / Flutterwave / Hubtel (to be confirmed).
 - Course fees, booking payments, shop orders.
 - Shop: product catalogue, stock, cart, checkout, order, payment, confirmation email, order management.
 - Webhooks for payment confirmation; receipts/invoices.
 
 ### 4.7 Academy / Learning (Phases 1, 7) [§14–17]
+
 Courses, sessions, enrollment, online lessons, progress & CPD hours tracking, assessments, **certificate generation (PDF) with verification code**. Certification type stored explicitly — never labelled "internationally accredited" unless an accreditation record exists.
 
 ### 4.8 Wellbeing Hub (Phase 6) [§18]
+
 Counselling requests, health-service referrals, partner laboratory referrals, insurance benefit info, wellbeing resources, webinars. Requests are confidential — visible only to worker + designated wellbeing staff.
 
 ### 4.9 Community & Events (Phase 7) [§22, §23]
+
 Event management; Monthly Forum auto-scheduled for the **third Thursday of each month**; registrations; reminders; video-conference integration (Zoom / Google Meet / Teams — to confirm) generating join links.
 
 ### 4.10 Administrator Functions [§30]
+>
 > Full detail: see **`ADMIN_DASHBOARD_SPECIFICATION.md`** (sections, roles, permissions, rollout by phase).
 
 Manage clients, workers, matching, services, reports review, training & courses, bookings, payments, documents, partners, content, shop, events, announcements, users & roles. Reporting/exports (CSV).
 
 ### 4.11 Notifications [§32 Phase 5, §37]
+
 Email (transactional provider), SMS and/or WhatsApp (to confirm), in-app notifications. Triggers: form submissions, application stage changes, assignment created/changed, report submitted/reviewed, booking & payment confirmations, forum reminders, announcements.
 
 ---
 
 ## 5. Security, Privacy & Data Protection [§20, §31]
+
 | Requirement | Implementation note |
 |---|---|
 | Secure login | Hashed passwords (bcrypt/argon2), lockout, rate limiting |
@@ -134,6 +150,7 @@ Also: input validation, CSRF/XSS/SQL-injection protection, secrets management, d
 ---
 
 ## 6. Integrations (to confirm with client)
+
 - Payment gateway (MoMo + cards, multi-currency)
 - Email provider (transactional)
 - SMS / WhatsApp Business API
@@ -146,6 +163,7 @@ Also: input validation, CSRF/XSS/SQL-injection protection, secrets management, d
 ---
 
 ## 7. Backend Delivery by Phase [§32]
+
 | Phase | Backend work |
 |---|---|
 | 1 – Foundation | Project setup, DB, CMS/content APIs, contact form, blog, hosting/SSL/backups, **admin authentication (2FA), roles & permissions, audit log, site settings** |
@@ -159,6 +177,7 @@ Also: input validation, CSRF/XSS/SQL-injection protection, secrets management, d
 ---
 
 ## 8. Open Questions for the Client
+
 1. Logo, colours, typography ready?
 2. Preferred hosting / existing domain (chasecareservices.org) access?
 3. Payment gateway preference (Paystack, Flutterwave, Hubtel, other)? Currencies to accept?
