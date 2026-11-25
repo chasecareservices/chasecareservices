@@ -146,7 +146,22 @@ export const COURSE_IMAGES: Record<string, SiteImage> = {
  * banner, `card` is the preview on service cards. A photo uploaded for the service in
  * the dashboard (Services → Photo) takes priority over these.
  */
+/** Photos shared by the Disability Support and Autism Support pages. */
+const SUPPORT_PHOTOS = {
+  wheelchair: { src: "/images/services/disability-support-3.jpg", alt: "A smiling support worker beside a young girl in a wheelchair, joining in a class activity" },
+  sensory: { src: "/images/services/disability-support-1.jpg", alt: "A support worker sharing a sensory activity with a young girl in a classroom" },
+  highFive: { src: "/images/services/disability-support-2.jpg", alt: "A support worker and a delighted young girl giving each other a high five" },
+};
+
 export const SERVICE_PHOTOS: Record<string, { card: SiteImage; gallery: SiteImage[] }> = {
+  "autism-support": {
+    card: { ...SUPPORT_PHOTOS.highFive, focus: "50% 30%" },
+    gallery: [
+      { ...SUPPORT_PHOTOS.sensory, focus: "55% 30%" },
+      { ...SUPPORT_PHOTOS.highFive, focus: "50% 35%" },
+      { ...SUPPORT_PHOTOS.wheelchair, focus: "60% 35%" },
+    ],
+  },
   "disability-support": {
     card: {
       src: "/images/services/disability-support-3.jpg",
