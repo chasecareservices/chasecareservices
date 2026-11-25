@@ -14,6 +14,8 @@ export const revalidate = 300;
 
 type CmsSlide = {
   image_path?: string;
+  /** Media-library path of an MP4/WebM, or a built-in file such as "/videos/chase-hero.mp4". */
+  video_path?: string;
   image_alt?: string;
   eyebrow?: string;
   heading?: string;
@@ -21,6 +23,18 @@ type CmsSlide = {
   buttons?: { label: string; href: string }[];
 };
 type CmsHero = CmsSlide & { note?: string; slides?: CmsSlide[] };
+
+/** A slide video from the media library (or a built-in file). Saved but empty means "no video". */
+function videoFor(path: string, posterPath?: string): HeroSlide["video"] {
+  const src = mediaUrl(path);
+  if (!src) return null;
+  const builtIn = path === "/videos/chase-hero.mp4";
+  return {
+    src,
+    webm: builtIn ? "/videos/chase-hero.webm" : null,
+    poster: mediaUrl(posterPath) ?? (builtIn ? "/videos/chase-hero-poster.jpg" : null),
+  };
+}
 
 /**
  * Slides come from the Home page's hero block once the owner publishes it in the
@@ -30,6 +44,7 @@ function resolveSlides(hero: CmsHero | undefined): HeroSlide[] {
   if (!hero) return HERO_SLIDES;
   const toSlide = (cms: CmsSlide, fallback: HeroSlide): HeroSlide => ({
     image: cms.image_path ? { src: mediaUrl(cms.image_path), alt: cms.image_alt ?? "" } : fallback.image,
+    video: cms.video_path === undefined ? fallback.video : videoFor(cms.video_path, cms.image_path),
     eyebrow: cms.eyebrow ?? fallback.eyebrow,
     heading: cms.heading || fallback.heading,
     text: cms.text || fallback.text,

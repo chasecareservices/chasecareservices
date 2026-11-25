@@ -16,8 +16,20 @@ export type SiteImage = {
   focus?: string;
 };
 
+/** A short, silent, looping background video. Files live in `public/videos/` or the media library. */
+export type SiteVideo = {
+  /** MP4 (H.264) — plays everywhere. */
+  src: string;
+  /** Optional smaller WebM version, tried first by browsers that support it. */
+  webm?: string | null;
+  /** Still image shown while loading, and instead of the video when motion is turned off. */
+  poster?: string | null;
+};
+
 export type HeroSlide = {
   image: SiteImage;
+  /** When set, the video plays behind the text instead of the photo. */
+  video?: SiteVideo | null;
   eyebrow?: string;
   heading: string;
   text: string;
@@ -26,6 +38,17 @@ export type HeroSlide = {
 
 /** Homepage slider. The owner can replace these from the admin dashboard (Home page → hero). */
 export const HERO_SLIDES: HeroSlide[] = [
+  {
+    image: { src: "/videos/chase-hero-poster.jpg", alt: "A smiling nurse caring for an older woman, with the CHASE logo", focus: "80% 50%" },
+    video: { src: "/videos/chase-hero.mp4", webm: "/videos/chase-hero.webm", poster: "/videos/chase-hero-poster.jpg" },
+    eyebrow: "Training compassion. Delivering excellence.",
+    heading: "Better Care. Better Lives.",
+    text: "Trained, compassionate and trusted caregivers for families in Ghana and across the diaspora — in the comfort of home.",
+    buttons: [
+      { label: "Request Care", href: "/register/client" },
+      { label: "Get on our caregiver register", href: "/join-our-team" },
+    ],
+  },
   {
     image: { src: null, alt: "A caregiver supporting an elderly woman at home" },
     eyebrow: "Chase Care Services · Ghana",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { saveBanners, saveSlider } from "./actions";
 import { BANNER_PAGES, SLIDE_COUNT } from "./config";
 import { ActionForm } from "@/components/admin/ActionForm";
+import { VideoUploadField } from "@/components/admin/VideoUploadField";
 import { Card, Notice, PageHeader, adminInput } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
 import { mediaUrl } from "@/lib/content";
@@ -10,7 +11,7 @@ import { HERO_SLIDES } from "@/lib/images";
 
 export const metadata = { title: "Homepage & banners" };
 
-type Slide = { image_path?: string; image_alt?: string; eyebrow?: string; heading?: string; text?: string; buttons?: { label: string; href: string }[] };
+type Slide = { image_path?: string; video_path?: string; image_alt?: string; eyebrow?: string; heading?: string; text?: string; buttons?: { label: string; href: string }[] };
 
 function Preview({ path }: { path?: string | null }) {
   const src = mediaUrl(path);
@@ -32,7 +33,19 @@ export default async function HomepagePage({ searchParams }: { searchParams: Pro
   const saved_slides = home?.status === "published" ? hero?.data?.slides ?? [] : [];
   // Until the owner saves their own slides, start from the built-in ones.
   const slides: Slide[] = Array.from({ length: SLIDE_COUNT }, (_, i) =>
-    saved_slides.length ? saved_slides[i] ?? {} : { image_alt: HERO_SLIDES[i]?.image.alt ?? undefined, eyebrow: HERO_SLIDES[i]?.eyebrow, heading: HERO_SLIDES[i]?.heading, text: HERO_SLIDES[i]?.text, buttons: HERO_SLIDES[i]?.buttons },
+    saved_slides.length
+      ? saved_slides[i] ?? {}
+      : HERO_SLIDES[i]
+        ? {
+            image_path: HERO_SLIDES[i].image.src ?? undefined,
+            video_path: HERO_SLIDES[i].video?.src,
+            image_alt: HERO_SLIDES[i].image.alt ?? undefined,
+            eyebrow: HERO_SLIDES[i].eyebrow,
+            heading: HERO_SLIDES[i].heading,
+            text: HERO_SLIDES[i].text,
+            buttons: HERO_SLIDES[i].buttons,
+          }
+        : {},
   );
   const banners = (settings?.page_banners ?? {}) as Record<string, string>;
 
@@ -40,7 +53,7 @@ export default async function HomepagePage({ searchParams }: { searchParams: Pro
     <>
       {saved === "slider" && <Notice>Slider saved. The homepage has been updated.</Notice>}
       {saved === "banners" && <Notice>Banners saved. The pages have been updated.</Notice>}
-      <PageHeader title="Homepage & banners" intro="The photo slider at the top of the homepage, and background photos for each page's banner." />
+      <PageHeader title="Homepage & banners" intro="The slider at the top of the homepage (photos and videos, up to 6 slides), and background photos for each page's banner." />
 
       <ActionForm action={saveSlider} submitLabel="Save slider">
         <div className="space-y-6">
@@ -57,6 +70,11 @@ export default async function HomepagePage({ searchParams }: { searchParams: Pro
                     </label>
                   )}
                   <p className="text-xs text-muted">Landscape, at least 1920 × 1080 px. Keep faces away from the left edge.</p>
+                  <VideoUploadField
+                    name={`slide_${i}_video`}
+                    current={s.video_path ?? ""}
+                    label="Video (optional): MP4 or WebM, up to 50 MB, plays silently on a loop. The photo shows while it loads."
+                  />
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="text-sm font-medium text-brand-900">

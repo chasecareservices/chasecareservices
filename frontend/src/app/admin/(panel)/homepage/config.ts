@@ -1,4 +1,4 @@
-export const SLIDE_COUNT = 4;
+export const SLIDE_COUNT = 6;
 
 /** Pages whose top banner can show a background photo, as keys used by bannerFor(). */
 export const BANNER_PAGES: { key: string; label: string; href: string }[] = [

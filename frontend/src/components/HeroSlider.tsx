@@ -4,9 +4,38 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FillPhoto } from "@/components/Photo";
 import { A11Y_EVENT, motionStopped } from "@/lib/a11y";
-import type { HeroSlide } from "@/lib/images";
+import type { HeroSlide, SiteVideo } from "@/lib/images";
 
 const INTERVAL_MS = 7000;
+/** Slides with a video stay up a little longer, so the loop can be seen. */
+const VIDEO_INTERVAL_MS = 10000;
+
+/** Silent looping background video; plays only while its slide is showing. */
+function HeroVideo({ video, playing, focus }: { video: SiteVideo; playing: boolean; focus?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (playing) el.play().catch(() => {}); // autoplay can be refused (e.g. low-power mode): the poster stays
+    else el.pause();
+  }, [playing]);
+  return (
+    <video
+      ref={ref}
+      aria-hidden="true"
+      muted
+      loop
+      playsInline
+      preload={playing ? "auto" : "metadata"}
+      poster={video.poster ?? undefined}
+      className="absolute inset-0 h-full w-full object-cover"
+      style={{ objectPosition: focus ?? "80% 50%" }}
+    >
+      {video.webm && <source src={video.webm} type="video/webm" />}
+      <source src={video.src} type="video/mp4" />
+    </video>
+  );
+}
 
 /**
  * Full-width homepage slider. Fades between slides, pauses while the visitor hovers,
@@ -15,6 +44,7 @@ const INTERVAL_MS = 7000;
 export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [tick, setTick] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
   const regionRef = useRef<HTMLElement>(null);
   const count = slides.length;
@@ -36,11 +66,15 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
   useEffect(() => {
     if (count < 2 || paused || reducedMotion) return;
-    const timer = window.setInterval(() => {
-      if (!document.hidden) setIndex((i) => (i + 1) % count);
-    }, INTERVAL_MS);
-    return () => window.clearInterval(timer);
-  }, [count, paused, reducedMotion]);
+    const timer = window.setTimeout(
+      () => {
+        if (!document.hidden) setIndex((i) => (i + 1) % count);
+        else setTick((t) => t + 1); // tab hidden: check again after another interval
+      },
+      slides[index]?.video ? VIDEO_INTERVAL_MS : INTERVAL_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [count, paused, reducedMotion, index, slides, tick]);
 
   if (!count) return null;
 
@@ -75,8 +109,11 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               className={`absolute inset-0 transition-opacity duration-1000 ease-out ${active ? "z-10 opacity-100" : "z-0 opacity-0"}`}
             >
               <FillPhoto image={slide.image} sizes="100vw" priority={i === 0} variant={i} watermark={false} />
+              {slide.video && !reducedMotion && <HeroVideo video={slide.video} playing={active} focus={slide.image.focus} />}
               {/* Purple tint so white text is always readable over any photo. */}
               <div className="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-900/70 to-brand-800/20" />
+              {/* On phones the text covers the whole picture, so darken all of it. */}
+              <div className="absolute inset-0 bg-brand-950/55 sm:hidden" />
               <div className="relative mx-auto flex h-full min-h-[34rem] max-w-6xl flex-col justify-center px-4 pb-20 pt-14 sm:min-h-[38rem] sm:px-6 lg:min-h-[40rem] lg:px-8">
                 {slide.eyebrow && (
                   <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-accent-400">{slide.eyebrow}</p>

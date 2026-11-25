@@ -11,11 +11,16 @@ type Result = { error: string } | undefined;
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
 const val = (f: FormData, k: string, max = 200) => String(f.get(k) ?? "").trim().slice(0, max);
+/** A media-library path (slider/2026/….mp4) or a built-in file under /videos/. */
+const safeMediaPath = (p: string) => (/^(\/videos\/|[a-z0-9-]+\/\d{4}\/)[\w.-]+\.(mp4|webm)$/i.test(p) ? p : "");
 const safeHref = (href: string) => (href.startsWith("/") || /^https?:\/\//.test(href) ? href : "");
 
 export async function saveSlider(formData: FormData): Promise<Result> {
   const staff = await requirePermission("content.edit");
   const slides: Record<string, Json>[] = [];
+  for (let i = 0; i < SLIDE_COUNT; i++) {
+    if (formData.get(`slide_${i}_video__uploading`)) return { error: `Please wait for the video on slide ${i + 1} to finish uploading.` };
+  }
   try {
     for (let i = 0; i < SLIDE_COUNT; i++) {
       const uploaded = await uploadImage(staff.supabase, formData.get(`slide_${i}_image`), "slider", staff.user.id, val(formData, `slide_${i}_heading`));
@@ -25,13 +30,14 @@ export async function saveSlider(formData: FormData): Promise<Result> {
         .filter((b) => b.label && b.href);
       const slide: Record<string, Json> = {
         image_path: uploaded ?? kept,
+        video_path: safeMediaPath(val(formData, `slide_${i}_video`, 500)),
         image_alt: val(formData, `slide_${i}_image_alt`, 200),
         eyebrow: val(formData, `slide_${i}_eyebrow`, 80),
         heading: val(formData, `slide_${i}_heading`, 140),
         text: val(formData, `slide_${i}_text`, 300),
         buttons,
       };
-      if (slide.heading || slide.image_path) slides.push(slide);
+      if (slide.heading || slide.image_path || slide.video_path) slides.push(slide);
     }
   } catch (e) {
     return { error: e instanceof UploadError ? e.message : "A photo could not be uploaded." };
