@@ -11,7 +11,7 @@ update public.site_settings set
   email = 'chasecareinfo@gmail.com',
   address = 'Weija (Accra) · Spintex Road · McCarthy Hill',
   tagline = 'Better Care. Better Lives.'
-where id = true and phone = '+233 00 000 0000';
+where id = true and (phone is null or phone = '' or phone = '+233 00 000 0000');
 
 -- ---------- Care services ----------
 insert into public.services (slug, service_group, name, summary, description, includes, audience, cta_label, status, sort_order) values
