@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LanguageSelect } from "@/components/language/LanguageSelect";
 import { Logo } from "@/components/Logo";
 import { getNavigation, getSiteSettings } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
@@ -108,6 +109,9 @@ export async function Footer() {
               </ul>
             </>
           )}
+          <div className={hours.length > 0 || Object.keys(social).length > 0 ? "mt-8" : ""}>
+            <LanguageSelect />
+          </div>
         </div>
       </div>
 

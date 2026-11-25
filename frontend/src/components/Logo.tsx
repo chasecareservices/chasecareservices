@@ -24,7 +24,12 @@ export function Logo({
 }) {
   const base = inverted ? "text-white" : "text-brand-800";
   return (
-    <Link href="/" className="inline-flex flex-col items-start leading-none" aria-label="Chase Care Services — home">
+    <Link
+      href="/"
+      translate="no"
+      className="notranslate inline-flex flex-col items-start leading-none"
+      aria-label="Chase Care Services — home"
+    >
       <span className={`font-display text-2xl font-bold tracking-[0.18em] sm:text-3xl ${base}`} aria-hidden="true">
         C<span className="text-accent-500">H</span>A<span className="text-accent-500">S</span>E
       </span>

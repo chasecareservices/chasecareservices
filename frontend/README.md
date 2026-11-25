@@ -29,6 +29,7 @@ Rules the site follows:
 - Both forms send to `submit_enquiry()` and land in the admin enquiries inbox with their type (contact, care request, partnership, course registration…). They require consent, include a hidden bot trap, and work on phones.
 - The Monthly Forum date is calculated automatically (third Thursday).
 - Pages are cached for 5 minutes, so content edits appear on the live site within 5 minutes.
+- **Choose language** (footer): Google Translate into Twi, Ga, Ewe, Hausa, French or Arabic. Google's script only loads after a visitor picks a language other than English, and the choice is remembered in a `googtrans` cookie. This is machine translation, so mention it in the Cookie and Privacy policies. Languages are listed in `src/lib/languages.ts`.
 
 ## Photos
 

@@ -3,6 +3,7 @@ import "@fontsource-variable/inter";
 import "@fontsource/cinzel/600.css";
 import "@fontsource/cinzel/700.css";
 import "./globals.css";
+import { TranslateLoader } from "@/components/language/TranslateLoader";
 import { getSiteSettings } from "@/lib/content";
 
 export const viewport: Viewport = {
@@ -33,7 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-GB">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <TranslateLoader />
+      </body>
     </html>
   );
 }
