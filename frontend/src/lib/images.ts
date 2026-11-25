@@ -111,10 +111,10 @@ export const PAGE_BANNERS: Record<string, SiteImage> = {
  * Replace the alt text with each person's name and role once confirmed.
  */
 export const ABOUT_TEAM_STRIP: SiteImage[] = [
-  { src: "/images/team/team-1.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
-  { src: "/images/team/team-2.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
-  { src: "/images/team/team-3.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
-  { src: "/images/team/team-4.jpg", alt: "A member of the Chase Care Services team", focus: "center 30%" },
+  { src: "/images/team/team-1.jpg", alt: "A member of the Chase Care Services team", focus: "center 45%" },
+  { src: "/images/team/team-2.jpg", alt: "A member of the Chase Care Services team", focus: "center 0%" },
+  { src: "/images/team/team-3.jpg", alt: "A member of the Chase Care Services team", focus: "center 30%" },
+  { src: "/images/team/team-4.jpg", alt: "A member of the Chase Care Services team", focus: "center 25%" },
 ];
 
 /** Photos beside the text sections on the homepage. */

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { FillPhoto } from "@/components/Photo";
 import type { SiteImage } from "@/lib/images";
 
@@ -139,12 +139,14 @@ export function BandHero({
     <section>
       {portraits.length > 0 ? (
         <ul
-          className="grid h-48 gap-0.5 bg-brand-800 sm:h-72 lg:h-80"
-          style={{ gridTemplateColumns: `repeat(${portraits.length}, minmax(0, 1fr))` }}
+          className="grid grid-cols-[repeat(var(--cols-sm),minmax(0,1fr))] gap-0.5 bg-brand-800 sm:grid-cols-[repeat(var(--cols),minmax(0,1fr))]"
+          style={{ "--cols": portraits.length, "--cols-sm": portraits.length === 4 ? 2 : portraits.length } as CSSProperties}
         >
           {portraits.map((p, i) => (
-            <li key={p.src} className="relative overflow-hidden">
-              <FillPhoto image={p} sizes={`${Math.ceil(100 / portraits.length)}vw`} priority={i < 2} />
+            // A fixed shape (not a fixed height), so the crop is the same on every screen width
+            // and each portrait's `focus` keeps the whole head in view.
+            <li key={p.src} className="relative aspect-[6/5] w-full overflow-hidden">
+              <FillPhoto image={p} sizes={`(min-width: 640px) ${Math.ceil(100 / portraits.length)}vw, 50vw`} priority={i < 2} />
             </li>
           ))}
         </ul>
