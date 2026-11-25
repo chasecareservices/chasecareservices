@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/*
+ * Chase Care Services brand tokens — taken from the CHASE logo.
+ *   purple  #3B0A5E  (CHASE letters, tagline)
+ *   orange  #F89A00  (H and S, tagline accents, hands)
+ *   lavender           (logo background tint)
+ */
+@theme {
+  --color-brand-50: #f7f2fb;
+  --color-brand-100: #ede3f5;
+  --color-brand-200: #d9c6ea;
+  --color-brand-300: #b997d6;
+  --color-brand-400: #9a75ae;
+  --color-brand-500: #6f3f97;
+  --color-brand-600: #55267c;
+  --color-brand-700: #47176d;
+  --color-brand-800: #3b0a5e;
+  --color-brand-900: #2a0644;
+  --color-brand-950: #1a032b;
+
+  --color-accent-50: #fff7e8;
+  --color-accent-100: #feecc6;
+  --color-accent-200: #fdd88a;
+  --color-accent-300: #fcbf47;
+  --color-accent-400: #f9a91c;
+  --color-accent-500: #f89a00;
+  --color-accent-600: #d97f00;
+  --color-accent-700: #b46200;
+
+  --color-ink: #1f1a24;
+  --color-muted: #5b5363;
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere (accessibility). */
+:focus-visible {
+  outline: 3px solid var(--color-accent-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

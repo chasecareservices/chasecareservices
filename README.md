@@ -2,8 +2,8 @@
 
 | Folder | Contents |
 |---|---|
-| `frontend/` | Website & portal user interface (not started yet) |
-| `backend/` | API, database, auth, business logic (not started yet) |
+| `frontend/` | Public website — Next.js + Tailwind (see `frontend/README.md`) |
+| `backend/` | Supabase database, auth, storage and security rules (see `backend/README.md`) |
 | `doc/` | Project documentation |
 
 ## Documentation
