@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Docs (markdown lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lint markdown
+        run: npx --yes markdownlint-cli2@0.14.0 "**/*.md"
+
+  frontend:
+    name: Frontend (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for frontend app
+        id: app
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "No frontend/package.json yet - skipping."; fi
+      - uses: actions/setup-node@v4
+        if: steps.app.outputs.present == 'true'
+        with:
+          node-version: 22
+      - name: Install
+        if: steps.app.outputs.present == 'true'
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Lint
+        if: steps.app.outputs.present == 'true'
+        run: npm run lint --if-present
+      - name: Test
+        if: steps.app.outputs.present == 'true'
+        run: npm test --if-present
+      - name: Build
+        if: steps.app.outputs.present == 'true'
+        run: npm run build --if-present
+
+  backend:
+    name: Backend (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for backend app
+        id: app
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "No backend/package.json yet - skipping."; fi
+      - uses: actions/setup-node@v4
+        if: steps.app.outputs.present == 'true'
+        with:
+          node-version: 22
+      - name: Install
+        if: steps.app.outputs.present == 'true'
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Lint
+        if: steps.app.outputs.present == 'true'
+        run: npm run lint --if-present
+      - name: Test
+        if: steps.app.outputs.present == 'true'
+        run: npm test --if-present
+      - name: Build
+        if: steps.app.outputs.present == 'true'
+        run: npm run build --if-present
