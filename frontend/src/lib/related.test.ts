@@ -10,6 +10,7 @@ describe("relatedLinksFor", () => {
     expect(r.section).toBe("About Us");
     expect(hrefs(r)).toEqual([
       "/about#who-we-are",
+      "/about/how-we-care",
       "/about#vision-and-mission",
       "/about#our-values",
       "/about#board",

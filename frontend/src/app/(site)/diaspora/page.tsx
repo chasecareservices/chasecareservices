@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ServiceGrid } from "@/components/services";
 import { ButtonLink, CheckList, PageHero, Pathway, Section } from "@/components/ui";
 import { bannerFor } from "@/lib/content";
+import { HOME_COUNTRIES } from "@/lib/site-copy";
 
 export const revalidate = 300;
 
@@ -21,10 +22,24 @@ export default async function DiasporaPage() {
         intro="Your loved one may be in Ghana while you are thousands of miles away. Chase Care Services helps families stay connected to their loved one's care through trusted, professional services and regular communication."
         actions={<ButtonLink href="/register/client?abroad=1">I Live Abroad — Arrange Care in Ghana</ButtonLink>}
       />
-      <Section title="How it works">
+      <Section
+        eyebrow="Back home"
+        title="Professional caregivers for your loved ones back home"
+        intro="We cater for families abroad looking for trained, professional caregivers to look after their loved ones back home in:"
+      >
+        <ul className="grid gap-4 sm:grid-cols-3">
+          {HOME_COUNTRIES.map((c) => (
+            <li key={c} className="rounded-2xl border border-brand-100 bg-white p-6 text-center text-xl font-bold text-brand-900">
+              {c}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 max-w-3xl text-muted">We match. We care. You relax — with regular updates, wherever you are in the world.</p>
+      </Section>
+      <Section tone="tint" title="How it works">
         <Pathway steps={["Tell us about your loved one", "Free consultation", "Care plan agreed", "Care begins, with regular updates"]} />
       </Section>
-      <Section tone="tint" title="What we can arrange">
+      <Section title="What we can arrange">
         <div className="mb-10">
           <CheckList
             columns={3}

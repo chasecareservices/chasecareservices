@@ -228,7 +228,7 @@ export function Pathway({ steps }: { steps: string[] }) {
           <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-800 text-sm font-bold text-white">
             {i + 1}
           </span>
-          <span className="font-medium text-brand-900">{step}</span>
+          <span className="min-w-0 font-medium text-brand-900 [overflow-wrap:anywhere] [hyphens:auto]" lang="en">{step}</span>
         </li>
       ))}
     </ol>

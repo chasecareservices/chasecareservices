@@ -6,7 +6,7 @@ import { ImpactStats, RecognitionList } from "@/components/Impact";
 import { RelatedInfo } from "@/components/RelatedInfo";
 import { BandHero, CheckList, Container, EmptyState } from "@/components/ui";
 import { getPartners, getTeamMembers, mediaUrl, type TeamMember, bannerFor } from "@/lib/content";
-import { MISSION, MISSION_POINTS, VALUES, VISION, WHAT_WE_DO } from "@/lib/site-copy";
+import { MISSION, MISSION_POINTS, VALUES, VISION, WHAT_WE_DO, CHASE_MEANING } from "@/lib/site-copy";
 import { ABOUT_TEAM_STRIP } from "@/lib/images";
 
 export const revalidate = 300;
@@ -67,6 +67,25 @@ export default async function AboutPage() {
               Every person we support arrives with their own needs, their own family and their own story. Caring for each of
               them as an individual — with compassion, dignity and skill — is the mission we were built on.
             </p>
+
+            <div className="rounded-2xl border border-brand-100 p-6">
+              <p className="text-sm font-semibold uppercase tracking-widest text-accent-600">What CHASE stands for</p>
+              <p className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xl font-bold text-brand-900">
+                {CHASE_MEANING.map((word) => (
+                  <span key={word}>
+                    <span className="text-accent-600">{word[0]}</span>
+                    {word.slice(1)}
+                  </span>
+                ))}
+              </p>
+              <p className="mt-3 text-muted">
+                We do not simply provide care: we build trust, preserve dignity and empower lives.{" "}
+                <Link href="/about/how-we-care" className="font-medium text-brand-700 underline underline-offset-2">
+                  Read how we care
+                </Link>
+                .
+              </p>
+            </div>
 
             <h3 className="pt-4 text-2xl font-bold text-brand-900">What we do</h3>
             <HighlightBox intro="Our teams deliver care, training and support that share a single purpose:" items={WHAT_WE_DO} />
