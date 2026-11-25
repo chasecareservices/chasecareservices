@@ -54,6 +54,81 @@ export const CONCERNS: Option<"none" | "monitor" | "urgent">[] = [
 export const labelOf = (options: Option[], value: string | null | undefined) =>
   options.find((o) => o.value === value)?.label ?? (value ? value.replace(/_/g, " ") : "—");
 
+/* ---------- Visit location ---------- */
+
+export type LocationStatus = "captured" | "denied" | "unavailable" | "not_supported";
+
+/** The phone's location when the report was written, or why there isn't one. */
+export type VisitLocation = {
+  status: LocationStatus;
+  lat?: number;
+  lng?: number;
+  /** How sure the phone is, in metres (smaller is better). */
+  accuracy?: number;
+  /** ISO time the phone took the reading. */
+  captured_at?: string;
+};
+
+export const LOCATION_PROBLEMS: Record<Exclude<LocationStatus, "captured">, string> = {
+  denied: "Location was blocked on the phone",
+  unavailable: "The phone couldn't find its location",
+  not_supported: "This phone or browser can't share location",
+};
+
+/** Straight-line distance in metres between two points (haversine). */
+export function distanceMetres(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const R = 6371000;
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+export const formatDistance = (m: number) => (m < 1000 ? `${Math.max(5, Math.round(m / 5) * 5)} m` : `${(m / 1000).toFixed(m < 10000 ? 1 : 0)} km`);
+
+/**
+ * Was the worker at the client's home? Allows for the phone's own uncertainty:
+ * within 150 m plus the reported accuracy (capped at 500 m) counts as "at the home".
+ */
+export function visitVerdict(
+  loc: { status: string; lat: number | null; lng: number | null; accuracy: number | null },
+  home: { lat: number | null; lng: number | null },
+):
+  | { kind: "no_location"; reason: string }
+  | { kind: "no_home" }
+  | { kind: "at_home" | "away"; distance: number } {
+  if (loc.status !== "captured" || loc.lat == null || loc.lng == null)
+    return { kind: "no_location", reason: LOCATION_PROBLEMS[loc.status as keyof typeof LOCATION_PROBLEMS] ?? "No location was recorded" };
+  if (home.lat == null || home.lng == null) return { kind: "no_home" };
+  const distance = distanceMetres({ lat: loc.lat, lng: loc.lng }, { lat: home.lat, lng: home.lng });
+  const allowance = 150 + Math.min(loc.accuracy ?? 0, 350);
+  return { kind: distance <= allowance ? "at_home" : "away", distance };
+}
+
+/** Reads coordinates from "5.6037, -0.1870" or a Google Maps link. */
+export function parseLatLng(text: string): { lat: number; lng: number } | null {
+  const t = decodeURIComponent(text.trim());
+  const patterns = [
+    /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/, // place pin in a Maps URL
+    /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/, // map centre in a Maps URL
+    /[?&](?:q|query|ll|destination)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+    /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/, // plain "lat, lng"
+  ];
+  for (const re of patterns) {
+    const m = t.match(re);
+    if (m) {
+      const lat = Number(m[1]);
+      const lng = Number(m[2]);
+      if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) return { lat, lng };
+    }
+  }
+  return null;
+}
+
+export const mapsLink = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+export const mapsEmbed = (lat: number, lng: number) => `https://maps.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
+
 /** The answers a care worker gives, as typed in the form. */
 export type ReportInput = {
   client_id: string;
@@ -67,6 +142,8 @@ export type ReportInput = {
   summary: string;
   concern_level: string;
   concerns: string;
+  /** Only for new reports: the location is recorded once and can't be changed later. */
+  location?: VisitLocation | null;
 };
 
 export const EMPTY_REPORT: ReportInput = {
@@ -87,7 +164,7 @@ export type ReportErrors = Partial<Record<keyof ReportInput, string>>;
 
 /** The steps of the report form, and which answers belong to each. */
 export const REPORT_STEPS: { title: string; fields: (keyof ReportInput)[] }[] = [
-  { title: "The visit", fields: ["client_id", "visit_date", "start_time", "end_time"] },
+  { title: "The visit", fields: ["client_id", "location", "visit_date", "start_time", "end_time"] },
   { title: "How they were", fields: ["mood", "activities", "meals", "medication"] },
   { title: "Notes & concerns", fields: ["summary", "concern_level", "concerns"] },
 ];
@@ -103,7 +180,11 @@ export const todayInGhana = (now = new Date()) => now.toISOString().slice(0, 10)
  * Checks a report. Messages say what is wrong and how to fix it, in plain words.
  * Returns the cleaned answers when there are no errors.
  */
-export function validateReport(input: ReportInput, today = todayInGhana()): { errors: ReportErrors; value: ReportInput | null } {
+export function validateReport(
+  input: ReportInput,
+  today = todayInGhana(),
+  { needLocation = false, now = Date.now() }: { needLocation?: boolean; now?: number } = {},
+): { errors: ReportErrors; value: ReportInput | null } {
   const errors: ReportErrors = {};
   const v: ReportInput = {
     ...input,
@@ -113,6 +194,19 @@ export function validateReport(input: ReportInput, today = todayInGhana()): { er
   };
 
   if (!v.client_id) errors.client_id = "Choose who you visited.";
+  if (needLocation) {
+    const loc = v.location;
+    if (!loc) errors.location = "Share your location, or choose to send without it.";
+    else if (loc.status === "captured") {
+      const ok =
+        typeof loc.lat === "number" && Math.abs(loc.lat) <= 90 &&
+        typeof loc.lng === "number" && Math.abs(loc.lng) <= 180 &&
+        !!loc.captured_at && !Number.isNaN(Date.parse(loc.captured_at)) &&
+        Date.parse(loc.captured_at) <= now + 5 * 60_000 &&
+        Date.parse(loc.captured_at) >= now - 24 * 3600_000;
+      if (!ok) errors.location = "Your location reading didn't work. Tap “Share my location” again.";
+    } else if (!(loc.status in LOCATION_PROBLEMS)) errors.location = "Share your location, or choose to send without it.";
+  }
   if (!DATE_RE.test(v.visit_date)) errors.visit_date = "Enter the date of the visit.";
   else if (v.visit_date > today) errors.visit_date = "The visit date can't be in the future.";
   if (v.start_time && !TIME_RE.test(v.start_time)) errors.start_time = "Enter a time like 09:30.";

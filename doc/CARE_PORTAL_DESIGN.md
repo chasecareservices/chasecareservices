@@ -79,9 +79,33 @@ optional note → **Mark as read**.
 - **Trust & error prevention** (like mobile money) — a review screen before sending, and a confirmation with a reference number after.
 - **Shared phones** — "Sign out" is always in the header.
 
+## Visit locations
+
+On step 1 the care worker taps **Share my location**. The phone's GPS reading is recorded once with the report
+(never tracked), with its accuracy and time. The office sees it on a Google Map and a verdict:
+**✓ At the client's home (about 20 m away)**, **⚠ About 2.3 km from the client's home**, or **⚠ No location** with the
+phone's reason. "At home" allows 150 m plus the phone's stated accuracy (capped at 350 m).
+
+| Principle | How it shows |
+|---|---|
+| User in control (Shneiderman 7) / ethics (Week 3) | Location is only read when the worker taps the button, after a one-line reason: "We record where your phone is once, now. We don't track you." |
+| Visibility of system status (Nielsen 1) | "Finding your location…", then "✓ Location recorded — accurate to about 12 m", with a link to check it on Google Maps. |
+| Help users recover from errors (Nielsen 9) | If blocked: exactly where to tap to allow it, then "Try again". If the phone can't get a fix: what to try. The worker can always "Send without location"; the office then sees why. |
+| Error prevention (Nielsen 5) | A report can't continue until the worker either shares a location or chooses to send without one. Weak readings (over 100 m) suggest trying near a window. |
+| Constraints (Norman) | The location can't be changed after sending, by anyone (enforced by the database). |
+| Match the real world (Nielsen 2) | The office sees distances in metres/kilometres and a familiar Google Map, not raw coordinates. |
+
+Home locations: the office pastes a Google Maps link (short share links work) or coordinates on the client page, or
+clicks "Use this location as the client's home" on a report they know was at the home.
+
+Limits, shown to the office on every map: phone locations vary indoors and can be faked, so they are evidence,
+not proof. Location access is allowed only on the portal pages (browser `Permissions-Policy`); it stays blocked on
+the rest of the website.
+
 ## Privacy and safety (Data Protection Act, 2012 — Act 843)
 - Care workers only see the clients assigned to them, and only their own reports (enforced by the database, tested in `backend/supabase/tests/database/07_care_reports.test.sql`).
 - Reports cannot be deleted, and every change is recorded in the Activity log.
+- Locations are taken once per report with the worker's knowledge, never in the background, and only office staff with care permissions can see them.
 - Other staff (e.g. the content editor) cannot see clients or reports.
 - Urgent concerns tell the worker to call the office, or 112 if anyone is in danger — the report is never the only alarm.
 

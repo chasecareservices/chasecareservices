@@ -94,6 +94,10 @@ insert into public.care_clients (id, full_name, preferred_name, area, care_summa
   ('00000000-0000-4000-8000-00000000c003', 'Grace Adjei', 'Mama Grace', 'McCarthy Hill', 'Early-stage dementia. Companionship and meals.', 'Daniel Adjei (son)', '+233 20 000 0003')
 on conflict (id) do nothing;
 
+-- Approximate demo home locations (Mama Grace's is left unset to show that case).
+update public.care_clients set home_lat = 5.6362, home_lng = -0.1110 where id = '00000000-0000-4000-8000-00000000c001'; -- Spintex Road
+update public.care_clients set home_lat = 5.5583, home_lng = -0.3358 where id = '00000000-0000-4000-8000-00000000c002'; -- Weija
+
 insert into public.care_assignments (client_id, worker_id)
 select c.id, u.id
 from (values

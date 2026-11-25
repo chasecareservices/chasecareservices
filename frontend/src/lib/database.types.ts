@@ -128,6 +128,8 @@ export type Database = {
           emergency_contact_name: string | null;
           emergency_contact_phone: string | null;
           full_name: string;
+          home_lat: number | null;
+          home_lng: number | null;
           id: string;
           is_active: boolean;
           preferred_name: string | null;
@@ -142,6 +144,8 @@ export type Database = {
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           full_name: string;
+          home_lat?: number | null;
+          home_lng?: number | null;
           id?: string;
           is_active?: boolean;
           preferred_name?: string | null;
@@ -155,6 +159,8 @@ export type Database = {
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           full_name?: string;
+          home_lat?: number | null;
+          home_lng?: number | null;
           id?: string;
           is_active?: boolean;
           preferred_name?: string | null;
@@ -171,6 +177,11 @@ export type Database = {
           concerns: string | null;
           end_time: string | null;
           id: string;
+          location_accuracy_m: number | null;
+          location_captured_at: string | null;
+          location_lat: number | null;
+          location_lng: number | null;
+          location_status: string;
           meals: string | null;
           medication: string | null;
           mood: Database["public"]["Enums"]["care_mood"];
@@ -194,6 +205,11 @@ export type Database = {
           concerns?: string | null;
           end_time?: string | null;
           id?: string;
+          location_accuracy_m?: number | null;
+          location_captured_at?: string | null;
+          location_lat?: number | null;
+          location_lng?: number | null;
+          location_status?: string;
           meals?: string | null;
           medication?: string | null;
           mood: Database["public"]["Enums"]["care_mood"];
@@ -216,6 +232,11 @@ export type Database = {
           concerns?: string | null;
           end_time?: string | null;
           id?: string;
+          location_accuracy_m?: number | null;
+          location_captured_at?: string | null;
+          location_lat?: number | null;
+          location_lng?: number | null;
+          location_status?: string;
           meals?: string | null;
           medication?: string | null;
           mood?: Database["public"]["Enums"]["care_mood"];

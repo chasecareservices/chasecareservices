@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { reviewReport } from "../actions";
+import { reviewReport, setHomeFromReport } from "../actions";
+import { VisitLocationPanel } from "@/components/admin/VisitLocation";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, Notice, adminInput, formatDateTime } from "@/components/admin/ui";
 import { ConcernBadge, Mood, ReportStatus, formatVisitDate } from "@/components/portal/ReportBits";
@@ -16,7 +17,7 @@ export default async function CareReportPage({ params, searchParams }: { params:
   const { data: r } = await staff.supabase
     .from("care_reports")
     .select(
-      "*, client:care_clients(id, full_name, preferred_name, area, care_summary, emergency_contact_name, emergency_contact_phone), worker:profiles!care_reports_worker_id_fkey(full_name, phone)",
+      "*, client:care_clients(id, full_name, preferred_name, area, care_summary, emergency_contact_name, emergency_contact_phone, home_lat, home_lng), worker:profiles!care_reports_worker_id_fkey(full_name, phone)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -29,6 +30,8 @@ export default async function CareReportPage({ params, searchParams }: { params:
     care_summary: string | null;
     emergency_contact_name: string | null;
     emergency_contact_phone: string | null;
+    home_lat: number | null;
+    home_lng: number | null;
   };
   const worker = r.worker as unknown as { full_name: string | null; phone: string | null } | null;
 
@@ -45,7 +48,8 @@ export default async function CareReportPage({ params, searchParams }: { params:
 
   return (
     <>
-      {saved && <Notice>Marked as read. The care worker can now see that the office has read it{r.office_note ? ", along with your note" : ""}.</Notice>}
+      {saved === "home" && <Notice>Home location saved. Future reports will be compared with it.</Notice>}
+      {saved === "1" && <Notice>Marked as read. The care worker can now see that the office has read it{r.office_note ? ", along with your note" : ""}.</Notice>}
       <Link href="/admin/care-reports" className="text-sm font-semibold text-brand-700 underline underline-offset-4">
         ← All care reports
       </Link>
@@ -92,6 +96,15 @@ export default async function CareReportPage({ params, searchParams }: { params:
 
           <Card title="How the visit went">
             <p className="whitespace-pre-line text-lg leading-relaxed">{r.summary}</p>
+          </Card>
+
+          <Card title="Visit location">
+            <VisitLocationPanel
+              report={r}
+              client={{ name: client.preferred_name || client.full_name, home_lat: client.home_lat, home_lng: client.home_lng }}
+              canSetHome={staff.can("clients.edit")}
+              setHomeAction={setHomeFromReport}
+            />
           </Card>
 
           <Card title="At a glance">

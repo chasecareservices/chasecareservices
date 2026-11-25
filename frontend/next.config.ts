@@ -31,6 +31,12 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      {
+        // The care worker portal may ask for the phone's location (to confirm visits).
+        // Location stays blocked on every other page. Later rules override earlier ones.
+        source: "/portal/:path*",
+        headers: [{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" }],
+      },
     ];
   },
 };

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { submitReport, updateReport, type SaveResult } from "@/app/portal/actions";
+import { LocationCapture } from "@/components/portal/LocationCapture";
 import {
   ACTIVITIES,
   CONCERNS,
+  LOCATION_PROBLEMS,
   MEALS,
   MEDICATION,
   MOODS,
@@ -242,8 +244,10 @@ export function ReportForm({
     });
   }
 
+  const needLocation = !reportId;
+
   function next() {
-    const { errors: all } = validateReport(values);
+    const { errors: all } = validateReport(values, undefined, { needLocation });
     const here = Object.fromEntries(REPORT_STEPS[step].fields.filter((f) => all[f]).map((f) => [f, all[f]])) as ReportErrors;
     if (Object.keys(here).length) {
       setErrors(here);
@@ -262,7 +266,7 @@ export function ReportForm({
   }
 
   function send() {
-    const { errors: all } = validateReport(values);
+    const { errors: all } = validateReport(values, undefined, { needLocation });
     if (Object.keys(all).length) {
       setErrors(all);
       setStep(stepWithFirstError(all));
@@ -375,6 +379,13 @@ export function ReportForm({
                 onChange={(v) => set("client_id", v as string)}
                 error={errors.client_id}
               />
+            )}
+            {needLocation ? (
+              <LocationCapture value={values.location} onChange={(loc) => set("location", loc)} error={errors.location} />
+            ) : (
+              <p className="rounded-2xl bg-white p-4 text-muted ring-1 ring-brand-100">
+                <span aria-hidden="true">📍 </span>The location recorded when you sent this report stays as it is.
+              </p>
             )}
             <TextField name="visit_date" label="Date of the visit" error={errors.visit_date}>
               <input
@@ -525,6 +536,18 @@ export function ReportForm({
                   ["Client", clientName(values.client_id)],
                   ["Date", values.visit_date ? new Date(`${values.visit_date}T00:00:00Z`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "—"],
                   ["Time", visitTimes(values.start_time || null, values.end_time || null)],
+                  ...(needLocation
+                    ? [
+                        [
+                          "Location",
+                          values.location?.status === "captured"
+                            ? `Recorded${values.location.accuracy != null ? ` (accurate to about ${Math.round(values.location.accuracy)} m)` : ""}`
+                            : values.location
+                              ? `Not sent: ${LOCATION_PROBLEMS[values.location.status as keyof typeof LOCATION_PROBLEMS].toLowerCase()}`
+                              : "Not shared yet",
+                        ],
+                      ]
+                    : []),
                 ],
               },
               {

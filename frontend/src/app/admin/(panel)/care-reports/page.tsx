@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, PageHeader, formatDateTime } from "@/components/admin/ui";
 import { ConcernBadge, Mood, formatVisitDate } from "@/components/portal/ReportBits";
+import { LocationTag } from "@/components/admin/VisitLocation";
 import { requirePermission } from "@/lib/admin/session";
 import { visitTimes } from "@/lib/care";
 
@@ -20,7 +21,7 @@ export default async function CareReportsPage({ searchParams }: { searchParams: 
   let query = staff.supabase
     .from("care_reports")
     .select(
-      "id, reference, visit_date, start_time, end_time, mood, concern_level, status, summary, submitted_at, client:care_clients(id, full_name, preferred_name), worker:profiles!care_reports_worker_id_fkey(full_name)",
+      "id, reference, visit_date, start_time, end_time, mood, concern_level, status, summary, submitted_at, location_status, location_lat, location_lng, location_accuracy_m, client:care_clients(id, full_name, preferred_name, home_lat, home_lng), worker:profiles!care_reports_worker_id_fkey(full_name)",
     )
     .order("submitted_at", { ascending: false })
     .limit(100);
@@ -110,7 +111,7 @@ export default async function CareReportsPage({ searchParams }: { searchParams: 
       ) : (
         <ul className="space-y-3">
           {rows.map((r) => {
-            const cl = r.client as unknown as { full_name: string; preferred_name: string | null } | null;
+            const cl = r.client as unknown as { full_name: string; preferred_name: string | null; home_lat: number | null; home_lng: number | null } | null;
             const w = r.worker as unknown as { full_name: string | null } | null;
             const unread = r.status === "submitted";
             return (
@@ -134,7 +135,8 @@ export default async function CareReportsPage({ searchParams }: { searchParams: 
                         Visit {formatVisitDate(r.visit_date)}, {visitTimes(r.start_time, r.end_time)} · <Mood mood={r.mood} /> · {r.reference}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <LocationTag report={r} home={{ lat: cl?.home_lat ?? null, lng: cl?.home_lng ?? null }} />
                       <ConcernBadge level={r.concern_level} />
                       {!unread && <span className="text-sm font-semibold text-green-700">✓ Read</span>}
                     </div>

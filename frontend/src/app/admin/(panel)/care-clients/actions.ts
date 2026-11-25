@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
 import { createSecretClient } from "@/lib/supabase/server-auth";
+import { parseLatLng } from "@/lib/care";
 
 type Result = { error: string } | undefined;
 const UUID = /^[0-9a-f-]{36}$/;
@@ -16,13 +17,50 @@ async function siteOrigin() {
   return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
 }
 
+/**
+ * Google Maps "Share" links (maps.app.goo.gl/…) hide the coordinates. Follow the
+ * redirects (Google hosts only, up to 4 hops, 5 seconds) to find them.
+ */
+async function resolveShortMapsLink(text: string): Promise<string> {
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    return text;
+  }
+  const google = (h: string) => /(^|\.)(goo\.gl|google\.com|google\.com\.gh|app\.goo\.gl)$/.test(h);
+  if (!/^(maps\.app\.goo\.gl|goo\.gl)$/.test(url.hostname)) return text;
+  try {
+    for (let hop = 0; hop < 4; hop++) {
+      const res = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(5000) });
+      const next = res.headers.get("location");
+      if (!next) break;
+      url = new URL(next, url);
+      if (!google(url.hostname)) break;
+      if (parseLatLng(url.toString())) return url.toString();
+    }
+  } catch {
+    /* offline or blocked: fall through to the friendly error */
+  }
+  return url.toString();
+}
+
 export async function saveClient(formData: FormData): Promise<Result> {
   const id = String(formData.get("id") ?? "");
   const staff = await requirePermission(id ? "clients.edit" : "clients.create");
   const fullName = text(formData, "full_name", 120);
   if (!fullName || fullName.length < 2) return { error: "Enter the client's full name." };
+  const homeText = await resolveShortMapsLink(String(formData.get("home_location") ?? "").trim().slice(0, 2000));
+  const home = homeText ? parseLatLng(homeText) : null;
+  if (homeText && !home)
+    return {
+      error:
+        "We couldn't read that home location. Paste the link from Google Maps (Share → Copy link), or coordinates like 5.6037, -0.1870 (in Google Maps, press and hold on the home to see them).",
+    };
   const row = {
     full_name: fullName,
+    home_lat: home?.lat ?? null,
+    home_lng: home?.lng ?? null,
     preferred_name: text(formData, "preferred_name", 60),
     area: text(formData, "area", 120),
     care_summary: text(formData, "care_summary", 2000),

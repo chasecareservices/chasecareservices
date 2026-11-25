@@ -8,6 +8,8 @@ type Client = {
   emergency_contact_name?: string | null;
   emergency_contact_phone?: string | null;
   is_active?: boolean;
+  home_lat?: number | null;
+  home_lng?: number | null;
 };
 
 /** The client form fields, shared by "Add a client" and the client page. */
@@ -46,6 +48,19 @@ export function ClientFields({ client = {}, showActive = false }: { client?: Cli
       <label className="text-sm font-medium text-brand-900">
         Emergency contact phone
         <input name="emergency_contact_phone" type="tel" maxLength={40} defaultValue={client.emergency_contact_phone ?? ""} className={adminInput} />
+      </label>
+      <label className="text-sm font-medium text-brand-900 md:col-span-2">
+        Home location (for checking visits)
+        <input
+          name="home_location"
+          maxLength={2000}
+          defaultValue={client.home_lat != null && client.home_lng != null ? `${client.home_lat}, ${client.home_lng}` : ""}
+          placeholder="Paste a Google Maps link, or coordinates like 5.6037, -0.1870"
+          className={adminInput}
+        />
+        <span className="mt-1 block text-xs font-normal text-muted">
+          In Google Maps, find the home, tap Share and copy the link. Or leave empty and set it later from a care report sent at the home.
+        </span>
       </label>
       {showActive && (
         <label className="flex items-center gap-2 text-sm font-medium text-brand-900 md:col-span-2">

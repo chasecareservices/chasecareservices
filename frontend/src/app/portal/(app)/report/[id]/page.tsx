@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConcernBadge, Mood, ReportStatus, formatVisitDate } from "@/components/portal/ReportBits";
-import { ACTIVITIES, MEALS, MEDICATION, labelOf, visitTimes } from "@/lib/care";
+import { ACTIVITIES, LOCATION_PROBLEMS, MEALS, MEDICATION, labelOf, visitTimes } from "@/lib/care";
 import { requireWorker } from "@/lib/portal/session";
 
 export const metadata = { title: "Report" };
@@ -58,6 +58,14 @@ export default async function PortalReportPage({
         <p className="text-muted">
           {formatVisitDate(r.visit_date)} · {visitTimes(r.start_time, r.end_time)}
         </p>
+        {r.location_status !== "not_recorded" && (
+          <p className="mt-1 text-sm text-muted">
+            <span aria-hidden="true">📍 </span>
+            {r.location_status === "captured"
+              ? `Location recorded${r.location_accuracy_m != null ? ` (about ${Math.round(r.location_accuracy_m)} m)` : ""}`
+              : `No location: ${LOCATION_PROBLEMS[r.location_status as keyof typeof LOCATION_PROBLEMS]?.toLowerCase() ?? "not recorded"}`}
+          </p>
+        )}
 
         {r.office_note && (
           <div className="mt-4 rounded-xl bg-green-50 p-4 text-green-900">

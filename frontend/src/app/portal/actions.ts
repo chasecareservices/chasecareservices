@@ -28,11 +28,30 @@ const columns = (v: ReportInput) => ({
   concerns: v.concerns || null,
 });
 
+/** The phone's location, recorded once with a new report. */
+function locationColumns(v: ReportInput) {
+  const loc = v.location;
+  if (loc?.status === "captured") {
+    return {
+      location_status: "captured",
+      location_lat: Number(loc.lat!.toFixed(6)),
+      location_lng: Number(loc.lng!.toFixed(6)),
+      location_accuracy_m: loc.accuracy != null ? Math.min(Math.round(loc.accuracy), 100000) : null,
+      location_captured_at: loc.captured_at!,
+    };
+  }
+  return { location_status: loc?.status ?? "not_recorded" };
+}
+
 export async function submitReport(input: ReportInput): Promise<SaveResult> {
   const worker = await requireWorker();
-  const { errors, value } = validateReport(input);
+  const { errors, value } = validateReport(input, undefined, { needLocation: true });
   if (!value) return { errors };
-  const { data, error } = await worker.supabase.from("care_reports").insert(columns(value)).select("id").single();
+  const { data, error } = await worker.supabase
+    .from("care_reports")
+    .insert({ ...columns(value), ...locationColumns(value) })
+    .select("id")
+    .single();
   if (error || !data) return { message: friendly(error?.message ?? "") };
   revalidatePath("/portal", "layout");
   redirect(`/portal/report/${data.id}?sent=1`);
@@ -40,7 +59,8 @@ export async function submitReport(input: ReportInput): Promise<SaveResult> {
 
 export async function updateReport(id: string, input: ReportInput): Promise<SaveResult> {
   const worker = await requireWorker();
-  const { errors, value } = validateReport(input);
+  // The location recorded when the report was sent never changes.
+  const { errors, value } = validateReport({ ...input, location: null });
   if (!value) return { errors };
   const { data, error } = await worker.supabase.from("care_reports").update(columns(value)).eq("id", id).select("id");
   if (error) return { message: friendly(error.message) };

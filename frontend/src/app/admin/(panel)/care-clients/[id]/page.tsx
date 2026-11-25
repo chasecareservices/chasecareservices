@@ -6,6 +6,7 @@ import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, Notice, PageHeader } from "@/components/admin/ui";
 import { ConcernBadge, Mood, formatVisitDate } from "@/components/portal/ReportBits";
 import { requirePermission } from "@/lib/admin/session";
+import { mapsEmbed, mapsLink } from "@/lib/care";
 
 export const metadata = { title: "Client" };
 
@@ -48,6 +49,24 @@ export default async function CareClientPage({ params, searchParams }: { params:
         </Card>
 
         <div className="space-y-6">
+          <Card title="Home location">
+            {client.home_lat != null && client.home_lng != null ? (
+              <>
+                <iframe
+                  title={`Map of ${client.full_name}'s home`}
+                  src={mapsEmbed(client.home_lat, client.home_lng)}
+                  loading="lazy"
+                  className="h-48 w-full rounded-xl border-0 ring-1 ring-gray-200"
+                />
+                <a href={mapsLink(client.home_lat, client.home_lng)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-semibold text-brand-700 underline">
+                  Open in Google Maps ↗
+                </a>
+              </>
+            ) : (
+              <p className="text-sm text-muted">Not set. Visit reports can&apos;t be checked against the home until it is. Add it in the details form.</p>
+            )}
+          </Card>
+
           <Card title="Care team">
             {!workers?.length ? (
               <p className="text-sm text-muted">
