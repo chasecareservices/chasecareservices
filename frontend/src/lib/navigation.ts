@@ -14,9 +14,8 @@ export function buildNavTree(rows: NavRow[]): NavLink[] {
   });
 }
 
-/** Used only if the navigation table is empty or unreachable. */
+/** Used only if the navigation table is empty or unreachable. Mirrors migration …0800. */
 export const FALLBACK_NAV: NavLink[] = [
-  { label: "Home", href: "/" },
   {
     label: "About Us",
     href: "/about",
@@ -26,6 +25,7 @@ export const FALLBACK_NAV: NavLink[] = [
       { label: "Our Values", href: "/about#our-values" },
       { label: "Board of Directors", href: "/about#board" },
       { label: "Partners", href: "/about#partners" },
+      { label: "Contact Us", href: "/contact" },
     ],
   },
   {
@@ -33,7 +33,8 @@ export const FALLBACK_NAV: NavLink[] = [
     href: "/care-services",
     children: [
       { label: "All Care Services", href: "/care-services" },
-      { label: "Care for Loved Ones in Ghana (Diaspora)", href: "/diaspora" },
+      { label: "Care for Loved Ones in Ghana", href: "/diaspora" },
+      { label: "Respite & Accommodation", href: "/respite" },
     ],
   },
   {
@@ -46,21 +47,25 @@ export const FALLBACK_NAV: NavLink[] = [
       { label: "Workforce Standards", href: "/academy/workforce-standards" },
     ],
   },
-  { label: "Respite & Accommodation", href: "/respite" },
-  { label: "Wellbeing Hub", href: "/wellbeing" },
-  { label: "Join Our Team", href: "/join-our-team" },
-  { label: "Client Registration", href: "/register/client" },
   {
-    label: "Resources",
-    href: "/journal",
+    label: "Work With Us",
+    href: "/join-our-team",
     children: [
-      { label: "The ChaseCare Journal", href: "/journal" },
-      { label: "Community", href: "/community" },
-      { label: "Monthly Forum", href: "/community/monthly-forum" },
+      { label: "Join Our Team", href: "/join-our-team" },
+      { label: "Wellbeing Hub", href: "/wellbeing" },
       { label: "Schools & Hospitals", href: "/schools-and-hospitals" },
     ],
   },
-  { label: "Shop", href: "/shop" },
+  {
+    label: "Community",
+    href: "/community",
+    children: [
+      { label: "The ChaseCare Journal", href: "/journal" },
+      { label: "Monthly Forum", href: "/community/monthly-forum" },
+      { label: "Community & Partnerships", href: "/community" },
+      { label: "Shop", href: "/shop" },
+    ],
+  },
   { label: "Contact", href: "/contact" },
 ];
 

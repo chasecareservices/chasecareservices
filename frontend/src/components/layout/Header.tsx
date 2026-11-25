@@ -62,7 +62,7 @@ export async function Header() {
 
       <div className="relative border-b border-brand-100">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <Logo compactOnLaptop />
+          <Logo />
           <DesktopNav links={desktopLinks} />
           <div className="flex items-center gap-2">
             <Link

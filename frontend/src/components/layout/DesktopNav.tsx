@@ -6,18 +6,13 @@ import { useEffect, useRef, useState } from "react";
 import { isActive, type NavLink } from "@/lib/navigation";
 
 const CLOSE_DELAY_MS = 150;
-
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} fill="currentColor">
-      <path d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z" />
-    </svg>
-  );
-}
+/** Dropdowns with more items than this use two columns. */
+const TWO_COLUMN_AFTER = 8;
 
 /**
- * Main menu for wide screens. Items with children open a dropdown panel on hover,
- * on click of the arrow, or from the keyboard (Enter/Space/↓ to open, Esc to close).
+ * Main menu for wide screens. A section's dropdown opens when the mouse is over it.
+ * Keyboard: Tab moves across the sections, ↓ opens a section's list and moves into it,
+ * Esc closes it and returns to the section link.
  */
 export function DesktopNav({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
@@ -34,7 +29,7 @@ export function DesktopNav({ links }: { links: NavLink[] }) {
     closeTimer.current = window.setTimeout(() => setOpen(null), CLOSE_DELAY_MS);
   };
 
-  // Close after navigating, on outside click, and on Escape.
+  // Close after navigating and on outside click.
   useEffect(() => setOpen(null), [pathname]);
   useEffect(() => {
     const onPointer = (e: PointerEvent) => {
@@ -46,84 +41,85 @@ export function DesktopNav({ links }: { links: NavLink[] }) {
   useEffect(() => cancelClose, []);
 
   return (
-    <nav ref={navRef} aria-label="Main" className="hidden xl:block">
-      <ul className="flex items-center text-[0.8125rem] font-medium text-brand-900">
+    <nav ref={navRef} aria-label="Main" className="hidden self-stretch xl:flex">
+      <ul className="flex items-stretch gap-1">
         {links.map((link, i) => {
-          const active = isActive(link, pathname);
-          const hasMenu = !!link.children?.length;
+          // A top-level link for this exact section wins over a parent that merely lists it.
+          const ownMatch = links.findIndex((l) => isActive({ label: l.label, href: l.href }, pathname));
+          const active = ownMatch >= 0 ? ownMatch === i : isActive(link, pathname);
+          const items = link.children ?? [];
+          const hasMenu = items.length > 0;
           const isOpen = open === i;
-          const linkClass = `whitespace-nowrap rounded-full py-2 hover:bg-brand-50 hover:text-brand-700 ${
-            active ? "text-brand-700 underline decoration-accent-500 decoration-2 underline-offset-8" : ""
-          }`;
-
-          if (!hasMenu) {
-            return (
-              <li key={link.href}>
-                <Link href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`${linkClass} px-1.5`}>
-                  {link.label}
-                </Link>
-              </li>
-            );
-          }
-
           const menuId = `submenu-${i}`;
+          const twoColumns = items.length > TWO_COLUMN_AFTER;
+
           return (
             <li
               key={link.href}
-              className="relative"
+              className="relative flex items-center"
               onMouseEnter={() => {
                 cancelClose();
-                setOpen(i);
+                if (hasMenu) setOpen(i);
               }}
               onMouseLeave={scheduleClose}
+              onFocus={() => {
+                // Keep this section's list open while moving through it; close any other one.
+                cancelClose();
+                setOpen((current) => (current === i ? i : null));
+              }}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) scheduleClose();
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Escape" && isOpen) {
                   setOpen(null);
-                  (e.currentTarget.querySelector("button") as HTMLButtonElement | null)?.focus();
+                  e.currentTarget.querySelector<HTMLAnchorElement>("a")?.focus();
                 }
               }}
             >
-              <div className="flex items-center">
-                <Link href={link.href} className={`${linkClass} pl-1.5 pr-0.5`}>
-                  {link.label}
-                </Link>
-                <button
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-controls={menuId}
-                  aria-label={`${link.label} menu`}
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      setOpen(i);
-                      requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>(`#${menuId} a`)?.focus());
-                    }
-                  }}
-                  className="mr-0.5 rounded-full p-0.5 text-brand-700 hover:bg-brand-50"
-                >
-                  <Chevron open={isOpen} />
-                </button>
-              </div>
-              <div
-                id={menuId}
-                hidden={!isOpen}
-                className="absolute left-0 top-full z-50 pt-2"
+              <Link
+                href={link.href}
+                aria-current={pathname === link.href ? "page" : undefined}
+                aria-haspopup={hasMenu ? "true" : undefined}
+                aria-expanded={hasMenu ? isOpen : undefined}
+                aria-controls={hasMenu ? menuId : undefined}
+                onKeyDown={(e) => {
+                  if (hasMenu && e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setOpen(i);
+                    requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>(`#${menuId} a`)?.focus());
+                  }
+                }}
+                className={`whitespace-nowrap px-3 py-2 text-[0.9375rem] font-semibold transition-colors decoration-2 underline-offset-[10px] ${
+                  active || isOpen
+                    ? "text-brand-800 underline decoration-accent-500"
+                    : "text-gray-600 hover:text-brand-800 hover:underline hover:decoration-brand-200"
+                }`}
               >
-                <ul className="min-w-60 rounded-xl border border-brand-100 bg-white py-2 shadow-xl ring-1 ring-black/5">
-                  {link.children!.map((child) => (
-                    <li key={child.href + child.label}>
-                      <Link
-                        href={child.href}
-                        aria-current={pathname === child.href ? "page" : undefined}
-                        className="block whitespace-nowrap px-4 py-2.5 text-sm text-ink hover:bg-brand-50 hover:text-brand-800 focus:bg-brand-50 aria-[current=page]:font-semibold aria-[current=page]:text-brand-800"
-                      >
-                        {child.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                {link.label}
+              </Link>
+
+              {hasMenu && (
+                <div id={menuId} hidden={!isOpen} className="absolute left-0 top-full z-50 -mt-2 pt-2">
+                  <ul
+                    className={`bg-white py-2 shadow-[0_10px_30px_-8px_rgba(42,6,68,0.35)] ring-1 ring-black/5 ${
+                      twoColumns ? "grid w-[34rem] grid-cols-2" : "min-w-64"
+                    }`}
+                  >
+                    {items.map((child) => (
+                      <li key={child.href + child.label}>
+                        <Link
+                          href={child.href}
+                          aria-current={pathname === child.href ? "page" : undefined}
+                          className="block whitespace-nowrap px-5 py-3 text-[0.9375rem] text-gray-700 transition-colors hover:bg-brand-50 hover:text-brand-800 focus:bg-brand-50 focus:text-brand-800 aria-[current=page]:font-semibold aria-[current=page]:text-brand-800"
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </li>
           );
         })}
