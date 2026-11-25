@@ -125,17 +125,34 @@ export function BandHero({
   title,
   intro,
   image,
+  people,
 }: {
   eyebrow?: string;
   title: string;
   intro?: ReactNode;
   image?: SiteImage;
+  /** Several portraits shown side by side across the strip instead of one photo. */
+  people?: SiteImage[];
 }) {
+  const portraits = (people ?? []).filter((p) => p.src);
   return (
     <section>
-      <div className="relative h-44 overflow-hidden sm:h-64 lg:h-80">
-        <FillPhoto image={image} sizes="100vw" priority variant={2} />
-      </div>
+      {portraits.length > 0 ? (
+        <ul
+          className="grid h-48 gap-0.5 bg-brand-800 sm:h-72 lg:h-80"
+          style={{ gridTemplateColumns: `repeat(${portraits.length}, minmax(0, 1fr))` }}
+        >
+          {portraits.map((p, i) => (
+            <li key={p.src} className="relative overflow-hidden">
+              <FillPhoto image={p} sizes={`${Math.ceil(100 / portraits.length)}vw`} priority={i < 2} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="relative h-44 overflow-hidden sm:h-64 lg:h-80">
+          <FillPhoto image={image} sizes="100vw" priority variant={2} />
+        </div>
+      )}
       <div className="border-b-4 border-accent-500 bg-brand-800 text-white">
         <Container className="py-6 sm:py-8">
           {eyebrow && <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-accent-400">{eyebrow}</p>}

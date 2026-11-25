@@ -7,7 +7,7 @@ import { RelatedInfo } from "@/components/RelatedInfo";
 import { BandHero, CheckList, Container, EmptyState } from "@/components/ui";
 import { getPartners, getTeamMembers, mediaUrl, type TeamMember } from "@/lib/content";
 import { MISSION, MISSION_POINTS, VALUES, VISION, WHAT_WE_DO } from "@/lib/site-copy";
-import { PAGE_BANNERS } from "@/lib/images";
+import { ABOUT_TEAM_STRIP, PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -51,7 +51,7 @@ export default async function AboutPage() {
 
   return (
     <>
-      <BandHero eyebrow="About Us" title="Who We Are" image={PAGE_BANNERS["about"]} />
+      <BandHero eyebrow="About Us" title="Who We Are" image={PAGE_BANNERS["about"]} people={ABOUT_TEAM_STRIP} />
       <ImpactStats />
 
       <Container className="grid gap-12 py-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">

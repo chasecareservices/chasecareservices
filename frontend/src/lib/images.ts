@@ -82,6 +82,18 @@ export const PAGE_BANNERS: Record<string, SiteImage> = {
   "academy/workforce-standards": { src: null, alt: "" },
 };
 
+/**
+ * "Who We Are" banner on the About page: portraits shown side by side.
+ * Square crops (800×800) framing head and shoulders, in public/images/team/.
+ * Replace the alt text with each person's name and role once confirmed.
+ */
+export const ABOUT_TEAM_STRIP: SiteImage[] = [
+  { src: "/images/team/team-1.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
+  { src: "/images/team/team-2.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
+  { src: "/images/team/team-3.jpg", alt: "A member of the Chase Care Services team", focus: "center 35%" },
+  { src: "/images/team/team-4.jpg", alt: "A member of the Chase Care Services team", focus: "center 30%" },
+];
+
 /** Photos beside the text sections on the homepage. */
 export const SECTION_IMAGES = {
   whoWeAre: {
