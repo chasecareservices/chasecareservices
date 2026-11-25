@@ -57,16 +57,6 @@ export async function CmsPageView({ slug }: { slug: string }) {
         ))}
       />
       {isForum && <ForumDate />}
-      {copy.pendingClientText && (
-        <Container className="py-14">
-          <div className="max-w-3xl rounded-3xl border border-brand-100 bg-brand-50 p-8">
-            <p className="text-lg text-brand-900">This page is being finalised and will be published shortly.</p>
-            <p className="mt-3 text-muted">
-              If you have any questions about how we handle your information, please contact us and we will respond promptly.
-            </p>
-          </div>
-        </Container>
-      )}
       {copy.sections.map((section, i) => (
         <Section key={section.heading} tone={i % 2 === 1 ? "tint" : "white"} title={section.heading} intro={section.text}>
           {section.pathway && <Pathway steps={section.pathway} />}

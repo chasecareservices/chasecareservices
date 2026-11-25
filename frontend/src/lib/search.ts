@@ -1,3 +1,4 @@
+import { LEGAL_DOCUMENTS, legalPlainText } from "@/lib/legal";
 import { PAGE_COPY } from "@/lib/site-copy";
 
 export type SearchKind = "page" | "service" | "course" | "article" | "product";
@@ -97,6 +98,7 @@ export function searchBuiltInPages(query: string): SearchResult[] {
       summary: copy.intro,
       keywords: [copy.eyebrow ?? "", ...copy.sections.flatMap((s) => [s.heading, s.text ?? "", ...(s.items ?? []), ...(s.pathway ?? [])])].join(" "),
     })),
+    ...LEGAL_DOCUMENTS.map((d) => ({ title: d.title, url: `/${d.slug}`, summary: d.summary, keywords: legalPlainText(d) })),
   ];
   return candidates
     .filter((p) => matches(tokens, `${p.title} ${p.summary} ${p.keywords}`))

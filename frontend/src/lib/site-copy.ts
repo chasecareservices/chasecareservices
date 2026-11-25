@@ -17,8 +17,6 @@ export type PageCopy = {
   intro: string;
   sections: CopySection[];
   ctas: { label: string; href: string }[];
-  /** True for pages whose final wording must come from the client (e.g. legal text). */
-  pendingClientText?: boolean;
 };
 
 export const MISSION =
@@ -258,26 +256,5 @@ export const PAGE_COPY: Record<string, PageCopy> = {
       { label: "Join Our Team", href: "/join-our-team" },
       { label: "View courses", href: "/academy" },
     ],
-  },
-  "privacy-policy": {
-    title: "Privacy Policy",
-    intro: "How Chase Care Services collects, uses and protects personal information.",
-    sections: [],
-    ctas: [{ label: "Contact us about your data", href: "/contact" }],
-    pendingClientText: true,
-  },
-  "terms-of-service": {
-    title: "Terms of Service",
-    intro: "The terms that apply when you use this website and our services.",
-    sections: [],
-    ctas: [{ label: "Contact us", href: "/contact" }],
-    pendingClientText: true,
-  },
-  "cookie-policy": {
-    title: "Cookie Policy",
-    intro: "How this website uses cookies.",
-    sections: [],
-    ctas: [{ label: "Contact us", href: "/contact" }],
-    pendingClientText: true,
   },
 };

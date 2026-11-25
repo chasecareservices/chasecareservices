@@ -17,6 +17,8 @@ describe("searchBuiltInPages", () => {
     expect(urls("counsel")).toContain("/wellbeing"); // "Counselling and emotional wellbeing support"
     expect(urls("abroad")).toContain("/diaspora");
     expect(urls("forum")).toContain("/community/monthly-forum");
+    expect(urls("cookies")).toContain("/cookie-policy");
+    expect(urls("privacy")).toContain("/privacy-policy");
   });
 
   it("needs every word to match", () => {

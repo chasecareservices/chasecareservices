@@ -3,6 +3,7 @@ import { LanguageSelect } from "@/components/language/LanguageSelect";
 import { Logo } from "@/components/Logo";
 import { getNavigation, getSiteSettings } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
+import { LEGAL_DOCUMENTS } from "@/lib/legal";
 
 type OpeningHours = { days?: string; hours?: string }[];
 type SocialLinks = Record<string, string>;
@@ -16,11 +17,8 @@ const QUICK_LINKS = [
   { label: "The ChaseCare Journal", href: "/journal" },
 ];
 
-const LEGAL_FALLBACK = [
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Service", href: "/terms-of-service" },
-  { label: "Cookie Policy", href: "/cookie-policy" },
-];
+/** Used if the footer menu in the database is empty: the policies in src/lib/legal. */
+const LEGAL_FALLBACK = LEGAL_DOCUMENTS.map((d) => ({ label: d.title, href: `/${d.slug}` }));
 
 export async function Footer() {
   const [settings, footerNav] = await Promise.all([getSiteSettings(), getNavigation("footer")]);
