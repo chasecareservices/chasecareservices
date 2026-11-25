@@ -1114,7 +1114,15 @@ export type Database = {
     };
     Functions: {
       current_user_has_role: { Args: { role: string }; Returns: boolean };
+      enquiry_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          status: Database["public"]["Enums"]["enquiry_status"];
+          total: number;
+        }[];
+      };
       has_permission: { Args: { perm: string }; Returns: boolean };
+      has_staff_role: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
       search_site: {
@@ -1126,6 +1134,10 @@ export type Database = {
           title: string;
           url: string;
         }[];
+      };
+      staff_mfa_required: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
       };
       submit_enquiry: {
         Args: {

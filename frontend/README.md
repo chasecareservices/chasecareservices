@@ -34,6 +34,23 @@ Rules the site follows:
 - **Impact numbers** (homepage and About) and **Recognition** (About) come from `site_settings.impact_stats` and `site_settings.recognitions`, and stay hidden until real entries are added.
 - **Choose language** (footer): Google Translate into Twi, Ga, Ewe, Hausa, French or Arabic. Google's script only loads after a visitor picks a language other than English, and the choice is remembered in a `googtrans` cookie. This is machine translation, so mention it in the Cookie and Privacy policies. Languages are listed in `src/lib/languages.ts`.
 
+## Staff dashboard (`/admin`) — stage 1
+
+Sign-in for Chase Care staff, separate from the public site (not indexed by search engines).
+
+| Section | Who sees it | What it does |
+|---|---|---|
+| Sign in · Forgot password · Set password | Everyone | Email + password; reset and invitation links land on `/admin/set-password` |
+| Two-step verification | All staff (when required) | Authenticator app (QR code first time, 6-digit code after). Required whenever `private.security_settings.require_staff_mfa` is on (the live default) |
+| Overview | All staff | Enquiry counts, latest enquiries, published content counts |
+| Enquiries | `enquiries.view` / `.edit` | Inbox with filters and search, full form details, reply links (email, call, WhatsApp), status, internal notes |
+| Site settings | `settings.view` / `.edit` | Organisation details, contact, opening hours, social links, impact numbers, recognition. Saving refreshes the public site |
+| Staff & roles | `users.view` / `.edit` | Invite by email, give or remove roles, deactivate. Only a Super Admin can grant Super Admin; the last one can't be removed |
+
+Every action runs as the signed-in staff member, so the database's Row Level Security applies. Inviting staff and showing their email addresses uses `SUPABASE_SECRET_KEY` on the server only.
+
+Stage 2 adds editing for pages, services, the Journal, courses, the shop, team, partners, testimonials, menus, media and the audit log.
+
 ## Photos
 
 The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
@@ -83,7 +100,8 @@ Open <http://localhost:3000>.
    - `NEXT_PUBLIC_SUPABASE_URL` = `https://hkvcwdvtgmniuqxvuqsv.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` = Supabase dashboard → Project Settings → API Keys → Publishable key
    - `NEXT_PUBLIC_SITE_URL` = the website address, e.g. `https://chasecareservices.org`
-3. Deploy. Then in Supabase → Authentication → URL Configuration, set the **Site URL** to the same address.
+   - `SUPABASE_SECRET_KEY` = Supabase dashboard → Project Settings → API Keys → **Secret** key (server only, for staff invitations)
+3. Deploy. Then in Supabase → Authentication → URL Configuration, set the **Site URL** to the same address and add `https://<your-address>/**` to **Redirect URLs** (needed for password reset and staff invitation links).
 
 ## Still to come
 
