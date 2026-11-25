@@ -80,6 +80,174 @@ export type Database = {
         };
         Relationships: [];
       };
+      care_assignments: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          worker_id: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_assignments_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_assignments_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      care_clients: {
+        Row: {
+          area: string | null;
+          care_summary: string | null;
+          created_at: string;
+          emergency_contact_name: string | null;
+          emergency_contact_phone: string | null;
+          full_name: string;
+          id: string;
+          is_active: boolean;
+          preferred_name: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          area?: string | null;
+          care_summary?: string | null;
+          created_at?: string;
+          emergency_contact_name?: string | null;
+          emergency_contact_phone?: string | null;
+          full_name: string;
+          id?: string;
+          is_active?: boolean;
+          preferred_name?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          area?: string | null;
+          care_summary?: string | null;
+          created_at?: string;
+          emergency_contact_name?: string | null;
+          emergency_contact_phone?: string | null;
+          full_name?: string;
+          id?: string;
+          is_active?: boolean;
+          preferred_name?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      care_reports: {
+        Row: {
+          activities: string[];
+          client_id: string;
+          concern_level: Database["public"]["Enums"]["care_concern"];
+          concerns: string | null;
+          end_time: string | null;
+          id: string;
+          meals: string | null;
+          medication: string | null;
+          mood: Database["public"]["Enums"]["care_mood"];
+          office_note: string | null;
+          reference: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          start_time: string | null;
+          status: Database["public"]["Enums"]["care_report_status"];
+          submitted_at: string;
+          summary: string;
+          updated_at: string;
+          visit_date: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          activities?: string[];
+          client_id: string;
+          concern_level?: Database["public"]["Enums"]["care_concern"];
+          concerns?: string | null;
+          end_time?: string | null;
+          id?: string;
+          meals?: string | null;
+          medication?: string | null;
+          mood: Database["public"]["Enums"]["care_mood"];
+          office_note?: string | null;
+          reference?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          start_time?: string | null;
+          status?: Database["public"]["Enums"]["care_report_status"];
+          submitted_at?: string;
+          summary: string;
+          updated_at?: string;
+          visit_date?: string;
+          worker_id?: string;
+        };
+        Update: {
+          activities?: string[];
+          client_id?: string;
+          concern_level?: Database["public"]["Enums"]["care_concern"];
+          concerns?: string | null;
+          end_time?: string | null;
+          id?: string;
+          meals?: string | null;
+          medication?: string | null;
+          mood?: Database["public"]["Enums"]["care_mood"];
+          office_note?: string | null;
+          reference?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          start_time?: string | null;
+          status?: Database["public"]["Enums"]["care_report_status"];
+          submitted_at?: string;
+          summary?: string;
+          updated_at?: string;
+          visit_date?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_reports_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_reports_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           accreditation_reference: string | null;
@@ -1116,6 +1284,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      care_report_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          monitor: number;
+          to_read: number;
+          urgent: number;
+        }[];
+      };
       current_user_has_role: { Args: { role: string }; Returns: boolean };
       enquiry_counts: {
         Args: Record<PropertyKey, never>;
@@ -1126,7 +1302,21 @@ export type Database = {
       };
       has_permission: { Args: { perm: string }; Returns: boolean };
       has_staff_role: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_assigned_to: { Args: { client: string }; Returns: boolean };
+      is_care_worker: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_worker_profile: { Args: { uid: string }; Returns: boolean };
+      list_care_workers: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          email: string;
+          full_name: string;
+          id: string;
+          is_active: boolean;
+          last_report_at: string;
+          phone: string;
+        }[];
+      };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
       search_site: {
         Args: { max_results?: number; query: string };
@@ -1161,6 +1351,9 @@ export type Database = {
       };
     };
     Enums: {
+      care_concern: "none" | "monitor" | "urgent";
+      care_mood: "great" | "good" | "okay" | "low" | "distressed";
+      care_report_status: "submitted" | "reviewed";
       certification_type: "internal" | "cpd" | "externally_accredited";
       content_status: "draft" | "published" | "archived";
       course_audience:
@@ -1327,6 +1520,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      care_concern: ["none", "monitor", "urgent"],
+      care_mood: ["great", "good", "okay", "low", "distressed"],
+      care_report_status: ["submitted", "reviewed"],
       certification_type: ["internal", "cpd", "externally_accredited"],
       content_status: ["draft", "published", "archived"],
       course_audience: [

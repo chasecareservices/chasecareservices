@@ -14,6 +14,12 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     newEnquiries = count ?? 0;
   }
 
+  let careToRead = 0;
+  if (staff.can("care_ops.view")) {
+    const { data } = await staff.supabase.rpc("care_report_counts");
+    careToRead = Number(data?.[0]?.to_read ?? 0);
+  }
+
   const contentLinks = RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({
     label: r.title,
     href: `/admin/content/${r.key}`,
@@ -24,6 +30,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       items: [
         { label: "Overview", href: "/admin" },
         ...(staff.can("enquiries.view") ? [{ label: "Enquiries", href: "/admin/enquiries", badge: newEnquiries }] : []),
+      ],
+    },
+    {
+      title: "Care",
+      items: [
+        ...(staff.can("care_ops.view") ? [{ label: "Care reports", href: "/admin/care-reports", badge: careToRead }] : []),
+        ...(staff.can("clients.view") ? [{ label: "Clients & care workers", href: "/admin/care-clients" }] : []),
       ],
     },
     {

@@ -52,7 +52,7 @@ export default function SetPasswordPage() {
       setError(error.message);
       return;
     }
-    router.replace("/admin");
+    router.replace("/admin"); // care workers are sent on to /portal
     router.refresh();
   }
 

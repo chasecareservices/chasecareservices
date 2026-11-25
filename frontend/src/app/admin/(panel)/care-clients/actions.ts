@@ -1,0 +1,100 @@
+"use server";
+
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requirePermission } from "@/lib/admin/session";
+import { createSecretClient } from "@/lib/supabase/server-auth";
+
+type Result = { error: string } | undefined;
+const UUID = /^[0-9a-f-]{36}$/;
+const text = (f: FormData, k: string, max: number) => String(f.get(k) ?? "").trim().slice(0, max) || null;
+
+async function siteOrigin() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  const h = await headers();
+  return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
+}
+
+export async function saveClient(formData: FormData): Promise<Result> {
+  const id = String(formData.get("id") ?? "");
+  const staff = await requirePermission(id ? "clients.edit" : "clients.create");
+  const fullName = text(formData, "full_name", 120);
+  if (!fullName || fullName.length < 2) return { error: "Enter the client's full name." };
+  const row = {
+    full_name: fullName,
+    preferred_name: text(formData, "preferred_name", 60),
+    area: text(formData, "area", 120),
+    care_summary: text(formData, "care_summary", 2000),
+    emergency_contact_name: text(formData, "emergency_contact_name", 120),
+    emergency_contact_phone: text(formData, "emergency_contact_phone", 40),
+    is_active: id ? formData.get("is_active") === "on" : true,
+    updated_by: staff.user.id,
+  };
+  const { data, error } = id
+    ? await staff.supabase.from("care_clients").update(row).eq("id", id).select("id").single()
+    : await staff.supabase.from("care_clients").insert(row).select("id").single();
+  if (error || !data) return { error: "The client could not be saved. Please try again." };
+  revalidatePath("/admin/care-clients");
+  redirect(`/admin/care-clients/${data.id}?saved=client`);
+}
+
+/** Who visits this client: ticked workers are assigned, unticked ones are removed (kept for history). */
+export async function saveAssignments(formData: FormData): Promise<Result> {
+  const staff = await requirePermission("clients.edit");
+  const clientId = String(formData.get("client_id") ?? "");
+  if (!UUID.test(clientId)) return { error: "Something went wrong. Please reload the page." };
+  const chosen = new Set(formData.getAll("worker_id").map(String).filter((v) => UUID.test(v)));
+  const { data: current } = await staff.supabase.from("care_assignments").select("worker_id, is_active").eq("client_id", clientId);
+  for (const a of current ?? []) {
+    const want = chosen.has(a.worker_id);
+    if (want !== a.is_active) {
+      const { error } = await staff.supabase.from("care_assignments").update({ is_active: want }).eq("client_id", clientId).eq("worker_id", a.worker_id);
+      if (error) return { error: "The care team could not be saved. Please try again." };
+    }
+    chosen.delete(a.worker_id);
+  }
+  if (chosen.size) {
+    const { error } = await staff.supabase.from("care_assignments").insert([...chosen].map((worker_id) => ({ client_id: clientId, worker_id })));
+    if (error) return { error: "The care team could not be saved. Please try again." };
+  }
+  revalidatePath("/admin/care-clients");
+  redirect(`/admin/care-clients/${clientId}?saved=team`);
+}
+
+/**
+ * Invites a care worker by email. They choose a password from the email link and are
+ * then taken to the care worker portal. Needs workforce.create (Operations Manager, Owner).
+ */
+export async function inviteWorker(formData: FormData): Promise<Result> {
+  await requirePermission("workforce.create");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const fullName = text(formData, "full_name", 120);
+  const phone = text(formData, "phone", 40);
+  if (!fullName) return { error: "Enter the care worker's full name." };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Enter a valid email address, like ama@example.com." };
+
+  const admin = createSecretClient();
+  if (!admin) return { error: "Invitations aren't set up yet: the site's secret key is missing. Ask your developer." };
+
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name: fullName },
+    redirectTo: `${await siteOrigin()}/admin/set-password`,
+  });
+  if (error || !data.user) {
+    return {
+      error: /already|registered|exists/i.test(error?.message ?? "")
+        ? "Someone with this email already has an account. Ask the Owner to add the Worker role to them in Staff & roles."
+        : "The invitation could not be sent. Please check the email address and try again.",
+    };
+  }
+  // The permission was checked above; the secret key is needed because care managers
+  // don't manage staff roles generally.
+  const [{ error: roleError }] = await Promise.all([
+    admin.from("user_roles").insert({ user_id: data.user.id, role_key: "worker" }),
+    phone ? admin.from("profiles").update({ phone }).eq("id", data.user.id) : Promise.resolve({ error: null }),
+  ]);
+  if (roleError) return { error: "The invitation was sent, but the Worker role could not be added. Ask the Owner to add it in Staff & roles." };
+  revalidatePath("/admin/care-clients");
+  redirect(`/admin/care-clients?saved=invited&who=${encodeURIComponent(email)}#care-workers`);
+}

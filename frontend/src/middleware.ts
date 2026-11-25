@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Keeps admin sign-in sessions fresh and sends signed-out visitors to the login page.
- * Only runs for /admin pages. Detailed checks (staff role, two-step) happen in the pages.
+ * Runs for the staff dashboard (/admin) and the care worker portal (/portal). Detailed checks (staff role, two-step) happen in the pages.
  */
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,11 +27,12 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublicAdminPage = ["/admin/login", "/admin/forgot-password", "/admin/set-password"].some((p) => path.startsWith(p));
-  if (!user && !isPublicAdminPage) {
+  const isPublicPage = ["/admin/login", "/admin/forgot-password", "/admin/set-password", "/portal/login"].some((p) => path.startsWith(p));
+  if (!user && !isPublicPage) {
+    const inPortal = path.startsWith("/portal");
     const login = request.nextUrl.clone();
-    login.pathname = "/admin/login";
-    login.search = path === "/admin" ? "" : `?next=${encodeURIComponent(path)}`;
+    login.pathname = inPortal ? "/portal/login" : "/admin/login";
+    login.search = path === "/admin" || path === "/portal" ? "" : `?next=${encodeURIComponent(path)}`;
     return NextResponse.redirect(login);
   }
 
@@ -41,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/portal/:path*"],
 };

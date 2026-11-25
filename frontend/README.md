@@ -57,6 +57,17 @@ Every action runs as the signed-in staff member, so the database's Row Level Sec
 
 The content editors are driven by one list of field definitions in `src/lib/admin/resources.ts` — add a field there and it appears in the form. Every save refreshes the public site immediately. Photos go to the public `public-media` bucket, so never upload anything containing personal details.
 
+## Care worker portal (`/portal`)
+
+Care workers (role **Worker**) sign in at `/portal/login` on their phone and send a report after each visit:
+the visit, how the client was (mood, activities, food, medication), notes and any concern. The office reads them at
+`/admin/care-reports` (permission `care_ops.view`, mark as read with `care_ops.edit`) and manages clients, care teams
+and invitations at `/admin/care-clients` (`clients.*`, invitations need `workforce.create`).
+
+Workers only ever see their assigned clients and their own reports; reports can't be deleted. Design notes, mapped to
+the IT-421 usability principles, are in [`../doc/CARE_PORTAL_DESIGN.md`](../doc/CARE_PORTAL_DESIGN.md).
+Local demo logins: `carer@chasecare.local` and `carer2@chasecare.local` (password `ChaseCare2026!`).
+
 ## Photos
 
 The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds, editable at `/admin/homepage`), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.

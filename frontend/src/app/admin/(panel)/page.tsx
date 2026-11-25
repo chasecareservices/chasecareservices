@@ -23,6 +23,8 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
     db.from("posts").select("id", { count: "exact", head: true }).eq("status", "published"),
   ]);
 
+  const care = staff.can("care_ops.view") ? (await db.rpc("care_report_counts")).data?.[0] : null;
+
   const quickLinks = [
     ...(staff.can("content.edit") ? [{ label: "Homepage slider & banners", href: "/admin/homepage" }] : []),
     ...RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({ label: r.title, href: `/admin/content/${r.key}` })),
@@ -91,6 +93,30 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           )}
           <Link href="/admin/enquiries" className="mt-4 inline-block text-sm font-semibold text-brand-700 underline">
             Open the inbox
+          </Link>
+        </Card>
+      )}
+
+      {care && (
+        <Card title="Care reports" className="mt-8">
+          {Number(care.urgent) > 0 && (
+            <p role="alert" className="mb-3 rounded-xl border-2 border-red-300 bg-red-50 px-4 py-3 font-semibold text-red-800">
+              <span aria-hidden="true">‼ </span>
+              {Number(care.urgent)} urgent {Number(care.urgent) === 1 ? "report needs" : "reports need"} attention today.
+            </p>
+          )}
+          <p className="text-ink">
+            {Number(care.to_read) === 0 ? (
+              "All care reports have been read."
+            ) : (
+              <>
+                <strong className="text-brand-900">{Number(care.to_read)}</strong> {Number(care.to_read) === 1 ? "report is" : "reports are"} waiting to be read
+                {Number(care.monitor) > 0 ? `, including ${care.monitor} to keep an eye on` : ""}.
+              </>
+            )}
+          </p>
+          <Link href="/admin/care-reports" className="mt-3 inline-flex min-h-11 items-center rounded-full bg-brand-800 px-5 text-sm font-semibold text-white hover:bg-brand-700">
+            Read care reports
           </Link>
         </Card>
       )}

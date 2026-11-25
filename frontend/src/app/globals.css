@@ -25,8 +25,8 @@
   --color-accent-300: #fcbf47;
   --color-accent-400: #f9a91c;
   --color-accent-500: #f89a00;
-  --color-accent-600: #d97f00;
-  --color-accent-700: #b46200;
+  --color-accent-600: #a35400; /* text on white or tint: 5.5:1 (WCAG AA). Brighter oranges are for fills, not text. */
+  --color-accent-700: #8a4500;
 
   --color-ink: #1f1a24;
   --color-muted: #5b5363;

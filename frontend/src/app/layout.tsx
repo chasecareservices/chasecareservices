@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-GB" suppressHydrationWarning>
+    <html lang="en-GB" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* Applies saved accessibility choices before the page is shown (no flash). */}
         <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT_SCRIPT }} />

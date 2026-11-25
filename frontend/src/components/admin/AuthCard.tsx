@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { LogoMark } from "@/components/LogoMark";
 
 /** Centered card used by the sign-in, password and two-step screens. */
-export function AuthCard({ title, intro, children }: { title: string; intro?: ReactNode; children: ReactNode }) {
+export function AuthCard({ title, intro, children, subtitle = "Staff dashboard" }: { title: string; intro?: ReactNode; children: ReactNode; subtitle?: string }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-50 px-4 py-12">
       <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl ring-1 ring-brand-100">
@@ -12,7 +12,7 @@ export function AuthCard({ title, intro, children }: { title: string; intro?: Re
             <p className="font-display text-xl font-bold tracking-[0.18em] text-brand-800">
               C<span className="text-accent-500">H</span>A<span className="text-accent-500">S</span>E
             </p>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted">Staff dashboard</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted">{subtitle}</p>
           </div>
         </div>
         <h1 className="text-2xl font-bold text-brand-900">{title}</h1>
