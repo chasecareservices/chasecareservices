@@ -1,0 +1,23 @@
+{
+  "name": "chasecare-backend",
+  "version": "1.0.0",
+  "description": "Chase Care Services backend: Supabase (PostgreSQL, Auth, Storage)",
+  "scripts": {
+    "start": "supabase start",
+    "stop": "supabase stop",
+    "status": "supabase status",
+    "db:start": "supabase db start",
+    "db:reset": "supabase db reset",
+    "db:new": "supabase migration new",
+    "lint": "supabase db lint --level warning --fail-on error",
+    "test": "supabase test db",
+    "types": "supabase gen types typescript --local --schema public > types/database.ts && prettier --write types/database.ts",
+    "types:check": "npm run types && git diff --exit-code -- types/database.ts"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.3.3",
+    "supabase": "3.4.0"
+  },
+  "private": true
+}

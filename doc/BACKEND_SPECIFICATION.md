@@ -10,8 +10,8 @@
 ## 1. Architecture Principles [§31, §37, §38]
 
 - Build as a **scalable care-management platform**, not a brochure site: Phase 1 is public content, but the data model and auth must already support Phases 2–7.
-- REST (or GraphQL) API consumed by the frontend; versioned (`/api/v1`).
-- Separation of public endpoints (content, forms) from authenticated portal endpoints.
+- Separation of public access (content, forms) from authenticated portal access.
+- **Technology decision (agreed):** **Supabase** — PostgreSQL database, Supabase Auth (incl. TOTP two-factor), Supabase Storage and the auto-generated Data API. Access rules are enforced in the database with Row Level Security; privileged work (inviting staff, payment webhooks, emails) runs server-side in Supabase Edge Functions. Implementation and setup: [`backend/README.md`](../backend/README.md).
 - Sensitive health/personal data isolated and access-controlled.
 - To confirm with client: hosting, domain, SSL, backups, payment gateway, communication tools [§37].
 
