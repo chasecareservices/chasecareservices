@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { isEnquiryType } from "@/lib/enquiry-topics";
 import { ButtonLink, Container, PageHero } from "@/components/ui";
-import { getSiteSettings } from "@/lib/content";
+import { getSiteSettings, bannerFor } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
-import { PAGE_BANNERS } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -27,7 +26,7 @@ export default async function ContactPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS["contact"]}
+        image={await bannerFor("contact")}
         eyebrow="Contact ChaseCare"
         title="We're here to help"
         intro="Call, WhatsApp or send us a message. Families in Ghana and abroad are welcome."

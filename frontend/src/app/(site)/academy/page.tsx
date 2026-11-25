@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CourseCard } from "@/components/cards";
 import { ButtonLink, EmptyState, PageHero, Pathway, Section } from "@/components/ui";
-import { getCourses } from "@/lib/content";
+import { getCourses, bannerFor } from "@/lib/content";
 import { STUDENT_PATHWAY } from "@/lib/site-copy";
-import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -21,7 +20,7 @@ export default async function AcademyPage() {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS["academy"]}
+        image={await bannerFor("academy")}
         eyebrow="ChaseCare Academy"
         title="Training that prepares people to care well"
         intro="Competency-based training, continuous professional development and courses for parents and young people starting out in care."

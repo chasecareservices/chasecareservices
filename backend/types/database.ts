@@ -912,6 +912,7 @@ export type Database = {
           map_url: string | null;
           opening_hours: NonNullable<Json>;
           organisation_name: string;
+          page_banners: NonNullable<Json>;
           phone: string | null;
           recognitions: NonNullable<Json>;
           social_links: NonNullable<Json>;
@@ -934,6 +935,7 @@ export type Database = {
           map_url?: string | null;
           opening_hours?: NonNullable<Json>;
           organisation_name?: string;
+          page_banners?: NonNullable<Json>;
           phone?: string | null;
           recognitions?: NonNullable<Json>;
           social_links?: NonNullable<Json>;
@@ -955,6 +957,7 @@ export type Database = {
           map_url?: string | null;
           opening_hours?: NonNullable<Json>;
           organisation_name?: string;
+          page_banners?: NonNullable<Json>;
           phone?: string | null;
           recognitions?: NonNullable<Json>;
           social_links?: NonNullable<Json>;
@@ -1135,6 +1138,7 @@ export type Database = {
           url: string;
         }[];
       };
+      set_page_banners: { Args: { banners: Json }; Returns: undefined };
       staff_mfa_required: {
         Args: Record<PropertyKey, never>;
         Returns: boolean;

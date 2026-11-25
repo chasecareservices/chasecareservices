@@ -6,6 +6,8 @@ const storageHost = supabaseUrl ? new URL(supabaseUrl) : null;
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Staff upload photos (up to 10 MB) through server actions.
+  experimental: { serverActions: { bodySizeLimit: "12mb" } },
   images: {
     remotePatterns: storageHost
       ? [

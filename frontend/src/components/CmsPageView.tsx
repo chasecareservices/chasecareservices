@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
 import { RelatedInfo } from "@/components/RelatedInfo";
 import { ButtonLink, CheckList, Container, PageHero, Pathway } from "@/components/ui";
-import { getPage } from "@/lib/content";
+import { getPage, bannerFor } from "@/lib/content";
 import { formatLongDate, nextForumDate } from "@/lib/forum";
-import { PAGE_BANNERS } from "@/lib/images";
 import { PAGE_COPY } from "@/lib/site-copy";
 
 /** A published page from the database, and/or built-in copy, for a slug like "community/monthly-forum". */
@@ -33,7 +32,7 @@ export async function CmsPageView({ slug }: { slug: string }) {
   if (page) {
     return (
       <>
-        <PageHero title={page.title} intro={page.summary} image={PAGE_BANNERS[slug]} />
+        <PageHero title={page.title} intro={page.summary} image={await bannerFor(slug)} />
         {isForum && <ForumDate />}
         <Container className="grid gap-12 py-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
           <div className="-mx-4 sm:-mx-6 lg:-mx-8">
@@ -52,7 +51,7 @@ export async function CmsPageView({ slug }: { slug: string }) {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS[slug]}
+        image={await bannerFor(slug)}
         eyebrow={copy.eyebrow}
         title={copy.title}
         intro={copy.intro}

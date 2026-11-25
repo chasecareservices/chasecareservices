@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, Notice, PageHeader, StatusBadge, formatDateTime } from "@/components/admin/ui";
 import { requireStaff } from "@/lib/admin/session";
+import { RESOURCES } from "@/lib/admin/resources";
 import { CONTACT_TOPICS } from "@/lib/enquiry-topics";
 
 export const metadata = { title: "Overview" };
@@ -21,6 +22,12 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
     db.from("services").select("id", { count: "exact", head: true }).eq("status", "published"),
     db.from("posts").select("id", { count: "exact", head: true }).eq("status", "published"),
   ]);
+
+  const quickLinks = [
+    ...(staff.can("content.edit") ? [{ label: "Homepage slider & banners", href: "/admin/homepage" }] : []),
+    ...RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({ label: r.title, href: `/admin/content/${r.key}` })),
+    ...(staff.can("media.view") ? [{ label: "Media library", href: "/admin/media" }] : []),
+  ];
 
   const byStatus = new Map((counts.data ?? []).map((c) => [c.status as string, Number(c.total)]));
   const stats = [
@@ -88,12 +95,19 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         </Card>
       )}
 
-      <Card title="Coming next" className="mt-8">
-        <p className="text-muted">
-          Editing pages, services, the Journal, courses, the shop, team profiles, partners and testimonials will be added to this
-          dashboard in the next update.
-        </p>
-      </Card>
+      {quickLinks.length > 0 && (
+        <Card title="Edit the website" className="mt-8">
+          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {quickLinks.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="block rounded-xl border border-gray-200 px-4 py-3 font-medium text-brand-800 hover:border-brand-300 hover:bg-brand-50">
+                  {l.label} →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
     </>
   );
 }

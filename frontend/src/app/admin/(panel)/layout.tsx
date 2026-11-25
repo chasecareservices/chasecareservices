@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { AdminNav, type AdminNavItem } from "@/components/admin/AdminNav";
+import { AdminNav, type AdminNavGroup } from "@/components/admin/AdminNav";
 import { LogoMark } from "@/components/LogoMark";
 import { signOut } from "@/app/admin/actions";
 import { requireStaff } from "@/lib/admin/session";
+import { RESOURCES } from "@/lib/admin/resources";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const staff = await requireStaff();
@@ -13,16 +14,39 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     newEnquiries = count ?? 0;
   }
 
-  const items: AdminNavItem[] = [
-    { label: "Overview", href: "/admin" },
-    ...(staff.can("enquiries.view") ? [{ label: "Enquiries", href: "/admin/enquiries", badge: newEnquiries }] : []),
-    ...(staff.can("settings.view") ? [{ label: "Site settings", href: "/admin/settings" }] : []),
-    ...(staff.can("users.view") ? [{ label: "Staff & roles", href: "/admin/users" }] : []),
-  ];
+  const contentLinks = RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({
+    label: r.title,
+    href: `/admin/content/${r.key}`,
+  }));
+
+  const groups: AdminNavGroup[] = [
+    {
+      items: [
+        { label: "Overview", href: "/admin" },
+        ...(staff.can("enquiries.view") ? [{ label: "Enquiries", href: "/admin/enquiries", badge: newEnquiries }] : []),
+      ],
+    },
+    {
+      title: "Website",
+      items: [
+        ...(staff.can("content.edit") ? [{ label: "Homepage & banners", href: "/admin/homepage" }] : []),
+        ...contentLinks,
+        ...(staff.can("media.view") ? [{ label: "Media library", href: "/admin/media" }] : []),
+      ],
+    },
+    {
+      title: "Admin",
+      items: [
+        ...(staff.can("settings.view") ? [{ label: "Site settings", href: "/admin/settings" }] : []),
+        ...(staff.can("users.view") ? [{ label: "Staff & roles", href: "/admin/users" }] : []),
+        ...(staff.can("audit.view") ? [{ label: "Activity log", href: "/admin/audit" }] : []),
+      ],
+    },
+  ].filter((g) => g.items.length);
 
   return (
     <div className="lg:grid lg:min-h-screen lg:grid-cols-[16rem_1fr]">
-      <aside className="relative flex items-center justify-between gap-4 bg-brand-900 px-4 py-3 text-white lg:block lg:px-5 lg:py-6">
+      <aside className="relative flex items-center justify-between gap-4 bg-brand-900 px-4 py-3 text-white lg:sticky lg:top-0 lg:block lg:h-screen lg:overflow-y-auto lg:px-5 lg:py-6">
         <Link href="/admin" className="flex items-center gap-2.5">
           <LogoMark inverted className="h-9 w-auto" />
           <span>
@@ -33,7 +57,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </span>
         </Link>
         <div className="lg:mt-8">
-          <AdminNav items={items} />
+          <AdminNav groups={groups} />
         </div>
       </aside>
 

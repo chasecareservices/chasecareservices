@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PostCard } from "@/components/cards";
 import { EmptyState, PageHero, Section } from "@/components/ui";
-import { getPostCategories, getPosts } from "@/lib/content";
-import { PAGE_BANNERS } from "@/lib/images";
+import { getPostCategories, getPosts, bannerFor } from "@/lib/content";
 
 export const revalidate = 300;
 
@@ -22,7 +21,7 @@ export default async function JournalPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS["journal"]}
+        image={await bannerFor("journal")}
         eyebrow="Resources"
         title="The ChaseCare Journal"
         intro="Practical guidance and stories on care, wellbeing, inclusion and community."

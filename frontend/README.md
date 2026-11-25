@@ -34,7 +34,7 @@ Rules the site follows:
 - **Impact numbers** (homepage and About) and **Recognition** (About) come from `site_settings.impact_stats` and `site_settings.recognitions`, and stay hidden until real entries are added.
 - **Choose language** (footer): Google Translate into Twi, Ga, Ewe, Hausa, French or Arabic. Google's script only loads after a visitor picks a language other than English, and the choice is remembered in a `googtrans` cookie. This is machine translation, so mention it in the Cookie and Privacy policies. Languages are listed in `src/lib/languages.ts`.
 
-## Staff dashboard (`/admin`) — stage 1
+## Staff dashboard (`/admin`)
 
 Sign-in for Chase Care staff, separate from the public site (not indexed by search engines).
 
@@ -46,14 +46,20 @@ Sign-in for Chase Care staff, separate from the public site (not indexed by sear
 | Enquiries | `enquiries.view` / `.edit` | Inbox with filters and search, full form details, reply links (email, call, WhatsApp), status, internal notes |
 | Site settings | `settings.view` / `.edit` | Organisation details, contact, opening hours, social links, impact numbers, recognition. Saving refreshes the public site |
 | Staff & roles | `users.view` / `.edit` | Invite by email, give or remove roles, deactivate. Only a Super Admin can grant Super Admin; the last one can't be removed |
+| Homepage & banners | `content.edit` | The 4 homepage slides (photo, headings, text, two buttons) and a background photo for each page banner (saved with the `set_page_banners` database function) |
+| Services · Pages · Team & board · Partners · Testimonials · Menus | `content.*` | List, create, edit, publish/draft/archive, delete. Photos upload straight from the form |
+| The Journal | `blog.*` | Articles with headings (`## `), bullet lists (`- `), scheduled publishing, categories and tags |
+| Courses | `academy.*` · Shop products `shop.*` · Announcements `communications.*` | Same editor |
+| Media library | `media.*` | Upload up to 10 photos at once, folders, descriptions for screen readers, delete |
+| Activity log | `audit.view` | Every change with who, when and which fields — read-only |
 
 Every action runs as the signed-in staff member, so the database's Row Level Security applies. Inviting staff and showing their email addresses uses `SUPABASE_SECRET_KEY` on the server only.
 
-Stage 2 adds editing for pages, services, the Journal, courses, the shop, team, partners, testimonials, menus, media and the audit log.
+The content editors are driven by one list of field definitions in `src/lib/admin/resources.ts` — add a field there and it appears in the form. Every save refreshes the public site immediately. Photos go to the public `public-media` bucket, so never upload anything containing personal details.
 
 ## Photos
 
-The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
+The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds, editable at `/admin/homepage`), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
 
 All slots are listed in `src/lib/images.ts`. To add a photo, put it in `public/images/` and set that slot's `src`. Services also show their own photo, on their card and as their page banner, when one is set for the service in the database (`services.image_path`).
 

@@ -3,8 +3,7 @@ import type { Metadata } from "next";
 import { ServiceCard } from "@/components/cards";
 import { RelatedInfo } from "@/components/RelatedInfo";
 import { ButtonLink, CheckList, EmptyState, PageHero, Section } from "@/components/ui";
-import { getService, getServices, mediaUrl, type ServiceGroup } from "@/lib/content";
-import { PAGE_BANNERS } from "@/lib/images";
+import { getService, getServices, mediaUrl, type ServiceGroup, bannerFor } from "@/lib/content";
 import { paragraphs } from "@/lib/format";
 
 export const SERVICE_GROUP_PATH: Record<ServiceGroup, string> = {
@@ -57,7 +56,7 @@ export async function ServiceDetail({ slug, group }: { slug: string; group: Serv
     <>
       <PageHero
         image={
-          service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : PAGE_BANNERS[SERVICE_GROUP_PATH[group].slice(1)]
+          service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : await bannerFor(SERVICE_GROUP_PATH[group].slice(1))
         }
         eyebrow={GROUP_LABEL[group]}
         title={service.name}

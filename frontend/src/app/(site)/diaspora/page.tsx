@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ServiceGrid } from "@/components/services";
 import { ButtonLink, CheckList, PageHero, Pathway, Section } from "@/components/ui";
-import { PAGE_BANNERS } from "@/lib/images";
+import { bannerFor } from "@/lib/content";
 
 export const revalidate = 300;
 
@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     "Living abroad? Chase Care Services arranges trusted elderly care, disability support, welfare visits and care coordination for your loved ones in Ghana.",
 };
 
-export default function DiasporaPage() {
+export default async function DiasporaPage() {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS["diaspora"]}
+        image={await bannerFor("diaspora")}
         eyebrow="Diaspora Services"
         title="Care From Anywhere in the World"
         intro="Your loved one may be in Ghana while you are thousands of miles away. Chase Care Services helps families stay connected to their loved one's care through trusted, professional services and regular communication."

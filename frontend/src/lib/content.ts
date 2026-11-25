@@ -38,6 +38,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   timezone: "Africa/Accra",
   impact_stats: [],
   recognitions: [],
+  page_banners: {},
   updated_at: new Date(0).toISOString(),
   updated_by: null,
 };
@@ -238,4 +239,16 @@ export function impactStatsFrom(settings: SiteSettings): ImpactStat[] {
 export function recognitionsFrom(settings: SiteSettings): Recognition[] {
   const list = Array.isArray(settings.recognitions) ? settings.recognitions : [];
   return list.filter((r): r is Recognition => !!r && typeof r === "object" && typeof (r as Recognition).name === "string");
+}
+
+/**
+ * Banner photo for a page: the one chosen in the dashboard (site_settings.page_banners),
+ * otherwise the built-in default from lib/images.ts.
+ */
+export async function bannerFor(key: string): Promise<import("@/lib/images").SiteImage> {
+  const { PAGE_BANNERS } = await import("@/lib/images");
+  const settings = await getSiteSettings();
+  const chosen = (settings.page_banners && typeof settings.page_banners === "object" ? settings.page_banners : {}) as Record<string, unknown>;
+  const path = typeof chosen[key] === "string" ? (chosen[key] as string) : null;
+  return path ? { src: mediaUrl(path), alt: "" } : PAGE_BANNERS[key] ?? { src: null, alt: "" };
 }
