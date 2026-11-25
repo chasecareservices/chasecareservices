@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { FillPhoto } from "@/components/Photo";
+import { PhotoFader } from "@/components/PhotoFader";
 import type { SiteImage } from "@/lib/images";
 
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -84,6 +85,7 @@ export function PageHero({
   intro,
   actions,
   image,
+  images,
 }: {
   eyebrow?: string;
   title: string;
@@ -91,13 +93,20 @@ export function PageHero({
   actions?: ReactNode;
   /** Optional background photo, shown under a purple tint so the text stays readable. */
   image?: SiteImage;
+  /** Several background photos that fade from one to the next (used instead of `image`). */
+  images?: SiteImage[];
 }) {
-  const hasPhoto = !!image?.src;
+  const slides = (images ?? []).filter((i) => i.src);
+  const hasPhoto = slides.length > 0 || !!image?.src;
   return (
     <section className="relative isolate overflow-hidden bg-brand-800 text-white">
       {hasPhoto ? (
         <>
-          <FillPhoto image={image} sizes="100vw" priority className="-z-20" watermark={false} />
+          {slides.length > 0 ? (
+            <PhotoFader images={slides} />
+          ) : (
+            <FillPhoto image={image} sizes="100vw" priority className="-z-20" watermark={false} />
+          )}
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-950/90 via-brand-900/75 to-brand-800/40" />
         </>
       ) : (

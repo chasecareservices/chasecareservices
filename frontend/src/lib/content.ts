@@ -1,4 +1,4 @@
-import { COURSE_IMAGES as COURSE_IMAGES_FALLBACK } from "@/lib/images";
+import { COURSE_IMAGES as COURSE_IMAGES_FALLBACK, SERVICE_PHOTOS } from "@/lib/images";
 import "server-only";
 import { cache } from "react";
 import type { Database } from "@/lib/database.types";
@@ -259,4 +259,16 @@ export function courseImage(course: { slug: string; image_path: string | null; t
   const uploaded = mediaUrl(course.image_path);
   if (uploaded) return { src: uploaded, alt: "" };
   return COURSE_IMAGES_FALLBACK[course.slug] ?? null;
+}
+
+/** Card preview for a service: the uploaded photo, else a built-in one, else none. */
+export function serviceCardImage(service: { slug: string; image_path: string | null }): import("@/lib/images").SiteImage | null {
+  const uploaded = mediaUrl(service.image_path);
+  if (uploaded) return { src: uploaded, alt: "" };
+  return SERVICE_PHOTOS[service.slug]?.card ?? null;
+}
+
+/** Built-in banner photos for a service page, used when no photo was uploaded for it. */
+export function serviceGallery(service: { slug: string; image_path: string | null }): import("@/lib/images").SiteImage[] {
+  return service.image_path ? [] : SERVICE_PHOTOS[service.slug]?.gallery ?? [];
 }

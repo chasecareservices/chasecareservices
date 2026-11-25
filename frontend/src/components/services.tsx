@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ServiceCard } from "@/components/cards";
 import { RelatedInfo } from "@/components/RelatedInfo";
 import { ButtonLink, CheckList, EmptyState, PageHero, Section } from "@/components/ui";
-import { getService, getServices, mediaUrl, type ServiceGroup, bannerFor } from "@/lib/content";
+import { getService, getServices, mediaUrl, serviceGallery, type ServiceGroup, bannerFor } from "@/lib/content";
 import { paragraphs } from "@/lib/format";
 
 export const SERVICE_GROUP_PATH: Record<ServiceGroup, string> = {
@@ -55,6 +55,7 @@ export async function ServiceDetail({ slug, group }: { slug: string; group: Serv
   return (
     <>
       <PageHero
+        images={serviceGallery(service)}
         image={
           service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : await bannerFor(SERVICE_GROUP_PATH[group].slice(1))
         }

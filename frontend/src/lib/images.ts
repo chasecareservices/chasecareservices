@@ -140,3 +140,23 @@ export const COURSE_IMAGES: Record<string, SiteImage> = {
     focus: "60% 15%",
   },
 };
+
+/**
+ * Built-in service photos, by service slug: `gallery` fades behind the service page's
+ * banner, `card` is the preview on service cards. A photo uploaded for the service in
+ * the dashboard (Services → Photo) takes priority over these.
+ */
+export const SERVICE_PHOTOS: Record<string, { card: SiteImage; gallery: SiteImage[] }> = {
+  "disability-support": {
+    card: {
+      src: "/images/services/disability-support-3.jpg",
+      alt: "A smiling support worker beside a young girl in a wheelchair, joining in a class activity",
+      focus: "65% 35%",
+    },
+    gallery: [
+      { src: "/images/services/disability-support-3.jpg", alt: "A smiling support worker beside a young girl in a wheelchair, joining in a class activity", focus: "60% 35%" },
+      { src: "/images/services/disability-support-1.jpg", alt: "A support worker sharing a sensory activity with a young girl in a classroom", focus: "55% 30%" },
+      { src: "/images/services/disability-support-2.jpg", alt: "A support worker and a delighted young girl giving each other a high five", focus: "50% 35%" },
+    ],
+  },
+};
