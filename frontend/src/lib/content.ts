@@ -36,6 +36,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
   cookie_banner_text: null,
   currency: "GHS",
   timezone: "Africa/Accra",
+  impact_stats: [],
+  recognitions: [],
   updated_at: new Date(0).toISOString(),
   updated_by: null,
 };
@@ -213,4 +215,27 @@ export async function searchContent(query: string): Promise<import("@/lib/search
   const { data, error } = await db.rpc("search_site", { query, max_results: 40 });
   logError(`search "${query}"`, error);
   return (data ?? []).map((r) => ({ ...r, kind: r.kind as import("@/lib/search").SearchKind }));
+}
+
+/** The main menu as a tree (or the built-in menu if the database has none). */
+export const getMainMenu = cache(async () => {
+  const { buildNavTree, FALLBACK_NAV } = await import("@/lib/navigation");
+  const rows = await getNavigation("main");
+  return rows.length ? buildNavTree(rows) : FALLBACK_NAV;
+});
+
+export type ImpactStat = { value: string; label: string; detail?: string };
+export type Recognition = { name: string; detail?: string; year?: string };
+
+/** Only well-formed entries; anything else in the settings is ignored. */
+export function impactStatsFrom(settings: SiteSettings): ImpactStat[] {
+  const list = Array.isArray(settings.impact_stats) ? settings.impact_stats : [];
+  return list.filter(
+    (s): s is ImpactStat => !!s && typeof s === "object" && typeof (s as ImpactStat).value === "string" && typeof (s as ImpactStat).label === "string",
+  );
+}
+
+export function recognitionsFrom(settings: SiteSettings): Recognition[] {
+  const list = Array.isArray(settings.recognitions) ? settings.recognitions : [];
+  return list.filter((r): r is Recognition => !!r && typeof r === "object" && typeof (r as Recognition).name === "string");
 }

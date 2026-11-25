@@ -57,6 +57,40 @@ export const WHY_CHOOSE_US: { title: string; text: string }[] = [
   { title: "Community partnerships", text: "We work with schools, hospitals, organisations and community partners." },
 ];
 
+/** "What we do" highlight box (About page). */
+export const WHAT_WE_DO: { lead: string; href: string; text: string }[] = [
+  {
+    lead: "Care services",
+    href: "/care-services",
+    text: "for older people, people living with disability or autism, and families — at home, in the community and overnight.",
+  },
+  {
+    lead: "Care from anywhere in the world",
+    href: "/diaspora",
+    text: "for Ghanaian families abroad, with welfare visits, hospital support and care coordination, and regular updates.",
+  },
+  {
+    lead: "Respite and short stays",
+    href: "/respite",
+    text: "giving parents and carers time to rest, with safe, structured stays for young people and adults with additional needs.",
+  },
+  {
+    lead: "ChaseCare Academy",
+    href: "/academy",
+    text: "competency-based training, CPD and our signature Care Beyond Care course, plus a route into care for young people.",
+  },
+  {
+    lead: "The Wellbeing Hub",
+    href: "/wellbeing",
+    text: "counselling, health and laboratory referrals and support for the people who provide care.",
+  },
+  {
+    lead: "Community and partnerships",
+    href: "/community",
+    text: "the Monthly Community Forum, outreach and inclusion programmes, and work with schools and hospitals.",
+  },
+];
+
 export const RECRUITMENT_PATHWAY = ["Register", "Screening", "Training / Competency Assessment", "Approval", "Placement", "Ongoing Support"];
 
 export const STUDENT_PATHWAY = [

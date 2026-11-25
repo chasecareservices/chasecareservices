@@ -908,10 +908,12 @@ export type Database = {
           default_seo: NonNullable<Json>;
           email: string | null;
           id: boolean;
+          impact_stats: NonNullable<Json>;
           map_url: string | null;
           opening_hours: NonNullable<Json>;
           organisation_name: string;
           phone: string | null;
+          recognitions: NonNullable<Json>;
           social_links: NonNullable<Json>;
           supporting_statement: string | null;
           tagline: string;
@@ -928,10 +930,12 @@ export type Database = {
           default_seo?: NonNullable<Json>;
           email?: string | null;
           id?: boolean;
+          impact_stats?: NonNullable<Json>;
           map_url?: string | null;
           opening_hours?: NonNullable<Json>;
           organisation_name?: string;
           phone?: string | null;
+          recognitions?: NonNullable<Json>;
           social_links?: NonNullable<Json>;
           supporting_statement?: string | null;
           tagline?: string;
@@ -947,10 +951,12 @@ export type Database = {
           default_seo?: NonNullable<Json>;
           email?: string | null;
           id?: boolean;
+          impact_stats?: NonNullable<Json>;
           map_url?: string | null;
           opening_hours?: NonNullable<Json>;
           organisation_name?: string;
           phone?: string | null;
+          recognitions?: NonNullable<Json>;
           social_links?: NonNullable<Json>;
           supporting_statement?: string | null;
           tagline?: string;

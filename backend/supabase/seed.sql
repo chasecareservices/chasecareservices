@@ -72,3 +72,15 @@ select public.submit_enquiry(
   message       => 'Sample enquiry for local development.',
   source_page   => '/contact'
 );
+
+-- DEMO ONLY (local): sample impact numbers and recognition so the About page and
+-- homepage sections can be previewed. These are NOT real Chase Care figures.
+update public.site_settings set
+  impact_stats = '[
+    {"value": "000+", "label": "Demo: families supported", "detail": "replace with real figure"},
+    {"value": "00", "label": "Demo: caregivers trained", "detail": "replace with real figure"},
+    {"value": "0", "label": "Demo: regions served", "detail": "replace with real figure"}
+  ]'::jsonb,
+  recognitions = '[
+    {"name": "Demo accreditation", "detail": "Replace with a real accreditation or membership", "year": "2026"}
+  ]'::jsonb;

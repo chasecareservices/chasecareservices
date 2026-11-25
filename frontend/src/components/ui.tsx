@@ -116,6 +116,37 @@ export function PageHero({
   );
 }
 
+/**
+ * Banner style 2: a photo strip with a purple band underneath holding a large title.
+ * Shows the branded placeholder until a photo is supplied.
+ */
+export function BandHero({
+  eyebrow,
+  title,
+  intro,
+  image,
+}: {
+  eyebrow?: string;
+  title: string;
+  intro?: ReactNode;
+  image?: SiteImage;
+}) {
+  return (
+    <section>
+      <div className="relative h-44 overflow-hidden sm:h-64 lg:h-80">
+        <FillPhoto image={image} sizes="100vw" priority variant={2} />
+      </div>
+      <div className="border-b-4 border-accent-500 bg-brand-800 text-white">
+        <Container className="py-6 sm:py-8">
+          {eyebrow && <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-accent-400">{eyebrow}</p>}
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">{title}</h1>
+          {intro && <div className="mt-3 max-w-3xl text-lg text-brand-100">{intro}</div>}
+        </Container>
+      </div>
+    </section>
+  );
+}
+
 /** Photo beside text — alternates sides with `reverse`. */
 export function ImageFeature({
   image,

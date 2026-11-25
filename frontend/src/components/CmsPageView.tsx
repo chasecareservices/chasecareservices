@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
-import { ButtonLink, CheckList, Container, PageHero, Pathway, Section } from "@/components/ui";
+import { RelatedInfo } from "@/components/RelatedInfo";
+import { ButtonLink, CheckList, Container, PageHero, Pathway } from "@/components/ui";
 import { getPage } from "@/lib/content";
 import { formatLongDate, nextForumDate } from "@/lib/forum";
 import { PAGE_BANNERS } from "@/lib/images";
@@ -34,9 +35,14 @@ export async function CmsPageView({ slug }: { slug: string }) {
       <>
         <PageHero title={page.title} intro={page.summary} image={PAGE_BANNERS[slug]} />
         {isForum && <ForumDate />}
-        <div className="py-10">
-          <PageBlocks blocks={toBlocks(page.body)} />
-        </div>
+        <Container className="grid gap-12 py-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+          <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+            <PageBlocks blocks={toBlocks(page.body)} />
+          </div>
+          <aside className="lg:sticky lg:top-32 lg:h-fit">
+            <RelatedInfo pathname={`/${slug}`} />
+          </aside>
+        </Container>
       </>
     );
   }
@@ -57,12 +63,21 @@ export async function CmsPageView({ slug }: { slug: string }) {
         ))}
       />
       {isForum && <ForumDate />}
-      {copy.sections.map((section, i) => (
-        <Section key={section.heading} tone={i % 2 === 1 ? "tint" : "white"} title={section.heading} intro={section.text}>
-          {section.pathway && <Pathway steps={section.pathway} />}
-          {section.items && <CheckList items={section.items} columns={section.items.length > 8 ? 3 : 2} />}
-        </Section>
-      ))}
+      <Container className="grid gap-12 py-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+        <div className="space-y-12">
+          {copy.sections.map((section) => (
+            <section key={section.heading} className="space-y-5">
+              <h2 className="text-2xl font-bold text-brand-900 sm:text-3xl">{section.heading}</h2>
+              {section.text && <p className="max-w-3xl text-lg leading-relaxed text-muted">{section.text}</p>}
+              {section.pathway && <Pathway steps={section.pathway} />}
+              {section.items && <CheckList items={section.items} columns={2} />}
+            </section>
+          ))}
+        </div>
+        <aside className="lg:sticky lg:top-32 lg:h-fit">
+          <RelatedInfo pathname={`/${slug}`} />
+        </aside>
+      </Container>
     </>
   );
 }

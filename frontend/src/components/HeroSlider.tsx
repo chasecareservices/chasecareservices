@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FillPhoto } from "@/components/Photo";
+import { A11Y_EVENT, motionStopped } from "@/lib/a11y";
 import type { HeroSlide } from "@/lib/images";
 
 const INTERVAL_MS = 7000;
@@ -20,12 +21,17 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
   const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
 
+  // Device setting "reduce motion", or "Stop animations" in the ♿ menu.
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    const sync = () => setReducedMotion(motionStopped());
+    sync();
+    mq.addEventListener("change", sync);
+    window.addEventListener(A11Y_EVENT, sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      window.removeEventListener(A11Y_EVENT, sync);
+    };
   }, []);
 
   useEffect(() => {

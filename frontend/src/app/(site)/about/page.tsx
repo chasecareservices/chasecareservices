@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { CheckList, EmptyState, PageHero, Section } from "@/components/ui";
+import Link from "next/link";
+import { HighlightBox } from "@/components/HighlightBox";
+import { ImpactStats, RecognitionList } from "@/components/Impact";
+import { RelatedInfo } from "@/components/RelatedInfo";
+import { BandHero, CheckList, Container, EmptyState } from "@/components/ui";
 import { getPartners, getTeamMembers, mediaUrl, type TeamMember } from "@/lib/content";
-import { MISSION, MISSION_POINTS, VALUES, VISION } from "@/lib/site-copy";
+import { MISSION, MISSION_POINTS, VALUES, VISION, WHAT_WE_DO } from "@/lib/site-copy";
 import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
@@ -47,95 +51,135 @@ export default async function AboutPage() {
 
   return (
     <>
-      <PageHero
-        image={PAGE_BANNERS["about"]}
-        eyebrow="About Us"
-        title="Caring for People. Supporting Families. Empowering Care Professionals."
-        intro="Chase Care Services is a Ghana-based care and support organisation providing person-centred care, professional support, training, respite, community engagement and wellbeing services."
-      />
+      <BandHero eyebrow="About Us" title="Who We Are" image={PAGE_BANNERS["about"]} />
+      <ImpactStats />
 
-      <Section id="who-we-are" eyebrow="Who we are" title="More than a care agency">
-        <p className="max-w-3xl text-lg leading-relaxed text-muted">
-          We are building an integrated care ecosystem that connects clients and families, caregivers, healthcare professionals,
-          training, worker wellbeing, respite services, community partnerships and the Ghanaian diaspora — around three pillars:
-          <strong className="text-brand-900"> Care, Careers and Community</strong>.
-        </p>
-      </Section>
+      <Container className="grid gap-12 py-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+        <div className="max-w-3xl space-y-14 text-[1.0625rem] leading-relaxed text-ink">
+          <section id="who-we-are" className="scroll-mt-32 space-y-5">
+            <h2 className="text-3xl font-bold tracking-tight text-brand-900 sm:text-4xl">One mission: quality care for every family</h2>
+            <p>
+              Chase Care Services is a Ghana-based care and support organisation. We provide person-centred care, professional
+              support, training, respite and wellbeing services for individuals, families, carers and healthcare professionals —
+              in Ghana, and for Ghanaian families around the world who need trusted care for a loved one at home.
+            </p>
+            <p>
+              Every person we support arrives with their own needs, their own family and their own story. Caring for each of
+              them as an individual — with compassion, dignity and skill — is the mission we were built on.
+            </p>
 
-      <Section id="vision-and-mission" tone="tint">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-widest text-accent-600">Our vision</p>
-            <p className="mt-3 text-xl leading-relaxed text-brand-900">{VISION}</p>
-          </div>
-          <div className="rounded-3xl bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-widest text-accent-600">Our mission</p>
-            <p className="mt-3 text-xl leading-relaxed text-brand-900">{MISSION}</p>
-          </div>
-        </div>
-        <div className="mt-10">
-          <CheckList items={MISSION_POINTS} />
-        </div>
-      </Section>
+            <h3 className="pt-4 text-2xl font-bold text-brand-900">What we do</h3>
+            <HighlightBox intro="Our teams deliver care, training and support that share a single purpose:" items={WHAT_WE_DO} />
+          </section>
 
-      <Section id="our-values" eyebrow="Our values" title="What guides everything we do">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {VALUES.map((v) => (
-            <div key={v.name} className="rounded-2xl border border-brand-100 p-5">
-              <h3 className="font-semibold text-brand-900">{v.name}</h3>
-              <p className="mt-2 text-sm text-muted">{v.text}</p>
+          <section id="who-we-are-today" className="scroll-mt-32 space-y-5">
+            <h2 className="text-2xl font-bold text-brand-900">Who we are today</h2>
+            <p>
+              We are building more than a care agency: an integrated care ecosystem around three pillars —{" "}
+              <strong className="text-brand-900">Care</strong> for individuals and families,{" "}
+              <strong className="text-brand-900">Careers</strong> for caregivers and healthcare professionals, and{" "}
+              <strong className="text-brand-900">Community</strong> through wellbeing, inclusion, education and partnership.
+            </p>
+            <p>
+              Our promise is simple: no placement without appropriate preparation. Every caregiver is screened, trained and
+              assessed before they support a client, and supported throughout their work with us through our{" "}
+              <Link href="/wellbeing" className="font-medium text-brand-700 underline underline-offset-2">
+                Wellbeing Hub
+              </Link>
+              .
+            </p>
+            <p>
+              We work in partnership with families, schools, hospitals, community organisations and healthcare partners, because
+              the best care is built together.
+            </p>
+          </section>
+
+          <section id="vision-and-mission" className="scroll-mt-32 space-y-6">
+            <h2 className="text-2xl font-bold text-brand-900">Vision &amp; mission</h2>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="rounded-2xl bg-brand-50 p-6">
+                <p className="text-sm font-semibold uppercase tracking-widest text-accent-700">Our vision</p>
+                <p className="mt-2 text-brand-900">{VISION}</p>
+              </div>
+              <div className="rounded-2xl bg-brand-50 p-6">
+                <p className="text-sm font-semibold uppercase tracking-widest text-accent-700">Our mission</p>
+                <p className="mt-2 text-brand-900">{MISSION}</p>
+              </div>
             </div>
-          ))}
+            <CheckList items={MISSION_POINTS} columns={1} />
+          </section>
+
+          <section id="our-values" className="scroll-mt-32 space-y-5">
+            <h2 className="text-2xl font-bold text-brand-900">Our values</h2>
+            <dl className="grid gap-4 sm:grid-cols-2">
+              {VALUES.map((v) => (
+                <div key={v.name} className="border-l-4 border-accent-500 pl-4">
+                  <dt className="font-semibold text-brand-900">{v.name}</dt>
+                  <dd className="mt-1 text-[0.9375rem] text-muted">{v.text}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <RecognitionList />
+
+          <section id="board" className="scroll-mt-32 space-y-5">
+            <h2 className="text-2xl font-bold text-brand-900">The people leading the organisation</h2>
+            {board.length ? (
+              <div className="grid gap-5 sm:grid-cols-2">
+                {board.map((p) => (
+                  <PersonCard key={p.id} person={p} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="Board profiles coming soon" />
+            )}
+          </section>
+
+          {team.length > 0 && (
+            <section id="team" className="scroll-mt-32 space-y-5">
+              <h2 className="text-2xl font-bold text-brand-900">Our team</h2>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {team.map((p) => (
+                  <PersonCard key={p.id} person={p} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section id="partners" className="scroll-mt-32 space-y-5">
+            <h2 className="text-2xl font-bold text-brand-900">Our partners</h2>
+            {partners.length > 0 ? (
+              <ul className="grid gap-4 sm:grid-cols-3">
+                {partners.map((p) => {
+                  const logo = mediaUrl(p.logo_path);
+                  return (
+                    <li key={p.id} className="flex min-h-24 items-center justify-center rounded-2xl border border-brand-100 p-4 text-center">
+                      {logo ? (
+                        <Image src={logo} alt={p.name} width={160} height={80} className="h-14 w-auto object-contain" />
+                      ) : (
+                        <span className="font-semibold text-brand-900">{p.name}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <EmptyState title="Partner information coming soon">
+                We work with healthcare providers, laboratories, insurers, schools, hospitals and community organisations.
+              </EmptyState>
+            )}
+          </section>
+
+          <p className="border-t border-brand-100 pt-8 text-xl italic text-brand-800">
+            Quality Care. Compassionate Support. Empowered Lives.
+          </p>
         </div>
-      </Section>
 
-      <Section id="board" tone="tint" eyebrow="Leadership" title="Board of Directors">
-        {board.length ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {board.map((p) => (
-              <PersonCard key={p.id} person={p} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState title="Board profiles coming soon" />
-        )}
-      </Section>
-
-      {team.length > 0 && (
-        <Section id="team" eyebrow="Our people" title="Our Team">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {team.map((p) => (
-              <PersonCard key={p.id} person={p} />
-            ))}
-          </div>
-        </Section>
-      )}
-
-      <Section id="partners" eyebrow="Working together" title="Our Partners">
-        {partners.length > 0 ? (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {partners.map((p) => {
-              const logo = mediaUrl(p.logo_path);
-              return (
-                <li
-                  key={p.id}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-brand-100 p-6 text-center"
-                >
-                  {logo ? (
-                    <Image src={logo} alt={p.name} width={160} height={80} className="h-16 w-auto object-contain" />
-                  ) : (
-                    <span className="font-semibold text-brand-900">{p.name}</span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <EmptyState title="Partner information coming soon">
-            We work with healthcare providers, laboratories, insurers, schools, hospitals and community organisations.
-          </EmptyState>
-        )}
-      </Section>
+        <aside className="lg:sticky lg:top-32 lg:h-fit">
+          <RelatedInfo pathname="/about" />
+        </aside>
+      </Container>
     </>
   );
 }
