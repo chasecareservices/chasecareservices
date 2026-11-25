@@ -3,6 +3,7 @@ import Image from "next/image";
 import { CheckList, EmptyState, PageHero, Section } from "@/components/ui";
 import { getPartners, getTeamMembers, mediaUrl, type TeamMember } from "@/lib/content";
 import { MISSION, MISSION_POINTS, VALUES, VISION } from "@/lib/site-copy";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -44,6 +45,7 @@ export default async function AboutPage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["about"]}
         eyebrow="About Us"
         title="Caring for People. Supporting Families. Empowering Care Professionals."
         intro="Chase Care Services is a Ghana-based care and support organisation providing person-centred care, professional support, training, respite, community engagement and wellbeing services."

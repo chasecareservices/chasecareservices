@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ServiceCard } from "@/components/cards";
 import { ButtonLink, CheckList, EmptyState, PageHero, Section } from "@/components/ui";
-import { getService, getServices, type ServiceGroup } from "@/lib/content";
+import { getService, getServices, mediaUrl, type ServiceGroup } from "@/lib/content";
+import { PAGE_BANNERS } from "@/lib/images";
 import { paragraphs } from "@/lib/format";
 
 export const SERVICE_GROUP_PATH: Record<ServiceGroup, string> = {
@@ -54,6 +55,7 @@ export async function ServiceDetail({ slug, group }: { slug: string; group: Serv
   return (
     <>
       <PageHero
+        image={service.image_path ? { src: mediaUrl(service.image_path), alt: "" } : PAGE_BANNERS[SERVICE_GROUP_PATH[group].slice(1)]}
         eyebrow={GROUP_LABEL[group]}
         title={service.name}
         intro={service.summary}

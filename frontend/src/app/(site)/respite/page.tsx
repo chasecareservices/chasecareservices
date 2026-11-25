@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ServiceGrid } from "@/components/services";
 import { ButtonLink, PageHero, Section } from "@/components/ui";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -14,6 +15,7 @@ export default function RespitePage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["respite"]}
         eyebrow="Respite & Accommodation"
         title="Time to rest, knowing your loved one is cared for"
         intro="Planned respite for parents and carers who need time to rest, attend appointments, travel or recharge — and safe, supportive short stays for young people and adults with additional needs."

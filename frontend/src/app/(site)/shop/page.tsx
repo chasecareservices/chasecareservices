@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ProductCard } from "@/components/cards";
 import { ButtonLink, EmptyState, PageHero, Section } from "@/components/ui";
 import { getProducts } from "@/lib/content";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -15,6 +16,7 @@ export default async function ShopPage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["shop"]}
         eyebrow="Shop"
         title="The ChaseCare Shop"
         intro="Care ID cards, lanyards, ChaseCare T-shirts, branded clothing, training materials and other approved products."

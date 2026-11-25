@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ServiceGrid } from "@/components/services";
 import { ButtonLink, PageHero, Section } from "@/components/ui";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -14,6 +15,7 @@ export default function CareServicesPage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["care-services"]}
         eyebrow="Care Services"
         title="Professional, person-centred care"
         intro="Care tailored to each person's needs, preferences, culture and circumstances — delivered by trained, supported carers."

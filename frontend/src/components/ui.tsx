@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FillPhoto } from "@/components/Photo";
+import type { SiteImage } from "@/lib/images";
 
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>;
@@ -81,23 +83,73 @@ export function PageHero({
   title,
   intro,
   actions,
+  image,
 }: {
   eyebrow?: string;
   title: string;
   intro?: ReactNode;
   actions?: ReactNode;
+  /** Optional background photo, shown under a purple tint so the text stays readable. */
+  image?: SiteImage;
 }) {
+  const hasPhoto = !!image?.src;
   return (
-    <section className="relative overflow-hidden bg-brand-800 text-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent-500/20 blur-3xl"
-      />
-      <Container className="relative py-14 sm:py-20">
+    <section className="relative isolate overflow-hidden bg-brand-800 text-white">
+      {hasPhoto ? (
+        <>
+          <FillPhoto image={image} sizes="100vw" priority className="-z-20" watermark={false} />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-950/90 via-brand-900/75 to-brand-800/40" />
+        </>
+      ) : (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent-500/20 blur-3xl"
+        />
+      )}
+      <Container className={`relative ${hasPhoto ? "py-20 sm:py-28" : "py-14 sm:py-20"}`}>
         {eyebrow && <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent-400">{eyebrow}</p>}
         <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">{title}</h1>
         {intro && <div className="mt-5 max-w-2xl text-lg leading-relaxed text-brand-100">{intro}</div>}
         {actions && <div className="mt-8 flex flex-wrap gap-3">{actions}</div>}
+      </Container>
+    </section>
+  );
+}
+
+/** Photo beside text — alternates sides with `reverse`. */
+export function ImageFeature({
+  image,
+  eyebrow,
+  title,
+  children,
+  reverse = false,
+  tone = "white",
+  variant = 0,
+}: {
+  image: SiteImage;
+  eyebrow?: string;
+  title: string;
+  children: ReactNode;
+  reverse?: boolean;
+  tone?: "white" | "tint" | "brand";
+  variant?: number;
+}) {
+  const toneClass = tone === "brand" ? "bg-brand-800 text-white" : tone === "tint" ? "bg-brand-50" : "bg-white";
+  return (
+    <section className={`py-14 sm:py-20 ${toneClass}`}>
+      <Container className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className={`relative aspect-[4/3] overflow-hidden rounded-3xl shadow-lg ${reverse ? "lg:order-2" : ""}`}>
+          <FillPhoto image={image} sizes="(min-width: 1024px) 50vw, 100vw" variant={variant} />
+        </div>
+        <div>
+          {eyebrow && (
+            <p className={`mb-2 text-sm font-semibold uppercase tracking-widest ${tone === "brand" ? "text-accent-400" : "text-accent-600"}`}>
+              {eyebrow}
+            </p>
+          )}
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+          <div className={`mt-5 space-y-5 text-lg leading-relaxed ${tone === "brand" ? "text-brand-100" : "text-muted"}`}>{children}</div>
+        </div>
       </Container>
     </section>
   );

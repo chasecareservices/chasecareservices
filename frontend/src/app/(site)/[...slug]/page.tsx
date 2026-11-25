@@ -4,6 +4,7 @@ import { PageBlocks, toBlocks } from "@/components/PageBlocks";
 import { ButtonLink, CheckList, Container, PageHero, Pathway, Section } from "@/components/ui";
 import { getPage } from "@/lib/content";
 import { formatLongDate, nextForumDate } from "@/lib/forum";
+import { PAGE_BANNERS } from "@/lib/images";
 import { PAGE_COPY } from "@/lib/site-copy";
 
 export const revalidate = 300;
@@ -35,7 +36,7 @@ export default async function CmsPage({ params }: Props) {
   if (page) {
     return (
       <>
-        <PageHero title={page.title} intro={page.summary} />
+        <PageHero title={page.title} intro={page.summary} image={PAGE_BANNERS[slug]} />
         {isForum && <ForumDate />}
         <div className="py-10">
           <PageBlocks blocks={toBlocks(page.body)} />
@@ -49,6 +50,7 @@ export default async function CmsPage({ params }: Props) {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS[slug]}
         eyebrow={copy.eyebrow}
         title={copy.title}
         intro={copy.intro}

@@ -4,6 +4,7 @@ import { CourseCard } from "@/components/cards";
 import { ButtonLink, EmptyState, PageHero, Pathway, Section } from "@/components/ui";
 import { getCourses } from "@/lib/content";
 import { STUDENT_PATHWAY } from "@/lib/site-copy";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -20,6 +21,7 @@ export default async function AcademyPage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["academy"]}
         eyebrow="ChaseCare Academy"
         title="Training that prepares people to care well"
         intro="Competency-based training, continuous professional development and courses for parents and young people starting out in care."
@@ -65,6 +67,7 @@ export default async function AcademyPage() {
       </Section>
 
       <Section
+        id="student-programme"
         eyebrow="Student / Young Caregiver Programme"
         title="Start Your Career in Care"
         intro="You don't have to wait years to begin building your career in care. We provide structured training and development for SHS graduates and young people who want to become professional caregivers and support workers."

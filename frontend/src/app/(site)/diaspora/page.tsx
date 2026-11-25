@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ServiceGrid } from "@/components/services";
 import { ButtonLink, CheckList, PageHero, Pathway, Section } from "@/components/ui";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const revalidate = 300;
 
@@ -14,6 +15,7 @@ export default function DiasporaPage() {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["diaspora"]}
         eyebrow="Diaspora Services"
         title="Care From Anywhere in the World"
         intro="Your loved one may be in Ghana while you are thousands of miles away. Chase Care Services helps families stay connected to their loved one's care through trusted, professional services and regular communication."

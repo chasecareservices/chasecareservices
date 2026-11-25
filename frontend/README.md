@@ -29,6 +29,18 @@ Rules the site follows:
 - The Monthly Forum date is calculated automatically (third Thursday).
 - Pages are cached for 5 minutes, so content edits appear on the live site within 5 minutes.
 
+## Photos
+
+The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
+
+All slots are listed in `src/lib/images.ts`. To add a photo, put it in `public/images/` and set that slot's `src`. Services also show their own photo, on their card and as their page banner, when one is set for the service in the database (`services.image_path`).
+
+Photo guidelines:
+
+- **Size:** slider and banner photos at least **1920 × 1080 px**, landscape; section photos at least **1200 × 900 px**. Small images look blurry when stretched.
+- **Subject placement:** keep faces and the main subject off the far left. A purple tint sits behind the text on the left.
+- **Rights:** use your own photos, or stock photos you are licensed to use. Only use photos of clients and staff with their written consent.
+
 ## Run it locally
 
 Needs Node.js 20+. Start the backend first (`cd ../backend && npm start`), then:

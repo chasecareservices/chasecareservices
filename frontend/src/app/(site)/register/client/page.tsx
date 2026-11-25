@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CareRequestForm } from "@/components/forms/CareRequestForm";
 import { Container, PageHero } from "@/components/ui";
+import { PAGE_BANNERS } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Request Care",
@@ -14,6 +15,7 @@ export default async function ClientRegistrationPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
+        image={PAGE_BANNERS["register/client"]}
         eyebrow="Client Registration"
         title="I Need Care"
         intro="Tell us a little about who needs care and what support would help. It takes about 3 minutes, and a member of our team will contact you to discuss it."
