@@ -180,6 +180,8 @@ Dashboard · My Assignments (list/calendar) · Authorised client info view · **
 View services · Submit requests · Book services · Appointments · Messages with ChaseCare · View relevant reports · Manage account.
 
 ### 6.3 Administrator Portal
+> Full detail: see **`ADMIN_DASHBOARD_SPECIFICATION.md`** — the owner's dashboard for managing everything on the site. Content-management screens are delivered in **Phase 1**.
+
 Dashboards and data tables (search, filter, sort, export) for: clients, workers (with application pipeline stages), worker–client matching screen, services, care-report review queue, training & courses, bookings, payments, documents, partners, blog/content, shop products & orders, forum events, announcements.
 
 ---
@@ -199,7 +201,7 @@ Dashboards and data tables (search, filter, sort, export) for: clients, workers 
 ## 8. Frontend Delivery by Phase [§32]
 | Phase | Frontend work |
 |---|---|
-| 1 – Brand & Foundation | Design system, layout, Home, About, Vision/Mission, Board, Contact, Care Services, Diaspora, Join Our Team (info), Academy (info), Blog |
+| 1 – Brand & Foundation | Design system, layout, Home, About, Vision/Mission, Board, Contact, Care Services, Diaspora, Join Our Team (info), Academy (info), Blog, **Admin dashboard: content management, users & settings** |
 | 2 – Online Registration | All registration/enquiry forms (§5) |
 | 3 – Booking & Payments | Booking screens, course payment, Shop cart/checkout, confirmations |
 | 4 – Secure Portals | Login/auth screens, Client/Worker/Admin portal shells |

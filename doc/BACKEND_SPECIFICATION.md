@@ -103,6 +103,8 @@ Counselling requests, health-service referrals, partner laboratory referrals, in
 Event management; Monthly Forum auto-scheduled for the **third Thursday of each month**; registrations; reminders; video-conference integration (Zoom / Google Meet / Teams — to confirm) generating join links.
 
 ### 4.10 Administrator Functions [§30]
+> Full detail: see **`ADMIN_DASHBOARD_SPECIFICATION.md`** (sections, roles, permissions, rollout by phase).
+
 Manage clients, workers, matching, services, reports review, training & courses, bookings, payments, documents, partners, content, shop, events, announcements, users & roles. Reporting/exports (CSV).
 
 ### 4.11 Notifications [§32 Phase 5, §37]
@@ -146,7 +148,7 @@ Also: input validation, CSRF/XSS/SQL-injection protection, secrets management, d
 ## 7. Backend Delivery by Phase [§32]
 | Phase | Backend work |
 |---|---|
-| 1 – Foundation | Project setup, DB, CMS/content APIs, contact form, blog, hosting/SSL/backups, architecture ready for auth |
+| 1 – Foundation | Project setup, DB, CMS/content APIs, contact form, blog, hosting/SSL/backups, **admin authentication (2FA), roles & permissions, audit log, site settings** |
 | 2 – Online Registration | Form APIs, document upload, email notifications, admin enquiry queues |
 | 3 – Booking & Payments | Booking engine, payment gateway, shop/orders, confirmations |
 | 4 – Secure Portals | Auth, 2FA, RBAC, client/worker/admin APIs, audit logs |
