@@ -144,3 +144,11 @@ join auth.users u on u.email = v.email;
 insert into public.care_reports (client_id, worker_id, visit_date, start_time, end_time, mood, summary, location_status)
 select '00000000-0000-4000-8000-00000000c001', u.id, current_date - 1, '09:00', '13:00', 'good', 'Lunch, walking exercises and a long chat about her grandchildren.', 'not_recorded'
 from auth.users u where u.email = 'carer@chasecare.local';
+
+-- A demo incident (local only), still open, so the office has something to follow up.
+insert into public.care_incidents (client_id, reported_by, occurred_at, place, kind, severity, what_happened, action_taken, people_told)
+select '00000000-0000-4000-8000-00000000c001', u.id, now() - interval '20 hours', 'Bathroom', 'fall', 'moderate',
+       'Auntie Akosua slipped on the wet bathroom step while I was fetching a towel. She bumped her left knee. No bleeding.',
+       'Helped her sit on the chair, checked her knee, cold compress for 15 minutes. She could walk afterwards.',
+       array['family']
+from auth.users u where u.email = 'carer@chasecare.local';

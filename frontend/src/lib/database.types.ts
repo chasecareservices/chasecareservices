@@ -169,6 +169,85 @@ export type Database = {
         };
         Relationships: [];
       };
+      care_incidents: {
+        Row: {
+          action_taken: string;
+          client_id: string;
+          closed_at: string | null;
+          closed_by: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          occurred_at: string;
+          office_notes: string | null;
+          people_told: string[];
+          place: string | null;
+          reference: string;
+          reported_by: string;
+          severity: string;
+          status: string;
+          updated_at: string;
+          what_happened: string;
+          witnesses: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          action_taken: string;
+          client_id: string;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          occurred_at: string;
+          office_notes?: string | null;
+          people_told?: string[];
+          place?: string | null;
+          reference?: string;
+          reported_by?: string;
+          severity: string;
+          status?: string;
+          updated_at?: string;
+          what_happened: string;
+          witnesses?: string | null;
+        };
+        Update: {
+          action_taken?: string;
+          client_id?: string;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          occurred_at?: string;
+          office_notes?: string | null;
+          people_told?: string[];
+          place?: string | null;
+          reference?: string;
+          reported_by?: string;
+          severity?: string;
+          status?: string;
+          updated_at?: string;
+          what_happened?: string;
+          witnesses?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_incidents_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_incidents_reported_by_fkey";
+            columns: ["reported_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       care_plans: {
         Row: {
           about_me: string | null;
@@ -1468,6 +1547,13 @@ export type Database = {
       };
     };
     Functions: {
+      care_incident_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          open: number;
+          serious_open: number;
+        }[];
+      };
       care_report_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {

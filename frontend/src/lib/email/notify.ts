@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
-import { careConcernAlert, enquiryAlert } from "@/lib/email/alerts";
+import { careConcernAlert, enquiryAlert, incidentAlert } from "@/lib/email/alerts";
+import { kindLabel } from "@/lib/incidents";
 import { sendEmail } from "@/lib/email/send";
 import { createSecretClient } from "@/lib/supabase/server-auth";
 
@@ -69,6 +70,36 @@ export async function notifyCareConcern(reportId: string) {
         visit_date: r.visit_date,
         client_name: client?.full_name ?? "a client",
         worker_name: worker?.full_name ?? "a care worker",
+      },
+      await siteUrl(),
+    ),
+  });
+}
+
+/** Emails the office about a new incident report (care concerns list). No details of what happened. */
+export async function notifyIncident(id: string) {
+  const admin = createSecretClient();
+  if (!admin) return;
+  const { data: r } = await admin
+    .from("care_incidents")
+    .select("id, reference, severity, kind, occurred_at, client:care_clients(full_name), reporter:profiles!care_incidents_reported_by_fkey(full_name)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!r) return;
+  const client = r.client as unknown as { full_name: string } | null;
+  const reporter = r.reporter as unknown as { full_name: string | null } | null;
+  const to = await recipients(admin, [ALERT_TOPICS.careConcerns]);
+  await sendEmail({
+    to,
+    ...incidentAlert(
+      {
+        id: r.id,
+        reference: r.reference,
+        severity: r.severity,
+        kind: kindLabel(r.kind),
+        occurred_at: r.occurred_at,
+        client_name: client?.full_name ?? "a client",
+        reporter_name: reporter?.full_name ?? "a staff member",
       },
       await siteUrl(),
     ),

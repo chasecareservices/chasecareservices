@@ -234,10 +234,29 @@ export default async function PortalHome() {
         )}
       </section>
 
-      <p className="rounded-2xl bg-white p-4 text-sm text-ink ring-1 ring-red-200">
-        <strong className="text-red-800">Emergency?</strong> If someone is in danger, call <a href="tel:112" className="font-bold text-red-800 underline">112</a>{" "}
-        first, then the office. Don&apos;t wait to write a report.
-      </p>
+      <section aria-labelledby="incident-h" className="rounded-2xl bg-white p-4 ring-1 ring-red-200">
+        <h2 id="incident-h" className="font-bold text-red-800">
+          Something went wrong?
+        </h2>
+        <p className="mt-1 text-sm text-ink">
+          A fall, an injury, a medicine mistake or a worry about someone&apos;s safety. If someone is in danger, call{" "}
+          <a href="tel:112" className="font-bold text-red-800 underline">
+            112
+          </a>{" "}
+          first, then the office.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link href="/portal/incident/new" className="inline-flex min-h-12 items-center rounded-full border-2 border-red-700 px-5 font-semibold text-red-800 hover:bg-red-50">
+            <span aria-hidden="true" className="mr-2">
+              ⚠
+            </span>
+            Report an incident
+          </Link>
+          <Link href="/portal/incidents" className="inline-flex min-h-12 items-center text-sm font-semibold text-brand-800 underline">
+            My incident reports
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

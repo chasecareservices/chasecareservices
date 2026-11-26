@@ -25,6 +25,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
 
   const care = staff.can("care_ops.view") ? (await db.rpc("care_report_counts")).data?.[0] : null;
   const missedVisits = staff.can("care_ops.view") ? Number((await db.rpc("missed_visit_count")).data ?? 0) : 0;
+  const incidents = staff.can("care_ops.view") ? (await db.rpc("care_incident_counts")).data?.[0] : null;
 
   const quickLinks = [
     ...(staff.can("content.edit") ? [{ label: "Homepage slider & banners", href: "/admin/homepage" }] : []),
@@ -116,6 +117,16 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
               </>
             )}
           </p>
+          {Number(incidents?.open ?? 0) > 0 && (
+            <p className="mt-2 font-semibold text-red-800">
+              <span aria-hidden="true">! </span>
+              {Number(incidents?.open) === 1 ? "1 incident needs" : `${incidents?.open} incidents need`} follow-up
+              {Number(incidents?.serious_open ?? 0) > 0 ? ` (${incidents?.serious_open} serious)` : ""}.{" "}
+              <Link href="/admin/incidents" className="underline">
+                See incidents
+              </Link>
+            </p>
+          )}
           {missedVisits > 0 && (
             <p className="mt-2 font-semibold text-red-800">
               <span aria-hidden="true">! </span>

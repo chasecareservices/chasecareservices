@@ -72,3 +72,24 @@ export function careConcernAlert(
   );
   return { subject: `${urgent ? "URGENT: " : ""}Care concern — ${r.client_name} (${r.reference})`, html, text };
 }
+
+export function incidentAlert(
+  r: { id: string; reference: string; severity: string; kind: string; occurred_at: string; client_name: string; reporter_name: string },
+  siteUrl: string,
+) {
+  const serious = r.severity === "serious";
+  const { html, text } = layout(
+    serious ? `SERIOUS incident: ${r.client_name}` : `New incident report: ${r.client_name}`,
+    [
+      ["Report", r.reference],
+      ["Client", r.client_name],
+      ["Reported by", r.reporter_name],
+      ["When", new Date(r.occurred_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })],
+      ["Type", r.kind],
+      ["Severity", serious ? "Serious — act today" : r.severity === "moderate" ? "Moderate — needs follow-up" : "Minor"],
+    ],
+    { label: "Open the incident", href: `${siteUrl}/admin/incidents/${r.id}` },
+    "For privacy, what happened is only in the dashboard. Sent automatically by the Chase Care website.",
+  );
+  return { subject: `${serious ? "SERIOUS: " : ""}Incident — ${r.client_name} (${r.reference})`, html, text };
+}
