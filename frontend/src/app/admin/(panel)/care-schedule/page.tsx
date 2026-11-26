@@ -16,8 +16,8 @@ function mondayOf(date: string) {
   return d;
 }
 
-export default async function SchedulePage({ searchParams }: { searchParams: Promise<{ week?: string; worker?: string; saved?: string }> }) {
-  const { week, worker, saved } = await searchParams;
+export default async function SchedulePage({ searchParams }: { searchParams: Promise<{ week?: string; worker?: string; saved?: string; team?: string }> }) {
+  const { week, worker, saved, team } = await searchParams;
   const staff = await requirePermission("care_ops.view");
   const today = iso(new Date());
   const monday = mondayOf(week && /^\d{4}-\d{2}-\d{2}$/.test(week) ? week : today);
@@ -62,7 +62,8 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
   return (
     <>
       {saved === "cancelled" && <Notice>Visit cancelled. The care worker no longer sees it.</Notice>}
-      {saved && /^\d+$/.test(saved) && <Notice>{saved === "1" ? "Visit booked." : `${saved} weekly visits booked.`} The care worker sees them in their portal.</Notice>}
+      {saved && /^\d+$/.test(saved) && <Notice>{saved === "1" ? "Visit booked." : `${saved} weekly visits booked.`} The care worker sees them in their portal.
+          {team === "added" && " They've also been added to this client's care team, so they can see the care plan and send reports."}</Notice>}
       <PageHeader title="Visit schedule" intro="Book visits, see who is where, and spot visits with no report." />
 
       {missed && missed.length > 0 && (
@@ -196,8 +197,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                 (they get an email to set up their account).
               </li>
               <li>
-                <strong>3. Put the care worker on the client&apos;s care team</strong> (on the client&apos;s page), so they can see the care plan and send
-                reports.
+                <strong>3. Book the visit here.</strong> That&apos;s it: the care worker is added to the client&apos;s care team automatically.
               </li>
             </ol>
           </Card>
@@ -218,7 +218,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                       return (
                         <option key={c.id} value={c.id}>
                           {c.full_name}
-                          {team ? ` (care team: ${team})` : " (no care team yet)"}
+                          {team ? ` (care team: ${team})` : ""}
                         </option>
                       );
                     })}
@@ -266,7 +266,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                   <input name="notes" maxLength={500} placeholder="e.g. After school — meet at the gate" className={adminInput} />
                 </label>
                 <p className="text-xs text-muted">
-                  Book someone from the client&apos;s care team (shown next to each client), so they can see the care plan. Missing a client?{" "}
+                  Any care worker can be booked: they&apos;re added to the client&apos;s care team automatically, so they can see the care plan and send reports. Missing a client?{" "}
                   <Link href="/admin/care-clients" className="font-semibold text-brand-700 underline">
                     Add one
                   </Link>{" "}

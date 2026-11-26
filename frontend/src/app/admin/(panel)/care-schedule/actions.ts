@@ -32,9 +32,27 @@ export async function bookVisit(formData: FormData): Promise<Result> {
   });
   const { error } = await staff.supabase.from("care_shifts").insert(rows);
   if (error) return { error: "The visit could not be booked. Please try again." };
+
+  // Booking someone puts them on the client's care team, so they can see the care plan
+  // and send reports. (Nothing to do separately on the client's page.)
+  let teamNote = "";
+  if (staff.can("clients.edit")) {
+    const { data: before } = await staff.supabase
+      .from("care_assignments")
+      .select("is_active")
+      .eq("client_id", client_id)
+      .eq("worker_id", worker_id)
+      .maybeSingle();
+    if (!before?.is_active) {
+      const { error: teamError } = await staff.supabase
+        .from("care_assignments")
+        .upsert({ client_id, worker_id, is_active: true }, { onConflict: "client_id,worker_id" });
+      if (!teamError) teamNote = "&team=added";
+    }
+  }
   revalidatePath("/admin/care-schedule");
   revalidatePath("/portal", "layout");
-  redirect(`/admin/care-schedule?week=${date}&saved=${weeks}`);
+  redirect(`/admin/care-schedule?week=${date}&saved=${weeks}${teamNote}`);
 }
 
 export async function cancelVisit(formData: FormData): Promise<Result> {
