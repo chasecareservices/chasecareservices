@@ -18,6 +18,7 @@ insert into public.care_clients (id, full_name) values
   ('00000000-0000-4000-8000-0000000000f2', 'Not Their Client');
 insert into public.care_assignments (client_id, worker_id) values ('00000000-0000-4000-8000-0000000000f1', '00000000-0000-0000-0000-0000000000e1');
 update private.security_settings set require_staff_mfa = true;
+delete from public.care_incidents; -- start from none (demo data may have some); rolled back at the end
 
 set local role authenticated;
 
