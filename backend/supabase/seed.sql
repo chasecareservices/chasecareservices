@@ -108,3 +108,21 @@ from (values
 join public.care_clients c on c.id = v.client
 join auth.users u on u.email = v.email
 on conflict do nothing;
+
+-- Demo care plans (local only).
+insert into public.care_plans (client_id, about_me, goals, visit_tasks, risks, medication_notes, review_date) values
+  ('00000000-0000-4000-8000-00000000c001',
+   'Retired teacher. Loves gospel music and talking about her grandchildren in London. Prefers to be called Auntie Akosua.',
+   array['Walk to the gate and back every day', 'Keep blood sugar steady'],
+   array['Help with washing and dressing', 'Prepare a low-sugar lunch', 'Prompt 1 pm medication', 'Walking exercises with the frame (10 minutes)', 'Check skin on heels for redness'],
+   'Left-side weakness after stroke: walk on her left side. Risk of falls on the veranda step. Diabetic: no sugary drinks.',
+   'Metformin with lunch. Blood pressure tablet in the morning (given by her niece).',
+   current_date + 60),
+  ('00000000-0000-4000-8000-00000000c002',
+   'Kofi is 12 and autistic. Loves drawing buses. Likes a visual timetable and a quiet room after school.',
+   array['Finish homework three times a week', 'Practise asking for help with words'],
+   array['Meet at the school gate at 3 pm', 'Snack and quiet time (15 minutes)', 'Homework with picture timetable', 'Drawing or outdoor play'],
+   'Loud places upset him: give a 5-minute warning before any change. Never touch his drawings without asking.',
+   null,
+   current_date - 3)
+on conflict (client_id) do nothing;

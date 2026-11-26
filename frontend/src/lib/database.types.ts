@@ -169,6 +169,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      care_plans: {
+        Row: {
+          about_me: string | null;
+          client_id: string;
+          created_at: string;
+          goals: string[];
+          medication_notes: string | null;
+          review_date: string | null;
+          risks: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          visit_tasks: string[];
+        };
+        ComputedFields: never;
+        Insert: {
+          about_me?: string | null;
+          client_id: string;
+          created_at?: string;
+          goals?: string[];
+          medication_notes?: string | null;
+          review_date?: string | null;
+          risks?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          visit_tasks?: string[];
+        };
+        Update: {
+          about_me?: string | null;
+          client_id?: string;
+          created_at?: string;
+          goals?: string[];
+          medication_notes?: string | null;
+          review_date?: string | null;
+          risks?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          visit_tasks?: string[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_plans_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       care_reports: {
         Row: {
           activities: string[];
@@ -193,6 +241,7 @@ export type Database = {
           status: Database["public"]["Enums"]["care_report_status"];
           submitted_at: string;
           summary: string;
+          tasks_done: string[];
           updated_at: string;
           visit_date: string;
           worker_id: string;
@@ -221,6 +270,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["care_report_status"];
           submitted_at?: string;
           summary: string;
+          tasks_done?: string[];
           updated_at?: string;
           visit_date?: string;
           worker_id?: string;
@@ -248,6 +298,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["care_report_status"];
           submitted_at?: string;
           summary?: string;
+          tasks_done?: string[];
           updated_at?: string;
           visit_date?: string;
           worker_id?: string;

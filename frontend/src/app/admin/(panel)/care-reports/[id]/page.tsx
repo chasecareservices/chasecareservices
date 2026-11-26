@@ -35,7 +35,7 @@ export default async function CareReportPage({ params, searchParams }: { params:
   };
   const worker = r.worker as unknown as { full_name: string | null; phone: string | null } | null;
 
-  const [{ data: history }, { data: reviewer }] = await Promise.all([
+  const [{ data: history }, { data: reviewer }, { data: plan }] = await Promise.all([
     staff.supabase
       .from("care_reports")
       .select("id, reference, visit_date, mood, concern_level, status")
@@ -44,7 +44,10 @@ export default async function CareReportPage({ params, searchParams }: { params:
       .order("visit_date", { ascending: false })
       .limit(6),
     r.reviewed_by ? staff.supabase.from("profiles").select("full_name").eq("id", r.reviewed_by).maybeSingle() : Promise.resolve({ data: null }),
+    staff.supabase.from("care_plans").select("visit_tasks").eq("client_id", client.id).maybeSingle(),
   ]);
+  const planTasks = plan?.visit_tasks ?? [];
+  const notDone = planTasks.filter((t) => !r.tasks_done.includes(t));
 
   return (
     <>
@@ -106,6 +109,24 @@ export default async function CareReportPage({ params, searchParams }: { params:
               setHomeAction={setHomeFromReport}
             />
           </Card>
+
+          {planTasks.length > 0 && (
+            <Card title={`Care plan tasks: ${planTasks.length - notDone.length} of ${planTasks.length} done`}>
+              <ul className="space-y-1">
+                {planTasks.map((t) => {
+                  const done = r.tasks_done.includes(t);
+                  return (
+                    <li key={t} className={done ? "text-ink" : "font-semibold text-amber-900"}>
+                      <span aria-hidden="true">{done ? "✓ " : "✗ "}</span>
+                      <span className="sr-only">{done ? "Done: " : "Not done: "}</span>
+                      {t}
+                    </li>
+                  );
+                })}
+              </ul>
+              {notDone.length > 0 && <p className="mt-3 text-sm text-muted">Check the notes for why, or ask the care worker.</p>}
+            </Card>
+          )}
 
           <Card title="At a glance">
             <dl className="grid gap-4 sm:grid-cols-2">

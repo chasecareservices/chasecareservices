@@ -9,9 +9,10 @@ export const metadata = { title: "New report" };
 export default async function NewReportPage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
   const { client } = await searchParams;
   const worker = await requireWorker();
-  const [{ data: clients }, settings] = await Promise.all([
+  const [{ data: clients }, settings, { data: plans }] = await Promise.all([
     worker.supabase.from("care_clients").select("id, full_name, preferred_name").order("full_name"),
     getSiteSettings(),
+    worker.supabase.from("care_plans").select("client_id, visit_tasks"),
   ]);
   const list = (clients ?? []).map((c) => ({ id: c.id, name: c.preferred_name || c.full_name, fullName: c.full_name }));
 
@@ -34,6 +35,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Pr
       clients={list}
       initial={{ ...EMPTY_REPORT, client_id: chosen, visit_date: todayInGhana() }}
       officePhone={settings.phone}
+      planTasks={Object.fromEntries((plans ?? []).map((p) => [p.client_id, p.visit_tasks]))}
     />
   );
 }

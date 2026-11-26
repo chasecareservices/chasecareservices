@@ -137,6 +137,8 @@ export type ReportInput = {
   end_time: string;
   mood: string;
   activities: string[];
+  /** Which of the care plan's visit tasks were done. */
+  tasks_done: string[];
   meals: string;
   medication: string;
   summary: string;
@@ -153,6 +155,7 @@ export const EMPTY_REPORT: ReportInput = {
   end_time: "",
   mood: "",
   activities: [],
+  tasks_done: [],
   meals: "",
   medication: "",
   summary: "",
@@ -165,7 +168,7 @@ export type ReportErrors = Partial<Record<keyof ReportInput, string>>;
 /** The steps of the report form, and which answers belong to each. */
 export const REPORT_STEPS: { title: string; fields: (keyof ReportInput)[] }[] = [
   { title: "The visit", fields: ["client_id", "location", "visit_date", "start_time", "end_time"] },
-  { title: "How they were", fields: ["mood", "activities", "meals", "medication"] },
+  { title: "How they were", fields: ["mood", "tasks_done", "activities", "meals", "medication"] },
   { title: "Notes & concerns", fields: ["summary", "concern_level", "concerns"] },
 ];
 
@@ -189,6 +192,7 @@ export function validateReport(
   const v: ReportInput = {
     ...input,
     activities: [...new Set(input.activities.filter((a) => has(ACTIVITIES, a)))],
+    tasks_done: [...new Set((input.tasks_done ?? []).filter((t) => typeof t === "string" && t.trim() && t.length <= 200))].slice(0, 30),
     summary: input.summary.trim(),
     concerns: input.concerns.trim(),
   };

@@ -22,6 +22,7 @@ const columns = (v: ReportInput) => ({
   end_time: v.end_time || null,
   mood: v.mood as "great" | "good" | "okay" | "low" | "distressed",
   activities: v.activities,
+  tasks_done: v.tasks_done,
   meals: v.meals || null,
   medication: v.medication || null,
   summary: v.summary,

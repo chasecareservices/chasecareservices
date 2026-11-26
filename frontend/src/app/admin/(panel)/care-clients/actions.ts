@@ -136,3 +136,38 @@ export async function inviteWorker(formData: FormData): Promise<Result> {
   revalidatePath("/admin/care-clients");
   redirect(`/admin/care-clients?saved=invited&who=${encodeURIComponent(email)}#care-workers`);
 }
+
+/** "one per line" text → a clean list (blank lines dropped, each trimmed). */
+function lines(f: FormData, k: string, maxItems: number) {
+  return String(f.get(k) ?? "")
+    .split("\n")
+    .map((l) => l.replace(/^[-*•]\s*/, "").trim())
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
+export async function saveCarePlan(formData: FormData): Promise<Result> {
+  const staff = await requirePermission("clients.edit");
+  const clientId = String(formData.get("client_id") ?? "");
+  if (!UUID.test(clientId)) return { error: "Something went wrong. Please reload the page." };
+  const goals = lines(formData, "goals", 15);
+  const tasks = lines(formData, "visit_tasks", 30);
+  const tooLong = [...goals, ...tasks].find((t) => t.length > 200);
+  if (tooLong) return { error: `Please shorten “${tooLong.slice(0, 40)}…” to 200 characters or fewer.` };
+  const review = String(formData.get("review_date") ?? "");
+  if (review && !/^\d{4}-\d{2}-\d{2}$/.test(review)) return { error: "Enter the review date as a date." };
+  const { error } = await staff.supabase.from("care_plans").upsert({
+    client_id: clientId,
+    about_me: text(formData, "about_me", 2000),
+    goals,
+    visit_tasks: tasks,
+    risks: text(formData, "risks", 2000),
+    medication_notes: text(formData, "medication_notes", 2000),
+    review_date: review || null,
+    updated_by: staff.user.id,
+  });
+  if (error) return { error: "The care plan could not be saved. Please try again." };
+  revalidatePath("/admin/care-clients");
+  revalidatePath("/portal", "layout");
+  redirect(`/admin/care-clients/${clientId}?saved=plan#care-plan`);
+}

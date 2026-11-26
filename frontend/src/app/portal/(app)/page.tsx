@@ -5,6 +5,46 @@ import { requireWorker } from "@/lib/portal/session";
 
 export const metadata = { title: "Today" };
 
+type Plan = { about_me: string | null; visit_tasks: string[]; risks: string | null; medication_notes: string | null };
+
+/** The client's care plan, folded away until the worker opens it. */
+function CarePlanDetails({ plan, notes }: { plan?: Plan; notes: string | null }) {
+  if (!plan && !notes) return null;
+  return (
+    <details className="mt-3 rounded-xl bg-brand-50 px-4 py-3 text-sm open:pb-4">
+      <summary className="min-h-8 cursor-pointer font-semibold text-brand-800">
+        Care plan{plan?.visit_tasks.length ? ` · ${plan.visit_tasks.length} tasks each visit` : ""}
+      </summary>
+      <div className="mt-2 space-y-3 text-ink">
+        {plan?.about_me && <p>{plan.about_me}</p>}
+        {plan?.visit_tasks.length ? (
+          <div>
+            <p className="font-semibold text-brand-900">Each visit</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5">
+              {plan.visit_tasks.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {plan?.risks && (
+          <p className="rounded-lg bg-amber-50 p-2 text-amber-950">
+            <strong>Take care: </strong>
+            {plan.risks}
+          </p>
+        )}
+        {plan?.medication_notes && (
+          <p>
+            <strong className="text-brand-900">Medication: </strong>
+            {plan.medication_notes}
+          </p>
+        )}
+        {notes && !plan && <p className="whitespace-pre-line">{notes}</p>}
+      </div>
+    </details>
+  );
+}
+
 function greeting(now = new Date()) {
   const h = now.getUTCHours(); // Ghana is on UTC
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
@@ -13,7 +53,7 @@ function greeting(now = new Date()) {
 export default async function PortalHome() {
   const worker = await requireWorker();
   const today = todayInGhana();
-  const [{ data: clients }, { data: recent }, { data: todays }] = await Promise.all([
+  const [{ data: clients }, { data: recent }, { data: todays }, { data: plans }] = await Promise.all([
     worker.supabase.from("care_clients").select("id, full_name, preferred_name, area, care_summary").order("full_name"),
     worker.supabase
       .from("care_reports")
@@ -22,7 +62,9 @@ export default async function PortalHome() {
       .order("submitted_at", { ascending: false })
       .limit(5),
     worker.supabase.from("care_reports").select("client_id").eq("worker_id", worker.user.id).eq("visit_date", today),
+    worker.supabase.from("care_plans").select("client_id, about_me, visit_tasks, risks, medication_notes"),
   ]);
+  const planFor = new Map((plans ?? []).map((p) => [p.client_id, p]));
   const reportedToday = new Set((todays ?? []).map((r) => r.client_id));
   const notes = (recent ?? []).filter((r) => r.office_note);
 
@@ -75,12 +117,7 @@ export default async function PortalHome() {
                       </span>
                     )}
                   </div>
-                  {c.care_summary && (
-                    <details className="mt-3 text-sm">
-                      <summary className="cursor-pointer font-semibold text-brand-700">Care notes</summary>
-                      <p className="mt-1 whitespace-pre-line text-ink">{c.care_summary}</p>
-                    </details>
-                  )}
+                  <CarePlanDetails plan={planFor.get(c.id)} notes={c.care_summary} />
                   <Link
                     href={`/portal/report/new?client=${c.id}`}
                     className={`mt-4 flex min-h-12 items-center justify-center rounded-full px-5 font-semibold ${

@@ -184,8 +184,11 @@ export function ReportForm({
   initial,
   reportId,
   officePhone,
+  planTasks = {},
 }: {
   clients: Client[];
+  /** Each client's care plan tasks for a visit, by client id. */
+  planTasks?: Record<string, string[]>;
   initial: ReportInput;
   /** When set, the form corrects an existing report instead of sending a new one. */
   reportId?: string;
@@ -376,7 +379,10 @@ export function ReportForm({
                 type="radio"
                 options={clients.map((c) => ({ value: c.id, label: c.name, hint: c.name !== c.fullName ? c.fullName : undefined }))}
                 value={values.client_id}
-                onChange={(v) => set("client_id", v as string)}
+                onChange={(v) => {
+                  set("client_id", v as string);
+                  set("tasks_done", []); // ticks belong to the previous client's plan
+                }}
                 error={errors.client_id}
               />
             )}
@@ -434,9 +440,21 @@ export function ReportForm({
         {step === 1 && (
           <>
             <Choices name="mood" legend="How did they seem today?" type="radio" options={MOODS} value={values.mood} onChange={(v) => set("mood", v as string)} error={errors.mood} />
+            {(planTasks[values.client_id] ?? []).length > 0 && (
+              <Choices
+                name="tasks_done"
+                legend="Tasks from the care plan"
+                hint="Tick what you did on this visit. Anything not done, say why in your notes."
+                type="checkbox"
+                optional
+                options={(planTasks[values.client_id] ?? []).map((t) => ({ value: t, label: t }))}
+                value={values.tasks_done}
+                onChange={(v) => set("tasks_done", v as string[])}
+              />
+            )}
             <Choices
               name="activities"
-              legend="What did you do together?"
+              legend="What else did you do together?"
               hint="Tick everything that applies."
               type="checkbox"
               columns={2}
@@ -555,6 +573,9 @@ export function ReportForm({
                 title: "How they were",
                 rows: [
                   ["Mood", `${MOODS.find((m) => m.value === values.mood)?.icon ?? ""} ${labelOf(MOODS, values.mood)}`],
+                  ...((planTasks[values.client_id] ?? []).length
+                    ? [["Care plan tasks", `${values.tasks_done.length} of ${planTasks[values.client_id].length} done${values.tasks_done.length ? `: ${values.tasks_done.join(", ")}` : ""}`]]
+                    : []),
                   ["Activities", values.activities.length ? values.activities.map((a) => labelOf(ACTIVITIES, a)).join(", ") : "None ticked"],
                   ["Food and drink", values.meals ? labelOf(MEALS, values.meals) : "Not answered"],
                   ["Medication", values.medication ? labelOf(MEDICATION, values.medication) : "Not answered"],
