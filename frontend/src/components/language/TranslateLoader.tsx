@@ -1,5 +1,6 @@
 "use client";
 
+import { readConsent } from "@/lib/consent";
 import { useEffect } from "react";
 import { LANGUAGES, SOURCE_LANGUAGE, languageFromCookie } from "@/lib/languages";
 
@@ -47,6 +48,7 @@ export function TranslateLoader() {
   useEffect(() => {
     const language = languageFromCookie(document.cookie);
     if (language === SOURCE_LANGUAGE || document.getElementById(SCRIPT_ID)) return;
+    if (!readConsent()?.preferences) return; // translation needs preference cookies
 
     patchDomForTranslation();
     document.documentElement.lang = language;

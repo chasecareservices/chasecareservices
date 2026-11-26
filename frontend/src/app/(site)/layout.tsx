@@ -1,3 +1,4 @@
+import { CookieBanner } from "@/components/consent/CookieBanner";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { QuickContact } from "@/components/layout/QuickContact";
@@ -11,6 +12,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </main>
       <Footer />
       <QuickContact />
+      <CookieBanner />
     </>
   );
 }

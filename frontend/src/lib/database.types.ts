@@ -169,6 +169,55 @@ export type Database = {
         };
         Relationships: [];
       };
+      care_family_links: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          is_active: boolean;
+          relationship: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_active?: boolean;
+          relationship?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_active?: boolean;
+          relationship?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_family_links_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_family_links_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       care_incidents: {
         Row: {
           action_taken: string;
@@ -757,6 +806,91 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      newsletter_sends: {
+        Row: {
+          failed: number;
+          finished_at: string | null;
+          id: string;
+          post_id: string;
+          recipients: number;
+          sent_by: string | null;
+          started_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          failed?: number;
+          finished_at?: string | null;
+          id?: string;
+          post_id: string;
+          recipients?: number;
+          sent_by?: string | null;
+          started_at?: string;
+        };
+        Update: {
+          failed?: number;
+          finished_at?: string | null;
+          id?: string;
+          post_id?: string;
+          recipients?: number;
+          sent_by?: string | null;
+          started_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_sends_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: true;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      newsletter_subscribers: {
+        Row: {
+          confirm_sent_at: string | null;
+          confirmed_at: string | null;
+          consent_at: string;
+          created_at: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          source_page: string | null;
+          status: string;
+          token: string;
+          unsubscribed_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          confirm_sent_at?: string | null;
+          confirmed_at?: string | null;
+          consent_at?: string;
+          created_at?: string;
+          email: string;
+          full_name?: string | null;
+          id?: string;
+          source_page?: string | null;
+          status?: string;
+          token?: string;
+          unsubscribed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          confirm_sent_at?: string | null;
+          confirmed_at?: string | null;
+          consent_at?: string;
+          created_at?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          source_page?: string | null;
+          status?: string;
+          token?: string;
+          unsubscribed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       notification_recipients: {
         Row: {
@@ -1384,6 +1518,7 @@ export type Database = {
           full_name: string;
           id: string;
           kind: string;
+          photo_crop: string;
           photo_path: string | null;
           position: string | null;
           sort_order: number;
@@ -1399,6 +1534,7 @@ export type Database = {
           full_name: string;
           id?: string;
           kind: string;
+          photo_crop?: string;
           photo_path?: string | null;
           position?: string | null;
           sort_order?: number;
@@ -1413,6 +1549,7 @@ export type Database = {
           full_name?: string;
           id?: string;
           kind?: string;
+          photo_crop?: string;
           photo_path?: string | null;
           position?: string | null;
           sort_order?: number;
@@ -1570,10 +1707,45 @@ export type Database = {
           total: number;
         }[];
       };
+      family_message_office: {
+        Args: { client: string; message: string };
+        Returns: string;
+      };
+      family_visit_reports: {
+        Args: { client: string; max_rows?: number };
+        Returns: {
+          activities: string[];
+          end_time: string;
+          id: string;
+          meals: string;
+          medication: string;
+          mood: string;
+          reference: string;
+          reviewed_at: string;
+          start_time: string;
+          summary: string;
+          tasks_done: string[];
+          visit_date: string;
+          worker_first_name: string;
+        }[];
+      };
+      family_visits: {
+        Args: { client: string; from_date: string; to_date: string };
+        Returns: {
+          end_time: string;
+          id: string;
+          shift_date: string;
+          start_time: string;
+          visit_status: string;
+          worker_first_name: string;
+        }[];
+      };
       has_permission: { Args: { perm: string }; Returns: boolean };
       has_staff_role: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_assigned_to: { Args: { client: string }; Returns: boolean };
       is_care_worker: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_family_member: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_family_of: { Args: { client: string }; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_worker_profile: { Args: { uid: string }; Returns: boolean };
       list_care_workers: {
@@ -1587,8 +1759,28 @@ export type Database = {
           phone: string;
         }[];
       };
+      list_family_contacts: {
+        Args: { client: string };
+        Returns: {
+          email: string;
+          full_name: string;
+          is_active: boolean;
+          last_sign_in_at: string;
+          link_id: string;
+          relationship: string;
+          user_id: string;
+        }[];
+      };
       missed_visit_count: { Args: Record<PropertyKey, never>; Returns: number };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
+      newsletter_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          pending: number;
+          subscribed: number;
+          unsubscribed: number;
+        }[];
+      };
       search_site: {
         Args: { max_results?: number; query: string };
         Returns: {

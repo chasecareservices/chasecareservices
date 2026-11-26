@@ -55,6 +55,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         ...(staff.can("content.edit") ? [{ label: "Homepage & banners", href: "/admin/homepage" }] : []),
         ...contentLinks,
         ...(staff.can("media.view") ? [{ label: "Media library", href: "/admin/media" }] : []),
+        ...(staff.can("communications.view") ? [{ label: "Subscribers", href: "/admin/subscribers" }] : []),
       ],
     },
     {

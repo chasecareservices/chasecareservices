@@ -27,7 +27,8 @@ begin
       ('ops@chasecare.local',      'Demo Operations Manager', 'operations_manager'),
       ('training@chasecare.local', 'Demo Training Coordinator', 'training_coordinator'),
       ('carer@chasecare.local',    'Ama Mensah (demo carer)',  'worker'),
-      ('carer2@chasecare.local',   'Kwame Owusu (demo carer)', 'worker')
+      ('carer2@chasecare.local',   'Kwame Owusu (demo carer)', 'worker'),
+      ('family@chasecare.local',   'Efua Boateng (demo family)', 'client')
     ) as t(email, full_name, role_key)
   loop
     uid := gen_random_uuid();
@@ -152,3 +153,11 @@ select '00000000-0000-4000-8000-00000000c001', u.id, now() - interval '20 hours'
        'Helped her sit on the chair, checked her knee, cold compress for 15 minutes. She could walk afterwards.',
        array['family']
 from auth.users u where u.email = 'carer@chasecare.local';
+
+-- Family portal (local only): Efua follows her mother, Auntie Akosua. The office has read yesterday's report.
+insert into public.care_family_links (client_id, user_id, relationship)
+select '00000000-0000-4000-8000-00000000c001', u.id, 'Daughter' from auth.users u where u.email = 'family@chasecare.local';
+alter table public.care_reports disable trigger care_reports_guard; -- demo data only: no signed-in office user here
+update public.care_reports set status = 'reviewed', reviewed_at = now(), office_note = 'Thanks Ama, lovely report.'
+where client_id = '00000000-0000-4000-8000-00000000c001' and visit_date = current_date - 1;
+alter table public.care_reports enable trigger care_reports_guard;

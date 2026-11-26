@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
 import { Container } from "@/components/ui";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { getPost, mediaUrl } from "@/lib/content";
 
 export const revalidate = 300;
@@ -55,6 +56,11 @@ export default async function PostPage({ params }: Props) {
       <div className="py-8">
         <PageBlocks blocks={toBlocks(post.body)} />
       </div>
+      <Container className="pb-16">
+        <div className="mx-auto max-w-3xl rounded-3xl bg-brand-50 p-6 sm:p-8">
+          <NewsletterSignup heading="Enjoyed this? Get the next article by email" />
+        </div>
+      </Container>
     </article>
   );
 }

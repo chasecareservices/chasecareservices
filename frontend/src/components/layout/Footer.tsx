@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { SocialLinks, socialEntries } from "@/components/SocialLinks";
+import { CookieSettingsButton } from "@/components/consent/CookieBanner";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LanguageSelect } from "@/components/language/LanguageSelect";
 import { Logo } from "@/components/Logo";
 import { getNavigation, getSiteSettings } from "@/lib/content";
@@ -16,6 +18,8 @@ const QUICK_LINKS = [
   { label: "ChaseCare Academy", href: "/academy" },
   { label: "Join Our Team", href: "/join-our-team" },
   { label: "News & Blog", href: "/journal" },
+  { label: "Family sign-in", href: "/family/login" },
+  { label: "Care worker sign-in", href: "/portal/login" },
 ];
 
 /** Used if the footer menu in the database is empty: the policies in src/lib/legal. */
@@ -107,6 +111,14 @@ export async function Footer() {
       </div>
 
       <div className="border-t border-white/10">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="max-w-xl">
+            <NewsletterSignup tone="dark" heading="News & blog by email" />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-brand-200 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
             © {new Date().getFullYear()} {settings.organisation_name}. All rights reserved.
@@ -119,6 +131,9 @@ export async function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <CookieSettingsButton className="underline-offset-2 hover:text-white hover:underline" />
+            </li>
           </ul>
         </div>
       </div>
