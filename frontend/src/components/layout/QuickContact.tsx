@@ -20,7 +20,7 @@ export async function QuickContact() {
           href={whatsappLink(settings.whatsapp_number, "Hello Chase Care Services, I would like some information.")}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#1f8f4e] text-sm font-semibold text-white"
+          className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#17703c] text-sm font-semibold text-white"
         >
           WhatsApp us
         </a>

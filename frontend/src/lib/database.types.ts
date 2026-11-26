@@ -122,9 +122,11 @@ export type Database = {
       };
       care_clients: {
         Row: {
+          address: string | null;
           area: string | null;
           care_summary: string | null;
           created_at: string;
+          digital_address: string | null;
           emergency_contact_name: string | null;
           emergency_contact_phone: string | null;
           full_name: string;
@@ -133,14 +135,17 @@ export type Database = {
           id: string;
           is_active: boolean;
           preferred_name: string | null;
+          source_enquiry_id: string | null;
           updated_at: string;
           updated_by: string | null;
         };
         ComputedFields: never;
         Insert: {
+          address?: string | null;
           area?: string | null;
           care_summary?: string | null;
           created_at?: string;
+          digital_address?: string | null;
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           full_name: string;
@@ -149,13 +154,16 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           preferred_name?: string | null;
+          source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };
         Update: {
+          address?: string | null;
           area?: string | null;
           care_summary?: string | null;
           created_at?: string;
+          digital_address?: string | null;
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           full_name?: string;
@@ -164,10 +172,19 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           preferred_name?: string | null;
+          source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "care_clients_source_enquiry_id_fkey";
+            columns: ["source_enquiry_id"];
+            isOneToOne: true;
+            referencedRelation: "enquiries";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       care_family_links: {
         Row: {

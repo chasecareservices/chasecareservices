@@ -32,6 +32,7 @@ export default async function CareClientPage({ params, searchParams }: { params:
   return (
     <>
       {saved === "client" && <Notice>Client saved.</Notice>}
+      {saved === "from-enquiry" && <Notice>Client record created from the care request. Next: write the care plan and choose the care team.</Notice>}
       {saved === "plan" && <Notice>Care plan saved. Care workers see it in their portal straight away.</Notice>}
       {saved === "team" && <Notice>Care team saved. Assigned care workers can now see this client in their portal.</Notice>}
       {saved === "family-invited" && <Notice>Invitation sent. Once they set a password, they can sign in to the family portal.</Notice>}

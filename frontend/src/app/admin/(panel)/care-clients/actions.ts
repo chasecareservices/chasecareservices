@@ -7,6 +7,7 @@ import { requirePermission } from "@/lib/admin/session";
 import { createSecretClient } from "@/lib/supabase/server-auth";
 import { parseLatLng } from "@/lib/care";
 import { sendInvitation } from "@/lib/email/send-invite";
+import { cleanDigitalAddress } from "@/lib/ghana-address";
 
 type Result = { error: string } | undefined;
 const UUID = /^[0-9a-f-]{36}$/;
@@ -58,8 +59,12 @@ export async function saveClient(formData: FormData): Promise<Result> {
       error:
         "We couldn't read that home location. Paste the link from Google Maps (Share → Copy link), or coordinates like 5.6037, -0.1870 (in Google Maps, press and hold on the home to see them).",
     };
+  const digital = cleanDigitalAddress(String(formData.get("digital_address") ?? ""));
+  if (digital === undefined) return { error: "The Ghana Post digital address should look like GA-183-8164." };
   const row = {
     full_name: fullName,
+    address: text(formData, "address", 300),
+    digital_address: digital,
     home_lat: home?.lat ?? null,
     home_lng: home?.lng ?? null,
     preferred_name: text(formData, "preferred_name", 60),

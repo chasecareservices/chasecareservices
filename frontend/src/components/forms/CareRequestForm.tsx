@@ -12,6 +12,9 @@ import {
   inputClass,
   submitEnquiry,
 } from "@/components/forms/fields";
+import { LocationPicker } from "@/components/forms/LocationPicker";
+import { cleanDigitalAddress } from "@/lib/ghana-address";
+
 
 // Options from the client proposal, section 11 ("I Need Care").
 const WHO_NEEDS_CARE = ["Myself", "Parent", "Child", "Spouse", "Relative", "Other"];
@@ -48,6 +51,14 @@ export function CareRequestForm({ abroad = false, service }: { abroad?: boolean;
       setError("Please give us an email address or a phone number so we can reply.");
       return;
     }
+    const digital = cleanDigitalAddress(formValue(form, "digital_address"));
+    if (digital === undefined) {
+      setError("The Ghana Post digital address should look like GA-183-8164. Leave it empty if you don't know it.");
+      return;
+    }
+    const lat = Number(formValue(form, "care_lat"));
+    const lng = Number(formValue(form, "care_lng"));
+    const hasPin = formValue(form, "care_lat") !== "" && Number.isFinite(lat) && Number.isFinite(lng);
     if (!supportTypes.length) {
       setError("Please choose at least one type of support.");
       return;
@@ -66,7 +77,14 @@ export function CareRequestForm({ abroad = false, service }: { abroad?: boolean;
         lives_abroad: livesAbroad,
         location: formValue(form, "location"),
         who_needs_care: formValue(form, "who_needs_care"),
+        care_recipient_name: formValue(form, "care_recipient_name"),
         care_recipient_location: formValue(form, "care_recipient_location"),
+        care_address: formValue(form, "care_address"),
+        digital_address: digital,
+        care_lat: hasPin ? lat : null,
+        care_lng: hasPin ? lng : null,
+        location_source: hasPin ? formValue(form, "location_source") : null,
+        location_accuracy_m: hasPin && formValue(form, "location_accuracy") ? Number(formValue(form, "location_accuracy")) : null,
         support_types: supportTypes,
         frequency: formValue(form, "frequency"),
         service_page: service ?? null,
@@ -137,15 +155,36 @@ export function CareRequestForm({ abroad = false, service }: { abroad?: boolean;
               ))}
             </select>
           </Field>
-          <Field label="Where in Ghana are they?" htmlFor="care_recipient_location" required>
-            <input id="care_recipient_location" name="care_recipient_location" required placeholder="e.g. Kumasi, Ashanti" maxLength={200} className={inputClass} />
+          <Field label="Their name" htmlFor="care_recipient_name" hint="Leave empty if it's you">
+            <input id="care_recipient_name" name="care_recipient_name" maxLength={120} autoComplete="off" className={inputClass} />
           </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-5">
+        <legend className="mb-2 text-lg font-bold text-brand-900">3. Where will care happen?</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Town / area in Ghana" htmlFor="care_recipient_location" required>
+            <input id="care_recipient_location" name="care_recipient_location" required placeholder="e.g. Spintex, Accra" maxLength={200} className={inputClass} />
+          </Field>
+          <Field label="Ghana Post digital address" htmlFor="digital_address" hint="Optional, e.g. GA-183-8164 (in the GhanaPost GPS app)">
+            <input id="digital_address" name="digital_address" maxLength={14} autoCapitalize="characters" placeholder="GA-000-0000" className={inputClass} />
+          </Field>
+        </div>
+        <Field label="House address or directions" htmlFor="care_address" hint="House number, street, nearby landmark: anything that helps the care worker find the home">
+          <textarea id="care_address" name="care_address" rows={2} maxLength={300} placeholder="e.g. Blue gate opposite the Shell station, Spintex Road" className={inputClass} />
+        </Field>
+        <div>
+          <p className="mb-2 text-sm font-semibold text-brand-900">
+            Show us on the map <span className="font-normal text-muted">(optional, but very helpful)</span>
+          </p>
+          <LocationPicker />
         </div>
       </fieldset>
 
       <fieldset>
         <legend className="mb-3 text-lg font-bold text-brand-900">
-          3. Type of support <span className="text-sm font-normal text-muted">(choose all that apply)</span>
+          4. Type of support <span className="text-sm font-normal text-muted">(choose all that apply)</span>
         </legend>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {SUPPORT_TYPES.map((s) => (
@@ -158,7 +197,7 @@ export function CareRequestForm({ abroad = false, service }: { abroad?: boolean;
       </fieldset>
 
       <fieldset className="space-y-5">
-        <legend className="mb-2 text-lg font-bold text-brand-900">4. How often?</legend>
+        <legend className="mb-2 text-lg font-bold text-brand-900">5. How often?</legend>
         <Field label="Preferred frequency" htmlFor="frequency" required>
           <select id="frequency" name="frequency" required className={inputClass} defaultValue="">
             <option value="" disabled>
