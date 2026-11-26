@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SocialLinks, socialEntries } from "@/components/SocialLinks";
 import { LanguageSelect } from "@/components/language/LanguageSelect";
 import { Logo } from "@/components/Logo";
 import { getNavigation, getSiteSettings } from "@/lib/content";
@@ -6,7 +7,7 @@ import { phoneDigits, whatsappLink } from "@/lib/format";
 import { LEGAL_DOCUMENTS } from "@/lib/legal";
 
 type OpeningHours = { days?: string; hours?: string }[];
-type SocialLinks = Record<string, string>;
+type SocialLinkMap = Record<string, string>;
 
 const QUICK_LINKS = [
   { label: "Care Services", href: "/care-services" },
@@ -23,7 +24,7 @@ const LEGAL_FALLBACK = LEGAL_DOCUMENTS.map((d) => ({ label: d.title, href: `/${d
 export async function Footer() {
   const [settings, footerNav] = await Promise.all([getSiteSettings(), getNavigation("footer")]);
   const hours = (Array.isArray(settings.opening_hours) ? settings.opening_hours : []) as OpeningHours;
-  const social = (settings.social_links && typeof settings.social_links === "object" ? settings.social_links : {}) as SocialLinks;
+  const social = (settings.social_links && typeof settings.social_links === "object" ? settings.social_links : {}) as SocialLinkMap;
   const legal = footerNav.length ? footerNav.map((n) => ({ label: n.label, href: n.href })) : LEGAL_FALLBACK;
 
   return (
@@ -93,21 +94,13 @@ export async function Footer() {
               </ul>
             </>
           )}
-          {Object.keys(social).length > 0 && (
+          {socialEntries(social).length > 0 && (
             <>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent-400">Follow us</h2>
-              <ul className="flex flex-wrap gap-3 text-sm">
-                {Object.entries(social).map(([name, url]) => (
-                  <li key={name}>
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="capitalize hover:text-white">
-                      {name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <SocialLinks links={social} />
             </>
           )}
-          <div className={hours.length > 0 || Object.keys(social).length > 0 ? "mt-8" : ""}>
+          <div className={hours.length > 0 || socialEntries(social).length > 0 ? "mt-8" : ""}>
             <LanguageSelect />
           </div>
         </div>
