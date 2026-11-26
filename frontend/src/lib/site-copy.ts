@@ -50,11 +50,29 @@ export const VALUES: { name: string; text: string }[] = [
 ];
 
 export const WHY_CHOOSE_US: { title: string; text: string }[] = [
-  { title: "Person-centred care", text: "Support tailored to each person's needs, preferences, culture and circumstances." },
-  { title: "Trained workers", text: "No placement without appropriate preparation: every worker completes training first." },
-  { title: "Competency processes", text: "Screening, reference checks and competency assessment before approval." },
-  { title: "Wellbeing support", text: "Counselling, health referrals and support for the people who provide care." },
-  { title: "Community partnerships", text: "We work with schools, hospitals, organisations and community partners." },
+  { title: "Professionally trained caregivers", text: "No placement without appropriate preparation: every caregiver completes training first." },
+  { title: "Screened, vetted & trusted", text: "Interviews, reference and background checks and a competency assessment before approval." },
+  { title: "Person-centred care that matters", text: "Support tailored to each person's needs, preferences, culture and circumstances." },
+  { title: "Ongoing support & supervision", text: "Regular review, supervision and wellbeing support for the people who provide care." },
+  { title: "Quality care. Peace of mind.", text: "Clear care plans, documentation and communication, so families always know where things stand." },
+];
+
+/** The letters of CHASE, as used on the logo. */
+export const CHASE_MEANING = ["Care", "Help", "Assist", "Support", "Empower"];
+
+export const TRAINING_TAGLINE = "Training compassion. Delivering excellence.";
+
+export const CARE_PROCESS = ["Initial assessment", "Individual care plan", "Risk assessment", "Care records", "Regular review"];
+
+export const OFFICE_LOCATIONS = ["Weija, Accra", "Spintex Road", "McCarthy Hill"];
+
+/** Countries where families abroad most often ask us to care for loved ones "back home" (from the flyer). */
+export const HOME_COUNTRIES = ["Ghana", "Nigeria", "Dubai (UAE)"];
+
+/** Extra numbers from the client's letter, shown on the Contact page alongside the main phone and WhatsApp. */
+export const OTHER_CONTACTS: { label: string; value: string; href: string }[] = [
+  { label: "Also call", value: "+233 59 499 9582", href: "tel:+233594999582" },
+  { label: "WhatsApp (UK)", value: "+44 7999 185420", href: "https://wa.me/447999185420" },
 ];
 
 /** "What we do" highlight box (About page). */
@@ -104,12 +122,57 @@ export const STUDENT_PATHWAY = [
 ];
 
 export const PAGE_COPY: Record<string, PageCopy> = {
+  "about/how-we-care": {
+    eyebrow: "About Us",
+    title: "How We Care",
+    intro:
+      "CHASE Care Services is a professional care organisation dedicated to providing compassionate, reliable and person-centred care to individuals and families — including professional care in the comfort and familiarity of their own home.",
+    sections: [
+      {
+        heading: "What CHASE stands for",
+        text: "Our name is our promise: Care, Help, Assist, Support and Empower. Our mission is to ensure that every patient, child and client receives appropriate, respectful and dependable support.",
+        items: CHASE_MEANING,
+      },
+      {
+        heading: "Our core services",
+        items: [
+          "Professional patient home care — including support after a stroke (CVA) and for complex care needs",
+          "Special needs and disability support — for children and adults with autism, developmental conditions and other disabilities",
+          "Special needs support for schools and families — after school, at weekends and in the holidays",
+          "Nanny and childcare — daily routines, supervision, personal care and well-being",
+          "Companionship and personal support — company, encouragement and help with everyday activities",
+        ],
+      },
+      {
+        heading: "Our approach to care",
+        text: "Quality care goes beyond meeting basic needs. We take a person-centred approach that recognises each client's individual circumstances, preferences and goals. Where appropriate, every package of care follows the same safe, coordinated and accountable process:",
+        pathway: CARE_PROCESS,
+      },
+      {
+        heading: "Where we are",
+        text: "Our offices are in the following areas. Please contact us to confirm availability and arrangements for your location.",
+        items: OFFICE_LOCATIONS,
+      },
+      {
+        heading: "More than care",
+        text: "At CHASE Care Services, we do not simply provide care: we build trust, preserve dignity and empower lives.",
+      },
+    ],
+    ctas: [
+      { label: "Request Care", href: "/register/client" },
+      { label: "Contact us", href: "/contact" },
+    ],
+  },
   "join-our-team": {
     eyebrow: "Careers",
     title: "Build Your Career in Care",
     intro:
       "We are looking for caregivers, nurses, healthcare professionals, therapists, nannies, housekeepers and support workers who want to make a real difference — and who want to be trained, supported and valued while they do it.",
     sections: [
+      {
+        heading: "Trained to care. Ready to serve.",
+        text: "We train caregivers to meet the highest standards of care, compassion and professionalism. Get on our register as a caregiver and join our network of trained and trusted caregivers — we match you with families who value quality care.",
+      },
       { heading: "Our recruitment pathway", pathway: RECRUITMENT_PATHWAY },
       {
         heading: "Who we're looking for",
@@ -160,19 +223,74 @@ export const PAGE_COPY: Record<string, PageCopy> = {
   },
   "schools-and-hospitals": {
     eyebrow: "Partnerships",
-    title: "Working with Schools & Hospitals",
-    intro: "We partner with schools and hospitals to support learners, patients and their families.",
+    title: "Specialist Care & School Support Partnerships",
+    intro:
+      "Supporting young people with special educational needs, learning disabilities, autism and additional care needs to live, learn and participate with dignity, confidence and greater independence.",
     sections: [
       {
-        heading: "Working with schools",
+        heading: "Our partnership vision",
+        text: "We partner with special schools and other educational settings so families can access appropriately trained professional carers who complement the work of the school. Where a parent needs additional one-to-one or ongoing support, one of our carers provides continuity around the young person's needs — at school where agreed, and after school, at home and in the community. This continuity reduces disruption and gives parents confidence that their child's needs are understood across every part of the day.",
+      },
+      {
+        heading: "Our care & support services",
         items: [
-          "Individual support",
-          "Special educational needs",
-          "Disability support",
-          "Care assistance",
-          "Training",
-          "Parent support",
-          "Specialist referrals",
+          "Full-time live-in care and support",
+          "Full-time live-out care and support",
+          "After-school support and one-to-one assistance",
+          "Weekend support where required",
+          "School-based support, subject to school agreement and safeguarding requirements",
+          "Support with daily living, personal care and routines",
+          "Community participation, activities and social development",
+          "Support with transitions between school, home and community",
+          "Consistent implementation of the young person's care and support plan",
+        ],
+      },
+      {
+        heading: "Our carers",
+        text: "Our carers come from healthcare backgrounds, including qualified nurses and healthcare assistants, and receive additional training in special educational needs. They work within our safeguarding, professional conduct and person-centred care framework: building respectful relationships, communicating appropriately, promoting independence, noticing changes in well-being and escalating concerns through agreed pathways.",
+      },
+      {
+        heading: "Person-centred planning",
+        text: "Every placement starts with an individual assessment of the young person's needs, preferences, strengths, routines and goals. We develop a support plan and care plan with the parent or guardian and, where appropriate, the school and other professionals — covering communication, personal care, routines, emotional well-being, learning support, social participation, independence, health needs, risk management and agreed outcomes. Plans are reviewed as needs change.",
+      },
+      {
+        heading: "Safeguarding at the core",
+        text: "Every young person is treated with dignity, respect and appropriate professional boundaries. Our approach includes clear reporting and escalation procedures, risk awareness, confidentiality, safe working practices and prompt action when a concern is identified. Any school-based support follows the school's own safeguarding procedures and policies.",
+      },
+      {
+        heading: "Benefits to the school",
+        items: [
+          "A trusted support option schools can signpost to parents",
+          "Carers with healthcare experience and SEN-focused training",
+          "Greater continuity between school and home",
+          "A structured approach to care, support planning and safeguarding",
+          "A collaborative channel with parents and professionals",
+          "Less pressure on families who need consistent one-to-one support",
+          "A flexible service adapted to each young person and family",
+        ],
+      },
+      {
+        heading: "Flexible arrangements and fees",
+        text: "We can provide short-term or weekend support, but our preferred arrangements are full-time live-in or live-out care, which give consistency, strong professional relationships and predictable routines. Fees are adaptable and competitive, depending on the type, duration and intensity of support. A formal contract setting out the service, responsibilities, working pattern, fees and safeguarding expectations is agreed before care begins.",
+      },
+      {
+        heading: "Monthly Care & Support Forum",
+        text: "Our monthly online forum brings together parents, schools, care and medical professionals to share experiences, raise concerns and improve support — with consent and confidentiality respected. Our philosophy is simple: professionals should listen to learn.",
+      },
+      {
+        heading: "Why we started",
+        text: "Families supporting children and young people with special needs in Ghana often struggle to find consistent, appropriately trained and professionally minded caregivers. Our partnership model is a practical bridge to close that gap, and part of a wider ambition: for professional caregiving to be recognised as an essential part of inclusive education, family well-being and community support. No family should have to navigate these challenges alone.",
+      },
+      {
+        heading: "How a partnership starts",
+        pathway: [
+          "Introductory meeting",
+          "Safeguarding & partnership requirements",
+          "Our standards & training",
+          "Referral pathway agreed",
+          "Parent consultation & assessment",
+          "Individual care plan",
+          "Contract, checks & care begins",
         ],
       },
       {
@@ -180,14 +298,17 @@ export const PAGE_COPY: Record<string, PageCopy> = {
         items: [
           "Discharge support",
           "Home-care arrangements",
-          "Post-hospital support",
+          "Post-hospital support, including after a stroke",
           "Family support",
           "Caregiver placement",
           "Community follow-up",
         ],
       },
     ],
-    ctas: [{ label: "Partner With ChaseCare", href: "/contact?topic=partnership" }],
+    ctas: [
+      { label: "Partner With ChaseCare", href: "/contact?topic=partnership" },
+      { label: "Request support for a young person", href: "/register/client?service=school-support" },
+    ],
   },
   community: {
     eyebrow: "Community",

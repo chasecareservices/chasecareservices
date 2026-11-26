@@ -8,12 +8,14 @@ import { ButtonLink, CheckList, Container, ImageFeature, Pathway, Section } from
 import { getCourses, getPage, getServices, getTestimonials, mediaUrl } from "@/lib/content";
 import { formatLongDate, nextForumDate } from "@/lib/forum";
 import { HERO_SLIDES, SECTION_IMAGES, type HeroSlide } from "@/lib/images";
-import { STUDENT_PATHWAY, WHY_CHOOSE_US } from "@/lib/site-copy";
+import { STUDENT_PATHWAY, TRAINING_TAGLINE, WHY_CHOOSE_US } from "@/lib/site-copy";
 
 export const revalidate = 300;
 
 type CmsSlide = {
   image_path?: string;
+  /** Media-library path of an MP4/WebM, or a built-in file such as "/videos/chase-hero.mp4". */
+  video_path?: string;
   image_alt?: string;
   eyebrow?: string;
   heading?: string;
@@ -21,6 +23,18 @@ type CmsSlide = {
   buttons?: { label: string; href: string }[];
 };
 type CmsHero = CmsSlide & { note?: string; slides?: CmsSlide[] };
+
+/** A slide video from the media library (or a built-in file). Saved but empty means "no video". */
+function videoFor(path: string, posterPath?: string): HeroSlide["video"] {
+  const src = mediaUrl(path);
+  if (!src) return null;
+  const builtIn = path === "/videos/chase-hero.mp4";
+  return {
+    src,
+    webm: builtIn ? "/videos/chase-hero.webm" : null,
+    poster: mediaUrl(posterPath) ?? (builtIn ? "/videos/chase-hero-poster.jpg" : null),
+  };
+}
 
 /**
  * Slides come from the Home page's hero block once the owner publishes it in the
@@ -30,6 +44,7 @@ function resolveSlides(hero: CmsHero | undefined): HeroSlide[] {
   if (!hero) return HERO_SLIDES;
   const toSlide = (cms: CmsSlide, fallback: HeroSlide): HeroSlide => ({
     image: cms.image_path ? { src: mediaUrl(cms.image_path), alt: cms.image_alt ?? "" } : fallback.image,
+    video: cms.video_path === undefined ? fallback.video : videoFor(cms.video_path, cms.image_path),
     eyebrow: cms.eyebrow ?? fallback.eyebrow,
     heading: cms.heading || fallback.heading,
     text: cms.text || fallback.text,
@@ -62,7 +77,7 @@ export default async function HomePage() {
       {/* Who we are */}
       <ImageFeature image={SECTION_IMAGES.whoWeAre} eyebrow="Who we are" title="A trusted, person-centred care organisation in Ghana">
         <p>
-          Chase Care Services provides person-centred care, professional support, training, respite services, community
+          CHASE — Care, Help, Assist, Support, Empower — provides person-centred care, professional support, training, respite services, community
           engagement and wellbeing services for individuals, families, carers and healthcare professionals — in Ghana and for
           Ghanaian families around the world.
         </p>
@@ -70,10 +85,43 @@ export default async function HomePage() {
           We connect people with quality care, equip care professionals with the right skills and support, and help families
           access dependable care wherever they are.
         </p>
-        <ButtonLink href="/about" variant="outline">
-          Read more about us
-        </ButtonLink>
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink href="/about" variant="outline">
+            Read more about us
+          </ButtonLink>
+          <ButtonLink href="/about/how-we-care" variant="outline">
+            How we care
+          </ButtonLink>
+        </div>
       </ImageFeature>
+
+      {/* Better care. Better lives. (from the flyer) */}
+      <Section eyebrow={TRAINING_TAGLINE} title="Better care. Better lives.">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <article className="rounded-3xl border border-brand-200 p-8">
+            <h3 className="text-2xl font-bold text-brand-900">Trained to care. Ready to serve.</h3>
+            <p className="mt-3 text-muted">
+              We train caregivers to meet the highest standards of care, compassion and professionalism. Join our network of
+              trained and trusted caregivers today.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/join-our-team">Get on our register as a caregiver</ButtonLink>
+            </div>
+          </article>
+          <article className="rounded-3xl border border-accent-300 bg-accent-50 p-8">
+            <h3 className="text-2xl font-bold text-brand-900">Looking for a trained caregiver for your loved one?</h3>
+            <p className="mt-3 text-muted">
+              Look no further. Get in touch for a tailored, person-centred service. Your loved one&apos;s well-being is our
+              priority.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/register/client" variant="secondary">
+                We match. We care. You relax.
+              </ButtonLink>
+            </div>
+          </article>
+        </div>
+      </Section>
 
       {/* What we do */}
       <Section tone="tint" eyebrow="What we do" title="Care services for every stage of life">
@@ -109,7 +157,7 @@ export default async function HomePage() {
       </ImageFeature>
 
       {/* Why choose us */}
-      <Section eyebrow="Why choose ChaseCare" title="Care you can trust">
+      <Section eyebrow="Why choose CHASE" title="Care you can trust">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {WHY_CHOOSE_US.map((item) => (
             <div key={item.title} className="rounded-2xl border border-brand-100 p-5">

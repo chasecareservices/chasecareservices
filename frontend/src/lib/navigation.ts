@@ -21,6 +21,7 @@ export const FALLBACK_NAV: NavLink[] = [
     href: "/about",
     children: [
       { label: "Who We Are", href: "/about#who-we-are" },
+      { label: "How We Care", href: "/about/how-we-care" },
       { label: "Vision & Mission", href: "/about#vision-and-mission" },
       { label: "Our Values", href: "/about#our-values" },
       { label: "Board of Directors", href: "/about#board" },

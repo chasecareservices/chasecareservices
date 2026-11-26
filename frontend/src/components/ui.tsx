@@ -1,6 +1,7 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { FillPhoto } from "@/components/Photo";
+import { PhotoFader } from "@/components/PhotoFader";
 import type { SiteImage } from "@/lib/images";
 
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -84,6 +85,7 @@ export function PageHero({
   intro,
   actions,
   image,
+  images,
 }: {
   eyebrow?: string;
   title: string;
@@ -91,13 +93,20 @@ export function PageHero({
   actions?: ReactNode;
   /** Optional background photo, shown under a purple tint so the text stays readable. */
   image?: SiteImage;
+  /** Several background photos that fade from one to the next (used instead of `image`). */
+  images?: SiteImage[];
 }) {
-  const hasPhoto = !!image?.src;
+  const slides = (images ?? []).filter((i) => i.src);
+  const hasPhoto = slides.length > 0 || !!image?.src;
   return (
     <section className="relative isolate overflow-hidden bg-brand-800 text-white">
       {hasPhoto ? (
         <>
-          <FillPhoto image={image} sizes="100vw" priority className="-z-20" watermark={false} />
+          {slides.length > 0 ? (
+            <PhotoFader images={slides} />
+          ) : (
+            <FillPhoto image={image} sizes="100vw" priority className="-z-20" watermark={false} />
+          )}
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-950/90 via-brand-900/75 to-brand-800/40" />
         </>
       ) : (
@@ -139,12 +148,14 @@ export function BandHero({
     <section>
       {portraits.length > 0 ? (
         <ul
-          className="grid h-48 gap-0.5 bg-brand-800 sm:h-72 lg:h-80"
-          style={{ gridTemplateColumns: `repeat(${portraits.length}, minmax(0, 1fr))` }}
+          className="grid grid-cols-[repeat(var(--cols-sm),minmax(0,1fr))] gap-0.5 bg-brand-800 sm:grid-cols-[repeat(var(--cols),minmax(0,1fr))]"
+          style={{ "--cols": portraits.length, "--cols-sm": portraits.length === 4 ? 2 : portraits.length } as CSSProperties}
         >
           {portraits.map((p, i) => (
-            <li key={p.src} className="relative overflow-hidden">
-              <FillPhoto image={p} sizes={`${Math.ceil(100 / portraits.length)}vw`} priority={i < 2} />
+            // A fixed shape (not a fixed height), so the crop is the same on every screen width
+            // and each portrait's `focus` keeps the whole head in view.
+            <li key={p.src} className="relative aspect-[6/5] w-full overflow-hidden">
+              <FillPhoto image={p} sizes={`(min-width: 640px) ${Math.ceil(100 / portraits.length)}vw, 50vw`} priority={i < 2} />
             </li>
           ))}
         </ul>
@@ -228,7 +239,7 @@ export function Pathway({ steps }: { steps: string[] }) {
           <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-800 text-sm font-bold text-white">
             {i + 1}
           </span>
-          <span className="font-medium text-brand-900">{step}</span>
+          <span className="min-w-0 font-medium text-brand-900 [overflow-wrap:anywhere] [hyphens:auto]" lang="en">{step}</span>
         </li>
       ))}
     </ol>

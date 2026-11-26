@@ -6,6 +6,8 @@ const storageHost = supabaseUrl ? new URL(supabaseUrl) : null;
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Staff upload photos (up to 10 MB) through server actions.
+  experimental: { serverActions: { bodySizeLimit: "12mb" } },
   images: {
     remotePatterns: storageHost
       ? [
@@ -28,6 +30,12 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
+      },
+      {
+        // The care worker portal may ask for the phone's location (to confirm visits).
+        // Location stays blocked on every other page. Later rules override earlier ones.
+        source: "/portal/:path*",
+        headers: [{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" }],
       },
     ];
   },

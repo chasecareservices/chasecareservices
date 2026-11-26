@@ -25,7 +25,9 @@ begin
       ('owner@chasecare.local',    'Demo Owner',              'super_admin'),
       ('editor@chasecare.local',   'Demo Content Editor',     'content_editor'),
       ('ops@chasecare.local',      'Demo Operations Manager', 'operations_manager'),
-      ('training@chasecare.local', 'Demo Training Coordinator', 'training_coordinator')
+      ('training@chasecare.local', 'Demo Training Coordinator', 'training_coordinator'),
+      ('carer@chasecare.local',    'Ama Mensah (demo carer)',  'worker'),
+      ('carer2@chasecare.local',   'Kwame Owusu (demo carer)', 'worker')
     ) as t(email, full_name, role_key)
   loop
     uid := gen_random_uuid();
@@ -84,3 +86,25 @@ update public.site_settings set
   recognitions = '[
     {"name": "Demo accreditation", "detail": "Replace with a real accreditation or membership", "year": "2026"}
   ]'::jsonb;
+
+-- Demo care clients and assignments for the care worker portal (local only).
+insert into public.care_clients (id, full_name, preferred_name, area, care_summary, emergency_contact_name, emergency_contact_phone) values
+  ('00000000-0000-4000-8000-00000000c001', 'Akosua Boateng', 'Auntie Akosua', 'Spintex Road', 'Recovering from a stroke (left side weakness). Walks with a frame. Diabetic: check meals.', 'Yaw Boateng (son, in London)', '+44 7700 900123'),
+  ('00000000-0000-4000-8000-00000000c002', 'Kofi Asante', 'Kofi', 'Weija', 'Autistic, 12 years old. Likes routine and drawing. After-school support.', 'Esi Asante (mother)', '+233 24 000 0002'),
+  ('00000000-0000-4000-8000-00000000c003', 'Grace Adjei', 'Mama Grace', 'McCarthy Hill', 'Early-stage dementia. Companionship and meals.', 'Daniel Adjei (son)', '+233 20 000 0003')
+on conflict (id) do nothing;
+
+-- Approximate demo home locations (Mama Grace's is left unset to show that case).
+update public.care_clients set home_lat = 5.6362, home_lng = -0.1110 where id = '00000000-0000-4000-8000-00000000c001'; -- Spintex Road
+update public.care_clients set home_lat = 5.5583, home_lng = -0.3358 where id = '00000000-0000-4000-8000-00000000c002'; -- Weija
+
+insert into public.care_assignments (client_id, worker_id)
+select c.id, u.id
+from (values
+  ('00000000-0000-4000-8000-00000000c001'::uuid, 'carer@chasecare.local'),
+  ('00000000-0000-4000-8000-00000000c002'::uuid, 'carer@chasecare.local'),
+  ('00000000-0000-4000-8000-00000000c003'::uuid, 'carer2@chasecare.local')
+) as v(client, email)
+join public.care_clients c on c.id = v.client
+join auth.users u on u.email = v.email
+on conflict do nothing;

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { isEnquiryType } from "@/lib/enquiry-topics";
 import { ButtonLink, Container, PageHero } from "@/components/ui";
-import { getSiteSettings } from "@/lib/content";
+import { getSiteSettings, bannerFor } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
-import { PAGE_BANNERS } from "@/lib/images";
+import { OFFICE_LOCATIONS, OTHER_CONTACTS } from "@/lib/site-copy";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -27,7 +27,7 @@ export default async function ContactPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
-        image={PAGE_BANNERS["contact"]}
+        image={await bannerFor("contact")}
         eyebrow="Contact ChaseCare"
         title="We're here to help"
         intro="Call, WhatsApp or send us a message. Families in Ghana and abroad are welcome."
@@ -81,11 +81,27 @@ export default async function ContactPage({ searchParams }: Props) {
                   </a>
                 </li>
               )}
-              {settings.address && <li>Address: {settings.address}</li>}
+              {OTHER_CONTACTS.map((c) => (
+                <li key={c.href}>
+                  {c.label}:{" "}
+                  <a className="font-medium text-brand-700 underline" href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">
+                    {c.value}
+                  </a>
+                </li>
+              ))}
               {!settings.phone && !settings.email && !settings.whatsapp_number && (
                 <li className="text-muted">Our phone number and email will be listed here shortly. Please use the form for now.</li>
               )}
             </ul>
+          </div>
+          <div>
+            <h2 className="font-semibold text-brand-900">Our offices</h2>
+            <ul className="mt-3 space-y-1 text-ink">
+              {OFFICE_LOCATIONS.map((o) => (
+                <li key={o}>{o}</li>
+              ))}
+            </ul>
+            <p className="mt-2 text-sm text-muted">Please contact us to confirm availability for your location.</p>
           </div>
           {hours.length > 0 && (
             <div>

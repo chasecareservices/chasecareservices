@@ -34,9 +34,43 @@ Rules the site follows:
 - **Impact numbers** (homepage and About) and **Recognition** (About) come from `site_settings.impact_stats` and `site_settings.recognitions`, and stay hidden until real entries are added.
 - **Choose language** (footer): Google Translate into Twi, Ga, Ewe, Hausa, French or Arabic. Google's script only loads after a visitor picks a language other than English, and the choice is remembered in a `googtrans` cookie. This is machine translation, so mention it in the Cookie and Privacy policies. Languages are listed in `src/lib/languages.ts`.
 
+## Staff dashboard (`/admin`)
+
+Sign-in for Chase Care staff, separate from the public site (not indexed by search engines).
+
+| Section | Who sees it | What it does |
+|---|---|---|
+| Sign in · Forgot password · Set password | Everyone | Email + password; reset and invitation links land on `/admin/set-password` |
+| Two-step verification | All staff (when required) | Authenticator app (QR code first time, 6-digit code after). Required whenever `private.security_settings.require_staff_mfa` is on (the live default) |
+| Overview | All staff | Enquiry counts, latest enquiries, published content counts |
+| Enquiries | `enquiries.view` / `.edit` | Inbox with filters and search, full form details, reply links (email, call, WhatsApp), status, internal notes |
+| Site settings | `settings.view` / `.edit` | Organisation details, contact, opening hours, social links, impact numbers, recognition. Saving refreshes the public site |
+| Staff & roles | `users.view` / `.edit` | Invite by email, give or remove roles, deactivate. Only a Super Admin can grant Super Admin; the last one can't be removed |
+| Homepage & banners | `content.edit` | The 4 homepage slides (photo, headings, text, two buttons) and a background photo for each page banner (saved with the `set_page_banners` database function) |
+| Services · Pages · Team & board · Partners · Testimonials · Menus | `content.*` | List, create, edit, publish/draft/archive, delete. Photos upload straight from the form |
+| The Journal | `blog.*` | Articles with headings (`## `), bullet lists (`- `), scheduled publishing, categories and tags |
+| Courses | `academy.*` · Shop products `shop.*` · Announcements `communications.*` | Same editor |
+| Media library | `media.*` | Upload up to 10 photos at once, folders, descriptions for screen readers, delete |
+| Activity log | `audit.view` | Every change with who, when and which fields — read-only |
+
+Every action runs as the signed-in staff member, so the database's Row Level Security applies. Inviting staff and showing their email addresses uses `SUPABASE_SECRET_KEY` on the server only.
+
+The content editors are driven by one list of field definitions in `src/lib/admin/resources.ts` — add a field there and it appears in the form. Every save refreshes the public site immediately. Photos go to the public `public-media` bucket, so never upload anything containing personal details.
+
+## Care worker portal (`/portal`)
+
+Care workers (role **Worker**) sign in at `/portal/login` on their phone and send a report after each visit:
+the visit, how the client was (mood, activities, food, medication), notes and any concern. The office reads them at
+`/admin/care-reports` (permission `care_ops.view`, mark as read with `care_ops.edit`) and manages clients, care teams
+and invitations at `/admin/care-clients` (`clients.*`, invitations need `workforce.create`).
+
+Workers only ever see their assigned clients and their own reports; reports can't be deleted. Design notes, mapped to
+the IT-421 usability principles, are in [`../doc/CARE_PORTAL_DESIGN.md`](../doc/CARE_PORTAL_DESIGN.md).
+Local demo logins: `carer@chasecare.local` and `carer2@chasecare.local` (password `ChaseCare2026!`).
+
 ## Photos
 
-The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
+The site has photo slots everywhere: the homepage **slider** (4 slides that fade every 7 seconds, editable at `/admin/homepage`), a **background photo** behind each page's banner, and **picture-and-text sections** on the homepage. Any slot without a photo shows a branded purple placeholder, so the site never looks broken.
 
 All slots are listed in `src/lib/images.ts`. To add a photo, put it in `public/images/` and set that slot's `src`. Services also show their own photo, on their card and as their page banner, when one is set for the service in the database (`services.image_path`).
 
@@ -83,7 +117,8 @@ Open <http://localhost:3000>.
    - `NEXT_PUBLIC_SUPABASE_URL` = `https://hkvcwdvtgmniuqxvuqsv.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` = Supabase dashboard → Project Settings → API Keys → Publishable key
    - `NEXT_PUBLIC_SITE_URL` = the website address, e.g. `https://chasecareservices.org`
-3. Deploy. Then in Supabase → Authentication → URL Configuration, set the **Site URL** to the same address.
+   - `SUPABASE_SECRET_KEY` = Supabase dashboard → Project Settings → API Keys → **Secret** key (server only, for staff invitations)
+3. Deploy. Then in Supabase → Authentication → URL Configuration, set the **Site URL** to the same address and add `https://<your-address>/**` to **Redirect URLs** (needed for password reset and staff invitation links).
 
 ## Still to come
 
