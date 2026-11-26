@@ -758,6 +758,91 @@ export type Database = {
           },
         ];
       };
+      newsletter_sends: {
+        Row: {
+          failed: number;
+          finished_at: string | null;
+          id: string;
+          post_id: string;
+          recipients: number;
+          sent_by: string | null;
+          started_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          failed?: number;
+          finished_at?: string | null;
+          id?: string;
+          post_id: string;
+          recipients?: number;
+          sent_by?: string | null;
+          started_at?: string;
+        };
+        Update: {
+          failed?: number;
+          finished_at?: string | null;
+          id?: string;
+          post_id?: string;
+          recipients?: number;
+          sent_by?: string | null;
+          started_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_sends_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: true;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      newsletter_subscribers: {
+        Row: {
+          confirm_sent_at: string | null;
+          confirmed_at: string | null;
+          consent_at: string;
+          created_at: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          source_page: string | null;
+          status: string;
+          token: string;
+          unsubscribed_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          confirm_sent_at?: string | null;
+          confirmed_at?: string | null;
+          consent_at?: string;
+          created_at?: string;
+          email: string;
+          full_name?: string | null;
+          id?: string;
+          source_page?: string | null;
+          status?: string;
+          token?: string;
+          unsubscribed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          confirm_sent_at?: string | null;
+          confirmed_at?: string | null;
+          consent_at?: string;
+          created_at?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          source_page?: string | null;
+          status?: string;
+          token?: string;
+          unsubscribed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       notification_recipients: {
         Row: {
           created_at: string;
@@ -1384,6 +1469,7 @@ export type Database = {
           full_name: string;
           id: string;
           kind: string;
+          photo_crop: string;
           photo_path: string | null;
           position: string | null;
           sort_order: number;
@@ -1399,6 +1485,7 @@ export type Database = {
           full_name: string;
           id?: string;
           kind: string;
+          photo_crop?: string;
           photo_path?: string | null;
           position?: string | null;
           sort_order?: number;
@@ -1413,6 +1500,7 @@ export type Database = {
           full_name?: string;
           id?: string;
           kind?: string;
+          photo_crop?: string;
           photo_path?: string | null;
           position?: string | null;
           sort_order?: number;
@@ -1589,6 +1677,14 @@ export type Database = {
       };
       missed_visit_count: { Args: Record<PropertyKey, never>; Returns: number };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
+      newsletter_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          pending: number;
+          subscribed: number;
+          unsubscribed: number;
+        }[];
+      };
       search_site: {
         Args: { max_results?: number; query: string };
         Returns: {

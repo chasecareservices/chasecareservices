@@ -8,7 +8,8 @@ import { createSecretClient } from "@/lib/supabase/server-auth";
 /** Topics in notification_recipients. */
 export const ALERT_TOPICS = { enquiries: "enquiry.all", careConcerns: "care.concerns" } as const;
 
-async function siteUrl() {
+/** The site's own address, for links in emails. */
+export async function siteUrl() {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
   const h = await headers();
   return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;

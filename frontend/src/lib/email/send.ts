@@ -15,7 +15,7 @@ import nodemailer, { type Transporter } from "nodemailer";
  * EMAIL_FROM  optional sender, e.g. "Chase Care Services <chasecareinfo@gmail.com>".
  * EMAIL_API_URL  only for tests: a stand-in for https://api.resend.com.
  */
-export type Email = { to: string[]; subject: string; html: string; text: string; replyTo?: string };
+export type Email = { to: string[]; subject: string; html: string; text: string; replyTo?: string; headers?: Record<string, string> };
 export type SendResult = { sent: boolean; via?: "smtp" | "resend"; reason?: string };
 
 /** Which way email is sent, if any (shown in Site settings). */
@@ -67,6 +67,7 @@ export async function sendEmail(email: Email): Promise<SendResult> {
         html: email.html,
         text: email.text,
         ...(email.replyTo ? { replyTo: email.replyTo } : {}),
+        ...(email.headers ? { headers: email.headers } : {}),
       });
       return { sent: true, via };
     } catch (e) {
@@ -86,6 +87,7 @@ export async function sendEmail(email: Email): Promise<SendResult> {
         html: email.html,
         text: email.text,
         ...(email.replyTo ? { reply_to: email.replyTo } : {}),
+        ...(email.headers ? { headers: email.headers } : {}),
       }),
       signal: AbortSignal.timeout(8000),
     });

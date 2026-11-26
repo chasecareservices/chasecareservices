@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PostCard } from "@/components/cards";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { EmptyState, PageHero, Section } from "@/components/ui";
 import { getPostCategories, getPosts, bannerFor } from "@/lib/content";
 
@@ -27,6 +28,9 @@ export default async function JournalPage({ searchParams }: Props) {
         intro="Practical guidance and stories on care, wellbeing, inclusion and community."
       />
       <Section>
+        <div className="mb-10 rounded-3xl bg-brand-50 p-6 sm:p-8 lg:max-w-3xl">
+          <NewsletterSignup heading="Never miss an article" />
+        </div>
         <nav aria-label="Journal categories" className="mb-8">
           <ul className="flex flex-wrap gap-2">
             <li>

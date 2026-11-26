@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { TeamPhoto } from "@/components/TeamPhoto";
 import Link from "next/link";
 import { HighlightBox } from "@/components/HighlightBox";
 import { ImpactStats, RecognitionList } from "@/components/Impact";
@@ -30,7 +31,7 @@ function PersonCard({ person }: { person: TeamMember }) {
   return (
     <article className="rounded-2xl border border-brand-100 bg-white p-6 shadow-sm">
       {photo ? (
-        <Image src={photo} alt={person.full_name} width={160} height={160} className="h-24 w-24 rounded-full object-cover" />
+        <TeamPhoto src={photo} alt={person.full_name} crop={person.photo_crop} />
       ) : (
         <div
           aria-hidden="true"

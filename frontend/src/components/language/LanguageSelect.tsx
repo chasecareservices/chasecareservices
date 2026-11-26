@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readConsent, saveConsent } from "@/lib/consent";
 import { LANGUAGES, SOURCE_LANGUAGE, TRANSLATE_COOKIE, cookieDomains, languageFromCookie } from "@/lib/languages";
 
 function writeCookie(value: string | null) {
@@ -21,6 +22,15 @@ export function LanguageSelect({ inverted = true }: { inverted?: boolean }) {
   useEffect(() => setLanguage(languageFromCookie(document.cookie)), []);
 
   function choose(code: string) {
+    // Translation needs preference cookies (Google Translate sets its own). Ask first if they were refused.
+    if (code !== SOURCE_LANGUAGE && !readConsent()?.preferences) {
+      const ok = window.confirm("Showing the site in another language uses Google Translate, which sets cookies. Allow preference cookies?");
+      if (!ok) {
+        setLanguage(SOURCE_LANGUAGE);
+        return;
+      }
+      saveConsent(true);
+    }
     setLanguage(code);
     writeCookie(code === SOURCE_LANGUAGE ? null : `/${SOURCE_LANGUAGE}/${code}`);
     window.location.reload();
@@ -58,7 +68,7 @@ export function LanguageSelect({ inverted = true }: { inverted?: boolean }) {
           <path d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z" />
         </svg>
       </div>
-      <p className={`mt-2 text-xs ${inverted ? "text-brand-200" : "text-muted"}`}>Translated automatically by Google.</p>
+      <p className={`mt-2 text-xs ${inverted ? "text-brand-200" : "text-muted"}`}>Translated automatically by Google (uses cookies).</p>
     </div>
   );
 }
