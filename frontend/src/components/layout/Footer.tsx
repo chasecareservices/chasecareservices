@@ -18,6 +18,8 @@ const QUICK_LINKS = [
   { label: "ChaseCare Academy", href: "/academy" },
   { label: "Join Our Team", href: "/join-our-team" },
   { label: "News & Blog", href: "/journal" },
+  { label: "Family sign-in", href: "/family/login" },
+  { label: "Care worker sign-in", href: "/portal/login" },
 ];
 
 /** Used if the footer menu in the database is empty: the policies in src/lib/legal. */

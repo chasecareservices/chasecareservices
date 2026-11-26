@@ -171,3 +171,69 @@ export async function saveCarePlan(formData: FormData): Promise<Result> {
   revalidatePath("/portal", "layout");
   redirect(`/admin/care-clients/${clientId}?saved=plan#care-plan`);
 }
+
+const RELATIONSHIPS = ["Daughter", "Son", "Wife", "Husband", "Mother", "Father", "Sister", "Brother", "Grandchild", "Guardian", "Friend", "Other"];
+
+/**
+ * Gives a family member access to this client's family portal. New people get an
+ * invitation email to set a password; people who already have a family account
+ * are simply linked.
+ */
+export async function inviteFamily(formData: FormData): Promise<Result> {
+  const staff = await requirePermission("clients.edit");
+  const clientId = String(formData.get("client_id") ?? "");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const fullName = text(formData, "full_name", 120);
+  const relationship = String(formData.get("relationship") ?? "");
+  if (!UUID.test(clientId)) return { error: "Something went wrong. Please reload the page." };
+  if (!fullName) return { error: "Enter the family member's full name." };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Enter a valid email address, like efua@example.com." };
+  if (!RELATIONSHIPS.includes(relationship)) return { error: "Choose how they are related." };
+
+  const admin = createSecretClient();
+  if (!admin) return { error: "Invitations aren't set up yet: the site's secret key is missing. Ask your developer." };
+
+  let userId: string | undefined;
+  let invited = false;
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name: fullName },
+    redirectTo: `${await siteOrigin()}/admin/set-password`,
+  });
+  if (data?.user) {
+    userId = data.user.id;
+    invited = true;
+  } else if (/already|registered|exists/i.test(error?.message ?? "")) {
+    const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
+    userId = list?.users.find((u) => u.email?.toLowerCase() === email)?.id;
+    if (userId) {
+      const { data: roles } = await admin.from("user_roles").select("role_key").eq("user_id", userId);
+      if ((roles ?? []).some((r) => r.role_key !== "client")) {
+        return { error: "This email belongs to a staff member or care worker. Family members need their own email address." };
+      }
+    }
+  }
+  if (!userId) return { error: "The invitation could not be sent. Please check the email address and try again." };
+
+  const [{ error: roleError }, { error: linkError }] = await Promise.all([
+    admin.from("user_roles").upsert({ user_id: userId, role_key: "client" }, { onConflict: "user_id,role_key", ignoreDuplicates: true }),
+    staff.supabase
+      .from("care_family_links")
+      .upsert({ client_id: clientId, user_id: userId, relationship, is_active: true, created_by: staff.user.id }, { onConflict: "client_id,user_id" }),
+  ]);
+  if (roleError || linkError) return { error: "The family member could not be given access. Please try again." };
+  revalidatePath(`/admin/care-clients/${clientId}`);
+  redirect(`/admin/care-clients/${clientId}?saved=${invited ? "family-invited" : "family-linked"}#family`);
+}
+
+/** Switches a family member's access to this client on or off. */
+export async function setFamilyAccess(formData: FormData): Promise<Result> {
+  const staff = await requirePermission("clients.edit");
+  const linkId = String(formData.get("link_id") ?? "");
+  const clientId = String(formData.get("client_id") ?? "");
+  const active = formData.get("active") === "true";
+  if (!UUID.test(linkId) || !UUID.test(clientId)) return { error: "Something went wrong. Please reload the page." };
+  const { error } = await staff.supabase.from("care_family_links").update({ is_active: active }).eq("id", linkId).eq("client_id", clientId);
+  if (error) return { error: "Access could not be changed. Please try again." };
+  revalidatePath(`/admin/care-clients/${clientId}`);
+  redirect(`/admin/care-clients/${clientId}?saved=${active ? "family-on" : "family-off"}#family`);
+}

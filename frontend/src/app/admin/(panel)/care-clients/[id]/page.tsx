@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { saveAssignments, saveCarePlan, saveClient } from "../actions";
+import { inviteFamily, saveAssignments, saveCarePlan, saveClient, setFamilyAccess } from "../actions";
 import { ClientFields } from "../ClientFields";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, Notice, PageHeader, adminInput, formatDateTime } from "@/components/admin/ui";
@@ -25,6 +25,7 @@ export default async function CareClientPage({ params, searchParams }: { params:
   const today = new Date().toISOString().slice(0, 10);
   const reviewDue = plan?.review_date && plan.review_date <= today;
   if (!client) notFound();
+  const { data: familyContacts } = await staff.supabase.rpc("list_family_contacts", { client: id });
   const assigned = new Set((team ?? []).map((t) => t.worker_id));
   const canEdit = staff.can("clients.edit");
 
@@ -33,6 +34,10 @@ export default async function CareClientPage({ params, searchParams }: { params:
       {saved === "client" && <Notice>Client saved.</Notice>}
       {saved === "plan" && <Notice>Care plan saved. Care workers see it in their portal straight away.</Notice>}
       {saved === "team" && <Notice>Care team saved. Assigned care workers can now see this client in their portal.</Notice>}
+      {saved === "family-invited" && <Notice>Invitation sent. Once they set a password, they can sign in to the family portal.</Notice>}
+      {saved === "family-linked" && <Notice>They already had a family account, so they can see this client in their portal now.</Notice>}
+      {saved === "family-on" && <Notice>Family access switched on.</Notice>}
+      {saved === "family-off" && <Notice>Family access switched off. They can no longer see this client.</Notice>}
       <Link href="/admin/care-clients" className="text-sm font-semibold text-brand-700 underline underline-offset-4">
         ← Clients &amp; care workers
       </Link>
@@ -155,6 +160,76 @@ export default async function CareClientPage({ params, searchParams }: { params:
               <ul className="text-sm">{workers.filter((w) => assigned.has(w.id)).map((w) => <li key={w.id}>{w.full_name}</li>)}</ul>
             )}
           </Card>
+
+          <section id="family" className="scroll-mt-24">
+            <Card title="Family portal access">
+              <p className="text-sm text-muted">
+                Family can see booked visits, reports you have read, and the care plan. They never see visit locations, concerns, office notes or incidents.
+              </p>
+              {familyContacts?.length ? (
+                <ul className="mt-3 divide-y divide-gray-100 text-sm">
+                  {familyContacts.map((f) => (
+                    <li key={f.link_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                      <span>
+                        <span className="font-semibold text-brand-900">{f.full_name ?? f.email}</span>
+                        {f.relationship && <span className="text-muted"> · {f.relationship}</span>}
+                        <span className="block text-xs text-muted">
+                          {f.email} · {f.last_sign_in_at ? `last signed in ${formatDateTime(f.last_sign_in_at)}` : "hasn't signed in yet"}
+                          {!f.is_active && " · access off"}
+                        </span>
+                      </span>
+                      {canEdit && (
+                        <ActionForm
+                          action={setFamilyAccess}
+                          submitLabel={f.is_active ? "Switch off" : "Switch on"}
+                          secondary
+                          confirm={f.is_active ? `Stop ${f.full_name ?? f.email} seeing this client?` : undefined}
+                        >
+                          <input type="hidden" name="link_id" value={f.link_id} />
+                          <input type="hidden" name="client_id" value={client.id} />
+                          <input type="hidden" name="active" value={f.is_active ? "false" : "true"} />
+                        </ActionForm>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-sm text-muted">No family members yet.</p>
+              )}
+              {canEdit && (
+                <details className="mt-4 rounded-xl bg-brand-50 px-4 py-3">
+                  <summary className="min-h-8 cursor-pointer font-semibold text-brand-800">Invite a family member</summary>
+                  <div className="mt-3">
+                    <ActionForm action={inviteFamily} submitLabel="Send invitation" inline>
+                      <input type="hidden" name="client_id" value={client.id} />
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-brand-900">
+                          Full name
+                          <input name="full_name" required maxLength={120} className={adminInput} />
+                        </label>
+                        <label className="block text-sm font-medium text-brand-900">
+                          Email
+                          <input name="email" type="email" required className={adminInput} />
+                        </label>
+                        <label className="block text-sm font-medium text-brand-900">
+                          Relationship to {client.preferred_name || client.full_name.split(" ")[0]}
+                          <select name="relationship" required defaultValue="" className={adminInput}>
+                            <option value="" disabled>
+                              Choose…
+                            </option>
+                            {["Daughter", "Son", "Wife", "Husband", "Mother", "Father", "Sister", "Brother", "Grandchild", "Guardian", "Friend", "Other"].map((r) => (
+                              <option key={r}>{r}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <p className="text-xs text-muted">Only invite people the client (or their legal guardian) has agreed can see their care.</p>
+                      </div>
+                    </ActionForm>
+                  </div>
+                </details>
+              )}
+            </Card>
+          </section>
 
           {staff.can("care_ops.view") && (
             <Card title="Recent reports">
