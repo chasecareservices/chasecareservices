@@ -360,6 +360,7 @@ export type Database = {
           full_name: string;
           id: string;
           message: string | null;
+          notified_at: string | null;
           payload: NonNullable<Json>;
           phone: string | null;
           source_page: string | null;
@@ -379,6 +380,7 @@ export type Database = {
           full_name: string;
           id?: string;
           message?: string | null;
+          notified_at?: string | null;
           payload?: NonNullable<Json>;
           phone?: string | null;
           source_page?: string | null;
@@ -397,6 +399,7 @@ export type Database = {
           full_name?: string;
           id?: string;
           message?: string | null;
+          notified_at?: string | null;
           payload?: NonNullable<Json>;
           phone?: string | null;
           source_page?: string | null;

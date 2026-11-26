@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 import { saveSettings } from "./actions";
+import { saveAlertRecipients } from "./alert-actions";
+import { ActionForm } from "@/components/admin/ActionForm";
+import { ALERT_TOPICS } from "@/lib/email/notify";
 import { SOCIAL_NETWORKS } from "./fields";
 import { Card, Notice, PageHeader, adminButton, adminInput, formatDateTime } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
@@ -22,7 +25,12 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ saved?: string; error?: string }> }) {
   const { saved, error } = await searchParams;
   const staff = await requirePermission("settings.view");
-  const { data: s } = await staff.supabase.from("site_settings").select("*").maybeSingle();
+  const [{ data: s }, { data: alertRows }] = await Promise.all([
+    staff.supabase.from("site_settings").select("*").maybeSingle(),
+    staff.supabase.from("notification_recipients").select("topic, email").order("email"),
+  ]);
+  const alertList = (topic: string) => (alertRows ?? []).filter((r) => r.topic === topic).map((r) => r.email).join("\n");
+  const emailReady = Boolean(process.env.RESEND_API_KEY);
   if (!s) return <Notice tone="error">Could not load the site settings.</Notice>;
 
   const canEdit = staff.can("settings.edit");
@@ -33,7 +41,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      {saved && <Notice>Settings saved. The website has been updated.</Notice>}
+      {saved === "alerts" && <Notice>Alert emails saved.</Notice>}
+      {saved && saved !== "alerts" && <Notice>Settings saved. The website has been updated.</Notice>}
       {error === "email" && <Notice tone="error">Please enter a valid email address.</Notice>}
       {error === "save" && <Notice tone="error">The settings could not be saved. Please try again.</Notice>}
       <PageHeader title="Site settings" intro={`Contact details and information shown across the website. Last changed ${formatDateTime(s.updated_at)}.`} />
@@ -154,6 +163,39 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           )}
         </fieldset>
       </form>
+
+      <section id="email-alerts" className="mt-10 scroll-mt-24">
+        <Card title="Email alerts">
+          {emailReady ? (
+            <p className="mb-4 text-sm text-green-800">✓ Email sending is switched on.</p>
+          ) : (
+            <Notice tone="info">
+              Email sending isn&apos;t switched on yet: add the RESEND_API_KEY setting in Vercel. Until then no alerts are sent, but
+              everything still appears in the dashboard.
+            </Notice>
+          )}
+          <p className="mb-4 text-sm text-muted">
+            Who is emailed when something needs attention. One address per line. If a box is empty, alerts go to the contact email above
+            ({s.email ?? "not set"}).
+          </p>
+          {canEdit ? (
+            <ActionForm action={saveAlertRecipients} submitLabel="Save alert emails" inline>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="New enquiries (care requests, job applications, contact form…)">
+                  <textarea name="enquiries" rows={3} defaultValue={alertList(ALERT_TOPICS.enquiries)} placeholder="office@example.com" className={adminInput} />
+                </Field>
+                <Field label="Care reports with a concern (urgent or “keep an eye on it”)" hint="The email says who and when; the details stay in the dashboard for privacy.">
+                  <textarea name="care_concerns" rows={3} defaultValue={alertList(ALERT_TOPICS.careConcerns)} placeholder="care.manager@example.com" className={adminInput} />
+                </Field>
+              </div>
+            </ActionForm>
+          ) : (
+            <p className="text-sm">
+              Enquiries: {alertList(ALERT_TOPICS.enquiries) || "the contact email"} · Care concerns: {alertList(ALERT_TOPICS.careConcerns) || "the contact email"}
+            </p>
+          )}
+        </Card>
+      </section>
     </>
   );
 }
