@@ -1,9 +1,49 @@
 import Link from "next/link";
-import { ConcernBadge, Mood, ReportStatus, formatVisitDate } from "@/components/portal/ReportBits";
+import { ConcernBadge, Mood, ReportStatus, VisitStatus, formatVisitDate, hhmm } from "@/components/portal/ReportBits";
 import { todayInGhana } from "@/lib/care";
 import { requireWorker } from "@/lib/portal/session";
 
 export const metadata = { title: "Today" };
+
+type Plan = { about_me: string | null; visit_tasks: string[]; risks: string | null; medication_notes: string | null };
+
+/** The client's care plan, folded away until the worker opens it. */
+function CarePlanDetails({ plan, notes }: { plan?: Plan; notes: string | null }) {
+  if (!plan && !notes) return null;
+  return (
+    <details className="mt-3 rounded-xl bg-brand-50 px-4 py-3 text-sm open:pb-4">
+      <summary className="min-h-8 cursor-pointer font-semibold text-brand-800">
+        Care plan{plan?.visit_tasks.length ? ` · ${plan.visit_tasks.length} tasks each visit` : ""}
+      </summary>
+      <div className="mt-2 space-y-3 text-ink">
+        {plan?.about_me && <p>{plan.about_me}</p>}
+        {plan?.visit_tasks.length ? (
+          <div>
+            <p className="font-semibold text-brand-900">Each visit</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5">
+              {plan.visit_tasks.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {plan?.risks && (
+          <p className="rounded-lg bg-amber-50 p-2 text-amber-950">
+            <strong>Take care: </strong>
+            {plan.risks}
+          </p>
+        )}
+        {plan?.medication_notes && (
+          <p>
+            <strong className="text-brand-900">Medication: </strong>
+            {plan.medication_notes}
+          </p>
+        )}
+        {notes && !plan && <p className="whitespace-pre-line">{notes}</p>}
+      </div>
+    </details>
+  );
+}
 
 function greeting(now = new Date()) {
   const h = now.getUTCHours(); // Ghana is on UTC
@@ -13,7 +53,8 @@ function greeting(now = new Date()) {
 export default async function PortalHome() {
   const worker = await requireWorker();
   const today = todayInGhana();
-  const [{ data: clients }, { data: recent }, { data: todays }] = await Promise.all([
+  const weekAhead = new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
+  const [{ data: clients }, { data: recent }, { data: todays }, { data: plans }, { data: shifts }] = await Promise.all([
     worker.supabase.from("care_clients").select("id, full_name, preferred_name, area, care_summary").order("full_name"),
     worker.supabase
       .from("care_reports")
@@ -22,7 +63,24 @@ export default async function PortalHome() {
       .order("submitted_at", { ascending: false })
       .limit(5),
     worker.supabase.from("care_reports").select("client_id").eq("worker_id", worker.user.id).eq("visit_date", today),
+    worker.supabase.from("care_plans").select("client_id, about_me, visit_tasks, risks, medication_notes"),
+    worker.supabase
+      .from("care_shift_status")
+      .select("id, client_id, shift_date, start_time, end_time, notes, visit_status")
+      .eq("worker_id", worker.user.id)
+      .gte("shift_date", today)
+      .lte("shift_date", weekAhead)
+      .neq("visit_status", "cancelled")
+      .order("shift_date")
+      .order("start_time"),
   ]);
+  const clientName = (id: string) => {
+    const c = (clients ?? []).find((x) => x.id === id);
+    return c ? c.preferred_name || c.full_name : "Client";
+  };
+  const visitsToday = (shifts ?? []).filter((v) => v.shift_date === today);
+  const comingUp = (shifts ?? []).filter((v) => v.shift_date > today);
+  const planFor = new Map((plans ?? []).map((p) => [p.client_id, p]));
   const reportedToday = new Set((todays ?? []).map((r) => r.client_id));
   const notes = (recent ?? []).filter((r) => r.office_note);
 
@@ -35,6 +93,55 @@ export default async function PortalHome() {
         <p className="mt-1 text-muted">
           {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date())}
         </p>
+      </section>
+
+      <section aria-labelledby="visits-h">
+        <h2 id="visits-h" className="text-xl font-bold text-brand-900">
+          Your visits today
+        </h2>
+        {!visitsToday.length ? (
+          <p className="mt-2 text-muted">No visits booked for today.</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {visitsToday.map((v) => (
+              <li key={v.id!} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-brand-100">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-bold text-brand-900">
+                      {hhmm(v.start_time!)} – {hhmm(v.end_time!)}
+                    </p>
+                    <p className="text-ink">{clientName(v.client_id!)}</p>
+                    {v.notes && <p className="text-sm text-muted">{v.notes}</p>}
+                  </div>
+                  <VisitStatus status={v.visit_status!} />
+                </div>
+                {v.visit_status !== "done" && (
+                  <Link
+                    href={`/portal/report/new?shift=${v.id}`}
+                    className="mt-3 flex min-h-12 items-center justify-center rounded-full bg-accent-500 px-5 font-semibold text-brand-950 hover:bg-accent-400"
+                  >
+                    Write report for this visit
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {comingUp.length > 0 && (
+          <details className="mt-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-brand-100">
+            <summary className="min-h-8 cursor-pointer font-semibold text-brand-800">Coming up this week ({comingUp.length})</summary>
+            <ul className="mt-2 divide-y divide-brand-100 text-sm">
+              {comingUp.map((v) => (
+                <li key={v.id!} className="flex justify-between gap-3 py-2">
+                  <span>
+                    <strong className="text-brand-900">{formatVisitDate(v.shift_date!)}</strong> · {hhmm(v.start_time!)}–{hhmm(v.end_time!)}
+                  </span>
+                  <span className="text-right text-ink">{clientName(v.client_id!)}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </section>
 
       {notes.length > 0 && (
@@ -51,7 +158,7 @@ export default async function PortalHome() {
 
       <section aria-labelledby="clients-h">
         <h2 id="clients-h" className="text-xl font-bold text-brand-900">
-          Who are you caring for today?
+          Your clients
         </h2>
         {!clients?.length ? (
           <p className="mt-3 rounded-2xl bg-white p-5 text-muted ring-1 ring-brand-100">
@@ -75,12 +182,7 @@ export default async function PortalHome() {
                       </span>
                     )}
                   </div>
-                  {c.care_summary && (
-                    <details className="mt-3 text-sm">
-                      <summary className="cursor-pointer font-semibold text-brand-700">Care notes</summary>
-                      <p className="mt-1 whitespace-pre-line text-ink">{c.care_summary}</p>
-                    </details>
-                  )}
+                  <CarePlanDetails plan={planFor.get(c.id)} notes={c.care_summary} />
                   <Link
                     href={`/portal/report/new?client=${c.id}`}
                     className={`mt-4 flex min-h-12 items-center justify-center rounded-full px-5 font-semibold ${
@@ -132,10 +234,29 @@ export default async function PortalHome() {
         )}
       </section>
 
-      <p className="rounded-2xl bg-white p-4 text-sm text-ink ring-1 ring-red-200">
-        <strong className="text-red-800">Emergency?</strong> If someone is in danger, call <a href="tel:112" className="font-bold text-red-800 underline">112</a>{" "}
-        first, then the office. Don&apos;t wait to write a report.
-      </p>
+      <section aria-labelledby="incident-h" className="rounded-2xl bg-white p-4 ring-1 ring-red-200">
+        <h2 id="incident-h" className="font-bold text-red-800">
+          Something went wrong?
+        </h2>
+        <p className="mt-1 text-sm text-ink">
+          A fall, an injury, a medicine mistake or a worry about someone&apos;s safety. If someone is in danger, call{" "}
+          <a href="tel:112" className="font-bold text-red-800 underline">
+            112
+          </a>{" "}
+          first, then the office.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link href="/portal/incident/new" className="inline-flex min-h-12 items-center rounded-full border-2 border-red-700 px-5 font-semibold text-red-800 hover:bg-red-50">
+            <span aria-hidden="true" className="mr-2">
+              ⚠
+            </span>
+            Report an incident
+          </Link>
+          <Link href="/portal/incidents" className="inline-flex min-h-12 items-center text-sm font-semibold text-brand-800 underline">
+            My incident reports
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

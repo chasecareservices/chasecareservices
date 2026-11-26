@@ -5,22 +5,26 @@ import { redirect } from "next/navigation";
 import { validateReport, type ReportErrors, type ReportInput } from "@/lib/care";
 import { requireWorker } from "@/lib/portal/session";
 import { createAuthClient } from "@/lib/supabase/server-auth";
+import { notifyCareConcern } from "@/lib/email/notify";
 
 export type SaveResult = { errors?: ReportErrors; message?: string } | undefined;
 
 function friendly(message: string) {
   if (/already been read/i.test(message)) return "The office has already read this report, so it can't be changed. Please call the office.";
+  if (/visit is not yours/i.test(message)) return "That visit isn't on your schedule. Please choose your client again, or call the office.";
   if (/row-level security|permission/i.test(message)) return "You can only write reports for the people you are assigned to. Please call the office if this looks wrong.";
   return "Your report could not be sent. Check your connection and try again — nothing you typed has been lost.";
 }
 
 const columns = (v: ReportInput) => ({
   client_id: v.client_id,
+  shift_id: v.shift_id || null,
   visit_date: v.visit_date,
   start_time: v.start_time || null,
   end_time: v.end_time || null,
   mood: v.mood as "great" | "good" | "okay" | "low" | "distressed",
   activities: v.activities,
+  tasks_done: v.tasks_done,
   meals: v.meals || null,
   medication: v.medication || null,
   summary: v.summary,
@@ -53,6 +57,8 @@ export async function submitReport(input: ReportInput): Promise<SaveResult> {
     .select("id")
     .single();
   if (error || !data) return { message: friendly(error?.message ?? "") };
+  // A concern is emailed to the office straight away; the worker never waits on it failing.
+  if (value.concern_level !== "none") await notifyCareConcern(data.id).catch(() => undefined);
   revalidatePath("/portal", "layout");
   redirect(`/portal/report/${data.id}?sent=1`);
 }
@@ -62,9 +68,13 @@ export async function updateReport(id: string, input: ReportInput): Promise<Save
   // The location recorded when the report was sent never changes.
   const { errors, value } = validateReport({ ...input, location: null });
   if (!value) return { errors };
+  const { data: before } = await worker.supabase.from("care_reports").select("concern_level").eq("id", id).maybeSingle();
   const { data, error } = await worker.supabase.from("care_reports").update(columns(value)).eq("id", id).select("id");
   if (error) return { message: friendly(error.message) };
   if (!data?.length) return { message: "The office has already read this report, so it can't be changed. Please call the office." };
+  // A correction that raises the concern level alerts the office again.
+  const rank = { none: 0, monitor: 1, urgent: 2 } as Record<string, number>;
+  if (rank[value.concern_level] > rank[before?.concern_level ?? "none"]) await notifyCareConcern(id).catch(() => undefined);
   revalidatePath("/portal", "layout");
   redirect(`/portal/report/${id}?updated=1`);
 }

@@ -81,6 +81,12 @@ export default async function PortalReportPage({
               <Mood mood={r.mood} />
             </dd>
           </div>
+          {r.tasks_done.length > 0 && (
+            <div>
+              <dt className="text-sm text-muted">Care plan tasks done</dt>
+              <dd>{r.tasks_done.join(", ")}</dd>
+            </div>
+          )}
           <div>
             <dt className="text-sm text-muted">What you did</dt>
             <dd>{r.activities.length ? r.activities.map((a) => labelOf(ACTIVITIES, a)).join(", ") : "None ticked"}</dd>

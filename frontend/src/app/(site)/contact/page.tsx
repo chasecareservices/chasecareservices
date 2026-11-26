@@ -5,6 +5,7 @@ import { ButtonLink, Container, PageHero } from "@/components/ui";
 import { getSiteSettings, bannerFor } from "@/lib/content";
 import { phoneDigits, whatsappLink } from "@/lib/format";
 import { OFFICE_LOCATIONS, OTHER_CONTACTS } from "@/lib/site-copy";
+import { SocialLinks, socialEntries } from "@/components/SocialLinks";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -94,6 +95,12 @@ export default async function ContactPage({ searchParams }: Props) {
               )}
             </ul>
           </div>
+          {socialEntries(settings.social_links).length > 0 && (
+            <div>
+              <h2 className="mb-3 font-semibold text-brand-900">Follow us</h2>
+              <SocialLinks links={settings.social_links} tone="light" />
+            </div>
+          )}
           <div>
             <h2 className="font-semibold text-brand-900">Our offices</h2>
             <ul className="mt-3 space-y-1 text-ink">

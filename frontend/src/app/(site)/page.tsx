@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { CourseCard, ServiceCard } from "@/components/cards";
+import { CourseCard, PostCard, ServiceCard } from "@/components/cards";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ImpactStats } from "@/components/Impact";
 import { toBlocks } from "@/components/PageBlocks";
 import { FillPhoto } from "@/components/Photo";
 import { ButtonLink, CheckList, Container, ImageFeature, Pathway, Section } from "@/components/ui";
-import { getCourses, getPage, getServices, getTestimonials, mediaUrl } from "@/lib/content";
+import { getCourses, getPage, getPosts, getServices, getTestimonials, mediaUrl } from "@/lib/content";
 import { formatLongDate, nextForumDate } from "@/lib/forum";
 import { HERO_SLIDES, SECTION_IMAGES, type HeroSlide } from "@/lib/images";
 import { STUDENT_PATHWAY, TRAINING_TAGLINE, WHY_CHOOSE_US } from "@/lib/site-copy";
@@ -56,11 +56,12 @@ function resolveSlides(hero: CmsHero | undefined): HeroSlide[] {
 }
 
 export default async function HomePage() {
-  const [homePage, services, courses, testimonials] = await Promise.all([
+  const [homePage, services, courses, testimonials, latestPosts] = await Promise.all([
     getPage("home"),
     getServices("care"),
     getCourses(),
     getTestimonials(),
+    getPosts(undefined, 3),
   ]);
 
   const heroBlock = toBlocks(homePage?.body).find((b) => b.type === "hero" && b.visible !== false);
@@ -239,6 +240,22 @@ export default async function HomePage() {
           ))}
         </div>
       </Section>
+
+      {/* News & Blog: the three newest articles (hidden until there are any) */}
+      {latestPosts.length > 0 && (
+        <Section eyebrow="News & Blog" title="Latest from the ChaseCare Journal">
+          <div className="grid gap-5 md:grid-cols-3">
+            {latestPosts.map((p) => (
+              <PostCard key={p.id} post={p} />
+            ))}
+          </div>
+          <div className="mt-8">
+            <ButtonLink href="/journal" variant="secondary">
+              All news and articles
+            </ButtonLink>
+          </div>
+        </Section>
+      )}
 
       {/* Testimonials — only consented, published ones are ever returned by the database */}
       {testimonials.length > 0 && (

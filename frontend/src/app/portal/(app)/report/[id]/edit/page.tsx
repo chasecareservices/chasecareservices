@@ -9,10 +9,11 @@ export const metadata = { title: "Correct report" };
 export default async function EditReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const worker = await requireWorker();
-  const [{ data: r }, { data: clients }, settings] = await Promise.all([
+  const [{ data: r }, { data: clients }, settings, { data: plans }] = await Promise.all([
     worker.supabase.from("care_reports").select("*").eq("id", id).maybeSingle(),
     worker.supabase.from("care_clients").select("id, full_name, preferred_name").order("full_name"),
     getSiteSettings(),
+    worker.supabase.from("care_plans").select("client_id, visit_tasks"),
   ]);
   if (!r) notFound();
   if (r.status !== "submitted") {
@@ -33,15 +34,18 @@ export default async function EditReportPage({ params }: { params: Promise<{ id:
   return (
     <ReportForm
       reportId={r.id}
+      planTasks={Object.fromEntries((plans ?? []).map((p) => [p.client_id, p.visit_tasks]))}
       clients={list}
       officePhone={settings.phone}
       initial={{
         client_id: r.client_id,
+        shift_id: r.shift_id ?? "",
         visit_date: r.visit_date,
         start_time: r.start_time?.slice(0, 5) ?? "",
         end_time: r.end_time?.slice(0, 5) ?? "",
         mood: r.mood,
         activities: r.activities,
+        tasks_done: r.tasks_done,
         meals: r.meals ?? "",
         medication: r.medication ?? "",
         summary: r.summary,

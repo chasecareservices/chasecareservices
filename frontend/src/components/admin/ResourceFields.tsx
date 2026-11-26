@@ -5,7 +5,7 @@ import { fieldValue } from "@/lib/admin/values";
 import { mediaUrl } from "@/lib/content";
 import { adminInput } from "@/components/admin/ui";
 
-function FieldInput({ field, value, options }: { field: Field; value: unknown; options?: Option[] }) {
+function FieldInput({ field, value, options, folder }: { field: Field; value: unknown; options?: Option[]; folder?: string }) {
   const v = fieldValue(field, value);
   const common = { id: field.name, name: field.name, required: field.required, className: adminInput };
   switch (field.type) {
@@ -65,7 +65,7 @@ function FieldInput({ field, value, options }: { field: Field; value: unknown; o
           ) : (
             <p className="text-sm text-muted">No photo yet.</p>
           )}
-          <input id={field.name} name={field.name} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="block text-sm" />
+          <input id={field.name} name={field.name} type="file" data-folder={folder} accept="image/jpeg,image/png,image/webp,image/gif" className="block text-sm" />
           {src && (
             <label className="flex items-center gap-2 text-sm font-normal">
               <input type="checkbox" name={`${field.name}__remove`} className="h-4 w-4 accent-brand-800" /> Remove this photo
@@ -104,7 +104,7 @@ export function ResourceFields({
               <div key={f.name} className={f.wide || f.type === "richtext" ? "md:col-span-2" : ""}>
                 {f.type === "checkbox" ? (
                   <label htmlFor={f.name} className="flex items-center text-sm font-medium text-brand-900">
-                    <FieldInput field={f} value={row[f.name]} />
+                    <FieldInput folder={resource.key} field={f} value={row[f.name]} />
                     {f.label}
                   </label>
                 ) : (
@@ -113,7 +113,7 @@ export function ResourceFields({
                     {f.required && <span className="text-accent-700"> *</span>}
                   </label>
                 )}
-                {f.type !== "checkbox" && <FieldInput field={f} value={row[f.name]} options={optionSets[f.name]} />}
+                {f.type !== "checkbox" && <FieldInput folder={resource.key} field={f} value={row[f.name]} options={optionSets[f.name]} />}
                 {f.hint && f.type !== "richtext" && <p className="mt-1 text-xs text-muted">{f.hint}</p>}
               </div>
             ))}

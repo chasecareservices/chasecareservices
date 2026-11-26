@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { Database } from "@/lib/database.types";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { announceEnquiry } from "@/app/(site)/enquiry-actions";
 
 import type { EnquiryType } from "@/lib/enquiry-topics";
 
@@ -79,7 +80,7 @@ export type SubmitInput = {
 /** Sends a form to the database's submit_enquiry() function. Returns an error message or null. */
 export async function submitEnquiry(input: SubmitInput): Promise<string | null> {
   try {
-    const { error } = await getBrowserClient().rpc("submit_enquiry", {
+    const { data, error } = await getBrowserClient().rpc("submit_enquiry", {
       enquiry_type: input.enquiry_type,
       full_name: input.full_name,
       consent_given: true,
@@ -92,7 +93,11 @@ export async function submitEnquiry(input: SubmitInput): Promise<string | null> 
       source_page: typeof window !== "undefined" ? window.location.pathname : undefined,
       website: input.website || undefined,
     });
-    if (!error) return null;
+    if (!error) {
+      // Tell the office by email. Never blocks or fails the visitor's submission.
+      if (typeof data === "string") await announceEnquiry(data).catch(() => undefined);
+      return null;
+    }
     if (error.code === "23514") return "Please check your email address and try again.";
     if (error.code === "22023" || error.code === "54000") return error.message;
     return "Sorry, something went wrong sending your message. Please try again, or call or WhatsApp us.";

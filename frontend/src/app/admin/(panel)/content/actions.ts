@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
-import { UploadError, uploadImage } from "@/lib/admin/media";
+import { UploadError, photoFromForm } from "@/lib/admin/media";
 import { getResource } from "@/lib/admin/resources";
 import { friendlyDbError, readFields } from "@/lib/admin/values";
 
@@ -23,7 +23,7 @@ export async function saveResource(formData: FormData): Promise<SaveResult> {
 
   try {
     for (const f of resource.fields.filter((f) => f.type === "image" || f.type === "image-array")) {
-      const path = await uploadImage(staff.supabase, formData.get(f.name), resource.key, staff.user.id, String(values[resource.titleField] ?? ""));
+      const path = await photoFromForm(staff.supabase, formData, f.name, resource.key, staff.user.id, String(values[resource.titleField] ?? ""));
       if (path) values[f.name] = f.type === "image-array" ? [path] : path;
       else if (formData.get(`${f.name}__remove`) === "on") values[f.name] = f.type === "image-array" ? [] : null;
     }

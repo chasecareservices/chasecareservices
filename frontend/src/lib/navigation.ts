@@ -61,7 +61,7 @@ export const FALLBACK_NAV: NavLink[] = [
     label: "Community",
     href: "/community",
     children: [
-      { label: "The ChaseCare Journal", href: "/journal" },
+      { label: "News & Blog", href: "/journal" },
       { label: "Monthly Forum", href: "/community/monthly-forum" },
       { label: "Community & Partnerships", href: "/community" },
       { label: "Shop", href: "/shop" },

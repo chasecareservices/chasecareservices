@@ -40,3 +40,23 @@ export function Mood({ mood }: { mood: string }) {
 export function formatVisitDate(date: string) {
   return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
+
+const VISIT_STYLES: Record<string, { label: string; icon: string; cls: string }> = {
+  done: { label: "Report sent", icon: "✓", cls: "bg-green-100 text-green-800" },
+  missed: { label: "No report yet", icon: "!", cls: "bg-red-100 text-red-800" },
+  in_progress: { label: "Now", icon: "●", cls: "bg-accent-100 text-accent-700" },
+  upcoming: { label: "Later", icon: "○", cls: "bg-brand-100 text-brand-800" },
+  cancelled: { label: "Cancelled", icon: "×", cls: "bg-gray-200 text-gray-700" },
+};
+
+/** Where a booked visit stands. Text plus symbol, never colour alone. */
+export function VisitStatus({ status }: { status: string }) {
+  const s = VISIT_STYLES[status] ?? VISIT_STYLES.upcoming;
+  return (
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-semibold ${s.cls}`}>
+      <span aria-hidden="true">{s.icon}</span> {s.label}
+    </span>
+  );
+}
+
+export const hhmm = (t: string) => t.slice(0, 5);

@@ -63,7 +63,7 @@ export default async function HomepagePage({ searchParams }: { searchParams: Pro
                 <div className="space-y-2">
                   <Preview path={s.image_path} />
                   <input type="hidden" name={`slide_${i}_image_current`} value={s.image_path ?? ""} />
-                  <input name={`slide_${i}_image`} type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Photo for slide ${i + 1}`} className="block w-full text-xs" />
+                  <input name={`slide_${i}_image`} type="file" data-folder="slider" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Photo for slide ${i + 1}`} className="block w-full text-xs" />
                   {s.image_path && (
                     <label className="flex items-center gap-2 text-xs">
                       <input type="checkbox" name={`slide_${i}_image__remove`} className="accent-brand-800" /> Remove photo
@@ -130,7 +130,7 @@ export default async function HomepagePage({ searchParams }: { searchParams: Pro
                           view page ↗
                         </Link>
                       </p>
-                      <input name={field} type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Banner photo for ${p.label}`} className="block text-sm" />
+                      <input name={field} type="file" data-folder="banners" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Banner photo for ${p.label}`} className="block text-sm" />
                       {banners[p.key] && (
                         <label className="flex items-center gap-2 text-sm">
                           <input type="checkbox" name={`${field}__remove`} className="accent-brand-800" /> Remove photo

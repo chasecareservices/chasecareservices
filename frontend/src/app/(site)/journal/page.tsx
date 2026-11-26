@@ -22,7 +22,7 @@ export default async function JournalPage({ searchParams }: Props) {
     <>
       <PageHero
         image={await bannerFor("journal")}
-        eyebrow="Resources"
+        eyebrow="News & Blog"
         title="The ChaseCare Journal"
         intro="Practical guidance and stories on care, wellbeing, inclusion and community."
       />

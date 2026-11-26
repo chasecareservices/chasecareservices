@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { saveAssignments, saveClient } from "../actions";
+import { saveAssignments, saveCarePlan, saveClient } from "../actions";
 import { ClientFields } from "../ClientFields";
 import { ActionForm } from "@/components/admin/ActionForm";
-import { Card, Notice, PageHeader } from "@/components/admin/ui";
+import { Card, Notice, PageHeader, adminInput, formatDateTime } from "@/components/admin/ui";
 import { ConcernBadge, Mood, formatVisitDate } from "@/components/portal/ReportBits";
 import { requirePermission } from "@/lib/admin/session";
 import { mapsEmbed, mapsLink } from "@/lib/care";
@@ -13,14 +13,17 @@ export const metadata = { title: "Client" };
 export default async function CareClientPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
   const [{ id }, { saved }] = await Promise.all([params, searchParams]);
   const staff = await requirePermission("clients.view");
-  const [{ data: client }, { data: team }, { data: workers }, { data: reports }] = await Promise.all([
+  const [{ data: client }, { data: team }, { data: workers }, { data: reports }, { data: plan }] = await Promise.all([
     staff.supabase.from("care_clients").select("*").eq("id", id).maybeSingle(),
     staff.supabase.from("care_assignments").select("worker_id").eq("client_id", id).eq("is_active", true),
     staff.supabase.rpc("list_care_workers"),
     staff.can("care_ops.view")
       ? staff.supabase.from("care_reports").select("id, visit_date, mood, concern_level, status").eq("client_id", id).order("visit_date", { ascending: false }).limit(8)
       : Promise.resolve({ data: [] }),
+    staff.supabase.from("care_plans").select("*").eq("client_id", id).maybeSingle(),
   ]);
+  const today = new Date().toISOString().slice(0, 10);
+  const reviewDue = plan?.review_date && plan.review_date <= today;
   if (!client) notFound();
   const assigned = new Set((team ?? []).map((t) => t.worker_id));
   const canEdit = staff.can("clients.edit");
@@ -28,6 +31,7 @@ export default async function CareClientPage({ params, searchParams }: { params:
   return (
     <>
       {saved === "client" && <Notice>Client saved.</Notice>}
+      {saved === "plan" && <Notice>Care plan saved. Care workers see it in their portal straight away.</Notice>}
       {saved === "team" && <Notice>Care team saved. Assigned care workers can now see this client in their portal.</Notice>}
       <Link href="/admin/care-clients" className="text-sm font-semibold text-brand-700 underline underline-offset-4">
         ← Clients &amp; care workers
@@ -35,6 +39,59 @@ export default async function CareClientPage({ params, searchParams }: { params:
       <div className="mt-3">
         <PageHeader title={client.full_name} intro={client.area ?? undefined} />
       </div>
+
+      <section id="care-plan" className="mb-6 scroll-mt-24">
+        <Card title="Care plan">
+          {reviewDue && (
+            <p role="alert" className="mb-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 font-semibold text-amber-950">
+              <span aria-hidden="true">! </span>This care plan was due for review on {plan!.review_date}. Check it with the client and family, then
+              set the next review date.
+            </p>
+          )}
+          {!plan && <p className="mb-4 text-sm text-muted">No care plan yet. Care workers see what you write here before each visit.</p>}
+          {plan && <p className="mb-4 text-xs text-muted">Last changed {formatDateTime(plan.updated_at)}. Earlier versions are in the Activity log.</p>}
+          {canEdit ? (
+            <ActionForm action={saveCarePlan} submitLabel="Save care plan" inline>
+              <input type="hidden" name="client_id" value={client.id} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-sm font-medium text-brand-900 md:col-span-2">
+                  About {client.preferred_name || client.full_name.split(" ")[0]}
+                  <textarea name="about_me" rows={2} maxLength={2000} defaultValue={plan?.about_me ?? ""} placeholder="What matters to them: likes, routines, how they like to be supported." className={adminInput} />
+                </label>
+                <label className="text-sm font-medium text-brand-900">
+                  Tasks for every visit <span className="font-normal text-muted">(one per line)</span>
+                  <textarea name="visit_tasks" rows={6} defaultValue={(plan?.visit_tasks ?? []).join("\n")} placeholder={"Help with washing and dressing\nPrepare lunch\nPrompt 1 pm medication"} className={adminInput} />
+                  <span className="mt-1 block text-xs font-normal text-muted">Care workers tick these off in each report.</span>
+                </label>
+                <label className="text-sm font-medium text-brand-900">
+                  Goals <span className="font-normal text-muted">(one per line)</span>
+                  <textarea name="goals" rows={6} defaultValue={(plan?.goals ?? []).join("\n")} placeholder={"Walk to the gate every day\nKeep blood sugar steady"} className={adminInput} />
+                </label>
+                <label className="text-sm font-medium text-brand-900">
+                  Needs and risks
+                  <textarea name="risks" rows={3} maxLength={2000} defaultValue={plan?.risks ?? ""} placeholder="e.g. Falls risk on the step: walk on her left side." className={adminInput} />
+                </label>
+                <label className="text-sm font-medium text-brand-900">
+                  Medication notes
+                  <textarea name="medication_notes" rows={3} maxLength={2000} defaultValue={plan?.medication_notes ?? ""} className={adminInput} />
+                </label>
+                <label className="text-sm font-medium text-brand-900">
+                  Next review date
+                  <input type="date" name="review_date" defaultValue={plan?.review_date ?? ""} className={adminInput} />
+                </label>
+              </div>
+            </ActionForm>
+          ) : plan ? (
+            <div className="space-y-2 text-sm">
+              {plan.about_me && <p>{plan.about_me}</p>}
+              <p><strong>Each visit:</strong> {plan.visit_tasks.join(" · ") || "—"}</p>
+              <p><strong>Goals:</strong> {plan.goals.join(" · ") || "—"}</p>
+              {plan.risks && <p><strong>Needs and risks:</strong> {plan.risks}</p>}
+              {plan.medication_notes && <p><strong>Medication:</strong> {plan.medication_notes}</p>}
+            </div>
+          ) : null}
+        </Card>
+      </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <Card title="Details">

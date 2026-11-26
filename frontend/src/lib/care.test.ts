@@ -20,6 +20,7 @@ describe("validateReport", () => {
     expect(errors).toEqual({});
     expect(value?.summary).toBe("Helped with lunch and a short walk.");
     expect(value?.activities).toEqual(["meals"]);
+    expect(validateReport({ ...good, tasks_done: ["Prepare lunch", "Prepare lunch", "x".repeat(201)] }, "2026-11-25").value?.tasks_done).toEqual(["Prepare lunch"]);
   });
 
   it("explains each missing answer in plain words", () => {

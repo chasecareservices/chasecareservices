@@ -169,6 +169,133 @@ export type Database = {
         };
         Relationships: [];
       };
+      care_incidents: {
+        Row: {
+          action_taken: string;
+          client_id: string;
+          closed_at: string | null;
+          closed_by: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          occurred_at: string;
+          office_notes: string | null;
+          people_told: string[];
+          place: string | null;
+          reference: string;
+          reported_by: string;
+          severity: string;
+          status: string;
+          updated_at: string;
+          what_happened: string;
+          witnesses: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          action_taken: string;
+          client_id: string;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          occurred_at: string;
+          office_notes?: string | null;
+          people_told?: string[];
+          place?: string | null;
+          reference?: string;
+          reported_by?: string;
+          severity: string;
+          status?: string;
+          updated_at?: string;
+          what_happened: string;
+          witnesses?: string | null;
+        };
+        Update: {
+          action_taken?: string;
+          client_id?: string;
+          closed_at?: string | null;
+          closed_by?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          occurred_at?: string;
+          office_notes?: string | null;
+          people_told?: string[];
+          place?: string | null;
+          reference?: string;
+          reported_by?: string;
+          severity?: string;
+          status?: string;
+          updated_at?: string;
+          what_happened?: string;
+          witnesses?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_incidents_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_incidents_reported_by_fkey";
+            columns: ["reported_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      care_plans: {
+        Row: {
+          about_me: string | null;
+          client_id: string;
+          created_at: string;
+          goals: string[];
+          medication_notes: string | null;
+          review_date: string | null;
+          risks: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          visit_tasks: string[];
+        };
+        ComputedFields: never;
+        Insert: {
+          about_me?: string | null;
+          client_id: string;
+          created_at?: string;
+          goals?: string[];
+          medication_notes?: string | null;
+          review_date?: string | null;
+          risks?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          visit_tasks?: string[];
+        };
+        Update: {
+          about_me?: string | null;
+          client_id?: string;
+          created_at?: string;
+          goals?: string[];
+          medication_notes?: string | null;
+          review_date?: string | null;
+          risks?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          visit_tasks?: string[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_plans_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       care_reports: {
         Row: {
           activities: string[];
@@ -189,10 +316,12 @@ export type Database = {
           reference: string;
           reviewed_at: string | null;
           reviewed_by: string | null;
+          shift_id: string | null;
           start_time: string | null;
           status: Database["public"]["Enums"]["care_report_status"];
           submitted_at: string;
           summary: string;
+          tasks_done: string[];
           updated_at: string;
           visit_date: string;
           worker_id: string;
@@ -217,10 +346,12 @@ export type Database = {
           reference?: string;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
+          shift_id?: string | null;
           start_time?: string | null;
           status?: Database["public"]["Enums"]["care_report_status"];
           submitted_at?: string;
           summary: string;
+          tasks_done?: string[];
           updated_at?: string;
           visit_date?: string;
           worker_id?: string;
@@ -244,10 +375,12 @@ export type Database = {
           reference?: string;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
+          shift_id?: string | null;
           start_time?: string | null;
           status?: Database["public"]["Enums"]["care_report_status"];
           submitted_at?: string;
           summary?: string;
+          tasks_done?: string[];
           updated_at?: string;
           visit_date?: string;
           worker_id?: string;
@@ -261,7 +394,79 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "care_reports_shift_id_fkey";
+            columns: ["shift_id"];
+            isOneToOne: false;
+            referencedRelation: "care_shift_status";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_reports_shift_id_fkey";
+            columns: ["shift_id"];
+            isOneToOne: false;
+            referencedRelation: "care_shifts";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "care_reports_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      care_shifts: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          end_time: string;
+          id: string;
+          notes: string | null;
+          shift_date: string;
+          start_time: string;
+          status: string;
+          updated_at: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          end_time: string;
+          id?: string;
+          notes?: string | null;
+          shift_date: string;
+          start_time: string;
+          status?: string;
+          updated_at?: string;
+          worker_id: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          end_time?: string;
+          id?: string;
+          notes?: string | null;
+          shift_date?: string;
+          start_time?: string;
+          status?: string;
+          updated_at?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_shifts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_shifts_worker_id_fkey";
             columns: ["worker_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -360,6 +565,7 @@ export type Database = {
           full_name: string;
           id: string;
           message: string | null;
+          notified_at: string | null;
           payload: NonNullable<Json>;
           phone: string | null;
           source_page: string | null;
@@ -379,6 +585,7 @@ export type Database = {
           full_name: string;
           id?: string;
           message?: string | null;
+          notified_at?: string | null;
           payload?: NonNullable<Json>;
           phone?: string | null;
           source_page?: string | null;
@@ -397,6 +604,7 @@ export type Database = {
           full_name?: string;
           id?: string;
           message?: string | null;
+          notified_at?: string | null;
           payload?: NonNullable<Json>;
           phone?: string | null;
           source_page?: string | null;
@@ -1302,9 +1510,50 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      care_shift_status: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          end_time: string;
+          id: string;
+          notes: string | null;
+          report_id: string | null;
+          report_reference: string | null;
+          shift_date: string;
+          start_time: string;
+          status: string;
+          updated_at: string;
+          visit_status: string | null;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "care_shifts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_shifts_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
+      care_incident_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          open: number;
+          serious_open: number;
+        }[];
+      };
       care_report_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1338,6 +1587,7 @@ export type Database = {
           phone: string;
         }[];
       };
+      missed_visit_count: { Args: Record<PropertyKey, never>; Returns: number };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
       search_site: {
         Args: { max_results?: number; query: string };

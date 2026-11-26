@@ -45,3 +45,35 @@ export async function uploadImage(
   });
   return path;
 }
+
+/** A path written by the browser upload: `<folder>/<year>/<uuid>.<ext>` in public-media. */
+export const UPLOADED_PATH = /^[a-z0-9-]{1,40}\/\d{4}\/[0-9a-f-]{36}\.(jpg|png|webp|gif)$/;
+
+/** The paths the browser uploaded for this file field (see browser-upload.ts), checked. */
+export function uploadedPaths(formData: FormData, name: string): string[] {
+  return formData
+    .getAll(`${name}__uploaded`)
+    .map(String)
+    .filter((p) => UPLOADED_PATH.test(p));
+}
+
+/**
+ * The photo for a form field: the one the browser already uploaded (normal case),
+ * or, if the page ran without JavaScript, the file sent with the form.
+ * Gives the media-library entry a description when it has none yet.
+ */
+export async function photoFromForm(
+  supabase: SupabaseClient<Database>,
+  formData: FormData,
+  name: string,
+  folder: string,
+  userId: string,
+  altText = "",
+): Promise<string | null> {
+  const [path] = uploadedPaths(formData, name);
+  if (path) {
+    if (altText) await supabase.from("media_assets").update({ alt_text: altText.slice(0, 300) }).eq("object_path", path).is("alt_text", null);
+    return path;
+  }
+  return uploadImage(supabase, formData.get(name), folder, userId, altText);
+}

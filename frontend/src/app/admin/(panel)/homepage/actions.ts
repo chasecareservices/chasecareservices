@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
-import { UploadError, uploadImage } from "@/lib/admin/media";
+import { UploadError, photoFromForm } from "@/lib/admin/media";
 import { BANNER_PAGES, SLIDE_COUNT } from "./config";
 import type { Json as DbJson } from "@/lib/database.types";
 
@@ -23,7 +23,7 @@ export async function saveSlider(formData: FormData): Promise<Result> {
   }
   try {
     for (let i = 0; i < SLIDE_COUNT; i++) {
-      const uploaded = await uploadImage(staff.supabase, formData.get(`slide_${i}_image`), "slider", staff.user.id, val(formData, `slide_${i}_heading`));
+      const uploaded = await photoFromForm(staff.supabase, formData, `slide_${i}_image`, "slider", staff.user.id, val(formData, `slide_${i}_heading`));
       const kept = formData.get(`slide_${i}_image__remove`) === "on" ? "" : val(formData, `slide_${i}_image_current`, 500);
       const buttons = [0, 1]
         .map((b) => ({ label: val(formData, `slide_${i}_button_${b}_label`, 40), href: safeHref(val(formData, `slide_${i}_button_${b}_href`, 300)) }))
@@ -63,7 +63,7 @@ export async function saveBanners(formData: FormData): Promise<Result> {
   try {
     for (const page of BANNER_PAGES) {
       const field = `banner_${page.key.replace(/\//g, "__")}`;
-      const uploaded = await uploadImage(staff.supabase, formData.get(field), "banners", staff.user.id, page.label);
+      const uploaded = await photoFromForm(staff.supabase, formData, field, "banners", staff.user.id, page.label);
       if (uploaded) banners[page.key] = uploaded;
       else if (formData.get(`${field}__remove`) === "on") delete banners[page.key];
     }

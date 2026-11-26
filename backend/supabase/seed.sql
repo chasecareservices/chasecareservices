@@ -108,3 +108,47 @@ from (values
 join public.care_clients c on c.id = v.client
 join auth.users u on u.email = v.email
 on conflict do nothing;
+
+-- Demo care plans (local only).
+insert into public.care_plans (client_id, about_me, goals, visit_tasks, risks, medication_notes, review_date) values
+  ('00000000-0000-4000-8000-00000000c001',
+   'Retired teacher. Loves gospel music and talking about her grandchildren in London. Prefers to be called Auntie Akosua.',
+   array['Walk to the gate and back every day', 'Keep blood sugar steady'],
+   array['Help with washing and dressing', 'Prepare a low-sugar lunch', 'Prompt 1 pm medication', 'Walking exercises with the frame (10 minutes)', 'Check skin on heels for redness'],
+   'Left-side weakness after stroke: walk on her left side. Risk of falls on the veranda step. Diabetic: no sugary drinks.',
+   'Metformin with lunch. Blood pressure tablet in the morning (given by her niece).',
+   current_date + 60),
+  ('00000000-0000-4000-8000-00000000c002',
+   'Kofi is 12 and autistic. Loves drawing buses. Likes a visual timetable and a quiet room after school.',
+   array['Finish homework three times a week', 'Practise asking for help with words'],
+   array['Meet at the school gate at 3 pm', 'Snack and quiet time (15 minutes)', 'Homework with picture timetable', 'Drawing or outdoor play'],
+   'Loud places upset him: give a 5-minute warning before any change. Never touch his drawings without asking.',
+   null,
+   current_date - 3)
+on conflict (client_id) do nothing;
+
+-- Demo visits (local only): yesterday (one done, one missed), today and the coming days.
+insert into public.care_shifts (client_id, worker_id, shift_date, start_time, end_time, notes)
+select v.client::uuid, u.id, current_date + v.day_offset, v.st::time, v.en::time, v.notes
+from (values
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local', -1, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c002', 'carer@chasecare.local', -1, '15:00', '18:00', 'After school'),
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local',  0, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c002', 'carer@chasecare.local',  0, '15:00', '18:00', 'After school'),
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local',  1, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c003', 'carer2@chasecare.local', 0, '08:00', '11:00', null)
+) as v(client, email, day_offset, st, en, notes)
+join auth.users u on u.email = v.email;
+
+-- Yesterday's morning visit with Auntie Akosua was reported; the afternoon one with Kofi was missed.
+insert into public.care_reports (client_id, worker_id, visit_date, start_time, end_time, mood, summary, location_status)
+select '00000000-0000-4000-8000-00000000c001', u.id, current_date - 1, '09:00', '13:00', 'good', 'Lunch, walking exercises and a long chat about her grandchildren.', 'not_recorded'
+from auth.users u where u.email = 'carer@chasecare.local';
+
+-- A demo incident (local only), still open, so the office has something to follow up.
+insert into public.care_incidents (client_id, reported_by, occurred_at, place, kind, severity, what_happened, action_taken, people_told)
+select '00000000-0000-4000-8000-00000000c001', u.id, now() - interval '20 hours', 'Bathroom', 'fall', 'moderate',
+       'Auntie Akosua slipped on the wet bathroom step while I was fetching a towel. She bumped her left knee. No bleeding.',
+       'Helped her sit on the chair, checked her knee, cold compress for 15 minutes. She could walk afterwards.',
+       array['family']
+from auth.users u where u.email = 'carer@chasecare.local';
