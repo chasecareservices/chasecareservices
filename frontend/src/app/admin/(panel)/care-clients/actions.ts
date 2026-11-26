@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
 import { createSecretClient } from "@/lib/supabase/server-auth";
 import { parseLatLng } from "@/lib/care";
+import { sendInvitation } from "@/lib/email/send-invite";
 
 type Result = { error: string } | undefined;
 const UUID = /^[0-9a-f-]{36}$/;
@@ -115,17 +116,18 @@ export async function inviteWorker(formData: FormData): Promise<Result> {
   const admin = createSecretClient();
   if (!admin) return { error: "Invitations aren't set up yet: the site's secret key is missing. Ask your developer." };
 
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
-    redirectTo: `${await siteOrigin()}/admin/set-password`,
-  });
-  if (error || !data.user) {
+  const invite = await sendInvitation(admin, { email, fullName, kind: "worker", redirectTo: `${await siteOrigin()}/admin/set-password` });
+  if ("error" in invite) {
     return {
-      error: /already|registered|exists/i.test(error?.message ?? "")
-        ? "Someone with this email already has an account. Ask the Owner to add the Worker role to them in Staff & roles."
-        : "The invitation could not be sent. Please check the email address and try again.",
+      error:
+        invite.error === "exists"
+          ? "Someone with this email already has an account. Ask the Owner to add the Worker role to them in Staff & roles."
+          : invite.error === "email-failed"
+            ? "The invitation email could not be sent. Check the email settings (Site settings → Email alerts → Send a test email), then try again."
+            : "The invitation could not be sent. Please check the email address and try again.",
     };
   }
+  const data = { user: { id: invite.userId } };
   // The permission was checked above; the secret key is needed because care managers
   // don't manage staff roles generally.
   const [{ error: roleError }] = await Promise.all([
@@ -195,14 +197,20 @@ export async function inviteFamily(formData: FormData): Promise<Result> {
 
   let userId: string | undefined;
   let invited = false;
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
+  const { data: clientRow } = await staff.supabase.from("care_clients").select("full_name, preferred_name").eq("id", clientId).maybeSingle();
+  const invite = await sendInvitation(admin, {
+    email,
+    fullName,
+    kind: "family",
+    clientName: clientRow ? clientRow.preferred_name || clientRow.full_name : null,
     redirectTo: `${await siteOrigin()}/admin/set-password`,
   });
-  if (data?.user) {
-    userId = data.user.id;
+  if ("userId" in invite) {
+    userId = invite.userId;
     invited = true;
-  } else if (/already|registered|exists/i.test(error?.message ?? "")) {
+  } else if (invite.error === "email-failed") {
+    return { error: "The invitation email could not be sent. Check the email settings (Site settings → Email alerts → Send a test email), then try again." };
+  } else if (invite.error === "exists") {
     const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
     userId = list?.users.find((u) => u.email?.toLowerCase() === email)?.id;
     if (userId) {
