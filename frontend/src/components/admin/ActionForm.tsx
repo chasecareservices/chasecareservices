@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition, type ReactNode } from "react";
+import { BrowserUploadError, uploadFormPhotos } from "@/lib/admin/browser-upload";
 
 type Action = (formData: FormData) => Promise<{ error: string } | undefined>;
 
@@ -32,6 +33,7 @@ export function ActionForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [uploading, setUploading] = useState<string | null>(null);
   const errorRef = useRef<HTMLParagraphElement>(null);
 
   return (
@@ -41,15 +43,29 @@ export function ActionForm({
       onSubmit={(e) => {
         e.preventDefault();
         if (confirm && !window.confirm(confirm)) return;
-        const data = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const data = new FormData(form);
         setError(null);
-        start(async () => {
-          const result = await action(data);
-          if (result?.error) {
-            setError(result.error);
+        void (async () => {
+          // Photos go straight to storage first (shown as progress on the button);
+          // the action then receives their paths.
+          try {
+            await uploadFormPhotos(form, data, (done, total) => setUploading(`Uploading photo ${Math.min(done + 1, total)} of ${total}…`));
+          } catch (err) {
+            setUploading(null);
+            setError(err instanceof BrowserUploadError ? err.message : "A photo could not be uploaded. Check your connection and try again.");
             requestAnimationFrame(() => errorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }));
+            return;
           }
-        });
+          setUploading(null);
+          start(async () => {
+            const result = await action(data);
+            if (result?.error) {
+              setError(result.error);
+              requestAnimationFrame(() => errorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }));
+            }
+          });
+        })();
       }}
     >
       {children}
@@ -61,7 +77,7 @@ export function ActionForm({
       <div className={secondary || inline ? "mt-3" : "sticky bottom-0 -mx-4 mt-6 border-t border-gray-200 bg-gray-50/95 px-4 py-4 backdrop-blur sm:-mx-8 sm:px-8"}>
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading !== null}
           className={
             secondary
               ? "inline-flex min-h-10 items-center rounded-full border border-red-300 px-5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
@@ -70,7 +86,7 @@ export function ActionForm({
               : "inline-flex min-h-11 items-center rounded-full bg-brand-800 px-6 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-wait disabled:opacity-70"
           }
         >
-          {pending ? pendingLabel : submitLabel}
+          {uploading ?? (pending ? pendingLabel : submitLabel)}
         </button>
       </div>
     </form>

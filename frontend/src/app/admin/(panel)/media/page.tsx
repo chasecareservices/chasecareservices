@@ -47,8 +47,8 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
           <ActionForm action={uploadMedia} submitLabel="Upload" pendingLabel="Uploading…" inline>
             <div className="grid gap-4 md:grid-cols-3">
               <label className="text-sm font-medium text-brand-900 md:col-span-3">
-                Photos (JPEG, PNG, WebP or GIF, up to 10 MB each, 10 at a time)
-                <input name="files" type="file" multiple required accept="image/jpeg,image/png,image/webp,image/gif" className="mt-1 block w-full text-sm" />
+                Photos (JPEG, PNG, WebP or GIF, 10 at a time; large photos are shrunk automatically)
+                <input name="files" type="file" multiple required data-folder-field="folder" data-max-files="10" accept="image/jpeg,image/png,image/webp,image/gif" className="mt-1 block w-full text-sm" />
               </label>
               <label className="text-sm font-medium text-brand-900">
                 Folder

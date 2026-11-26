@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
-import { UploadError, uploadImage } from "@/lib/admin/media";
+import { UploadError, uploadImage, uploadedPaths } from "@/lib/admin/media";
 
 type Result = { error: string } | undefined;
 
@@ -11,12 +11,20 @@ const FOLDER_RE = /^[a-z0-9-]{1,40}$/;
 
 export async function uploadMedia(formData: FormData): Promise<Result> {
   const staff = await requirePermission("media.create");
+  const alt = String(formData.get("alt_text") ?? "").trim().slice(0, 300);
+  // Normal case: the browser already uploaded the photos and sends their paths.
+  const uploaded = uploadedPaths(formData, "files");
+  if (uploaded.length) {
+    if (alt) await staff.supabase.from("media_assets").update({ alt_text: alt }).in("object_path", uploaded).is("alt_text", null);
+    revalidatePath("/admin/media");
+    redirect(`/admin/media?saved=${uploaded.length}`);
+  }
+  // Without JavaScript: the files come with the form.
   const files = formData.getAll("files").filter((f): f is File => typeof f !== "string" && f.size > 0);
   if (!files.length) return { error: "Choose at least one photo to upload." };
   if (files.length > 10) return { error: "Upload up to 10 photos at a time." };
   const folderRaw = String(formData.get("folder") ?? "library").trim().toLowerCase();
   const folder = FOLDER_RE.test(folderRaw) ? folderRaw : "library";
-  const alt = String(formData.get("alt_text") ?? "").trim();
   try {
     for (const file of files) await uploadImage(staff.supabase, file, folder, staff.user.id, alt);
   } catch (e) {
