@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addEnquiryNote, updateEnquiryStatus } from "../actions";
+import { addEnquiryNote, createClientFromEnquiry, updateEnquiryStatus } from "../actions";
+import { ActionForm } from "@/components/admin/ActionForm";
+import { mapsEmbed, mapsLink } from "@/lib/care";
 import { Card, Notice, PageHeader, StatusBadge, STATUS_LABELS, adminButton, adminButtonSecondary, adminInput, formatDateTime } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
 import { CONTACT_TOPICS } from "@/lib/enquiry-topics";
@@ -34,7 +36,26 @@ export default async function EnquiryPage({ params, searchParams }: Props) {
 
   const canEdit = staff.can("enquiries.edit");
   const payload = (e.payload && typeof e.payload === "object" && !Array.isArray(e.payload) ? e.payload : {}) as Record<string, unknown>;
-  const details = Object.entries(payload).filter(([, v]) => v !== null && v !== "" && !(Array.isArray(v) && v.length === 0));
+  // Location fields are shown on the map card instead of in the list.
+  const LOCATION_KEYS = new Set(["care_lat", "care_lng", "location_source", "location_accuracy_m", "care_address", "digital_address", "care_recipient_location"]);
+  const details = Object.entries(payload).filter(([k, v]) => !LOCATION_KEYS.has(k) && v !== null && v !== "" && !(Array.isArray(v) && v.length === 0));
+  const isCareRequest = e.enquiry_type === "care_request";
+  const p = (k: string) => (typeof payload[k] === "string" ? (payload[k] as string) : null);
+  const pinLat = typeof payload.care_lat === "number" ? payload.care_lat : null;
+  const pinLng = typeof payload.care_lng === "number" ? payload.care_lng : null;
+  const SOURCE: Record<string, string> = { gps: "their phone's location", map: "a pin they dropped on the map", search: "a place they searched for" };
+  const { data: existingClient } = isCareRequest
+    ? await staff.supabase.from("care_clients").select("id, full_name").eq("source_enquiry_id", e.id).maybeSingle()
+    : { data: null };
+  const canConvert = isCareRequest && !existingClient && staff.can("clients.create") && staff.can("enquiries.edit");
+  const recipientName = p("care_recipient_name") || (p("who_needs_care") === "Myself" ? e.full_name : "");
+  const summary = [
+    Array.isArray(payload.support_types) ? `Support: ${(payload.support_types as string[]).join(", ")}` : null,
+    p("frequency") ? `How often: ${p("frequency")}` : null,
+    e.message,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const topic = CONTACT_TOPICS.find((t) => t.value === e.enquiry_type)?.label ?? e.enquiry_type;
 
   return (
@@ -54,6 +75,51 @@ export default async function EnquiryPage({ params, searchParams }: Props) {
             {e.subject && <p className="mb-2 font-semibold text-brand-900">{e.subject}</p>}
             <p className="whitespace-pre-wrap">{e.message || <span className="text-muted">No message.</span>}</p>
           </Card>
+
+          {isCareRequest && (p("care_recipient_location") || p("care_address") || p("digital_address") || pinLat != null) && (
+            <Card title="Where care will happen">
+              <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                {p("care_recipient_location") && (
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Town / area</dt>
+                    <dd>{p("care_recipient_location")}</dd>
+                  </div>
+                )}
+                {p("digital_address") && (
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Ghana Post digital address</dt>
+                    <dd className="font-mono">{p("digital_address")}</dd>
+                  </div>
+                )}
+                {p("care_address") && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted">House address or directions</dt>
+                    <dd className="whitespace-pre-line">{p("care_address")}</dd>
+                  </div>
+                )}
+              </dl>
+              {pinLat != null && pinLng != null ? (
+                <div className="mt-4">
+                  <iframe
+                    title="Map of where care will happen"
+                    src={mapsEmbed(pinLat, pinLng)}
+                    className="h-64 w-full rounded-xl border border-gray-200"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <p className="mt-2 text-sm text-muted">
+                    Pinned from {SOURCE[p("location_source") ?? ""] ?? "the form"}
+                    {typeof payload.location_accuracy_m === "number" ? `, accurate to about ${payload.location_accuracy_m} m` : ""}.{" "}
+                    <a href={mapsLink(pinLat, pinLng)} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-700 underline">
+                      Open in Google Maps ↗
+                    </a>
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted">No map pin was given. Ask for a Google Maps location when you call.</p>
+              )}
+            </Card>
+          )}
 
           {details.length > 0 && (
             <Card title="Form details">
@@ -141,6 +207,70 @@ export default async function EnquiryPage({ params, searchParams }: Props) {
               </div>
             </dl>
           </Card>
+
+          {isCareRequest && existingClient && (
+            <Card title="Client record">
+              <p className="text-sm">
+                Created from this request:{" "}
+                <Link href={`/admin/care-clients/${existingClient.id}`} className="font-semibold text-brand-700 underline">
+                  {existingClient.full_name}
+                </Link>
+              </p>
+            </Card>
+          )}
+
+          {canConvert && (
+            <Card title="Create client record">
+              <p className="mb-3 text-sm text-muted">
+                When you&apos;ve agreed to provide care, turn this request into a client. Check the details below; you can change them later.
+              </p>
+              <ActionForm action={createClientFromEnquiry} submitLabel="Create client record" inline>
+                <input type="hidden" name="enquiry_id" value={e.id} />
+                <input type="hidden" name="home_lat" value={pinLat ?? ""} />
+                <input type="hidden" name="home_lng" value={pinLng ?? ""} />
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-brand-900">
+                    Full name of the person who needs care
+                    <input name="full_name" required maxLength={120} defaultValue={recipientName} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Name they like to be called
+                    <input name="preferred_name" maxLength={60} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Area
+                    <input name="area" maxLength={120} defaultValue={p("care_recipient_location") ?? ""} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    House address or directions
+                    <input name="address" maxLength={300} defaultValue={p("care_address") ?? ""} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Ghana Post digital address
+                    <input name="digital_address" maxLength={14} defaultValue={p("digital_address") ?? ""} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Care notes for the care worker
+                    <textarea name="care_summary" rows={4} maxLength={2000} defaultValue={summary.slice(0, 2000)} className={adminInput} />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Emergency contact
+                    <input
+                      name="emergency_contact_name"
+                      maxLength={120}
+                      defaultValue={p("who_needs_care") && p("who_needs_care") !== "Myself" ? `${e.full_name} (asked for care: ${String(p("who_needs_care")).toLowerCase()})` : e.full_name}
+                      className={adminInput}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium text-brand-900">
+                    Emergency contact phone
+                    <input name="emergency_contact_phone" maxLength={40} defaultValue={e.phone ?? ""} className={adminInput} />
+                  </label>
+                  <p className="text-xs text-muted">{pinLat != null ? "The map pin becomes the home location used to check care workers' visits." : "No map pin: you can add the home location on the client page later."}</p>
+                </div>
+              </ActionForm>
+            </Card>
+          )}
 
           {canEdit && (
             <Card title="Status">

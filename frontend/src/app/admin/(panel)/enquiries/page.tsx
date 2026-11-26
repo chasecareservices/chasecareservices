@@ -92,10 +92,14 @@ export default async function EnquiriesPage({ searchParams }: Props) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {(rows ?? []).map((e) => (
-              <tr key={e.id} className="hover:bg-gray-50">
+              <tr key={e.id} className="relative cursor-pointer hover:bg-brand-50 focus-within:bg-brand-50">
                 <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDateTime(e.created_at)}</td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/enquiries/${e.id}`} className="font-semibold text-brand-800 underline-offset-2 hover:underline">
+                  {/* The link covers the whole row, so anywhere on it opens the enquiry. */}
+                  <Link
+                    href={`/admin/enquiries/${e.id}`}
+                    className="font-semibold text-brand-800 underline underline-offset-2 after:absolute after:inset-0 after:content-['']"
+                  >
                     {e.full_name}
                   </Link>
                   <span className="block text-muted">

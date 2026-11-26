@@ -10,6 +10,8 @@ type Client = {
   is_active?: boolean;
   home_lat?: number | null;
   home_lng?: number | null;
+  address?: string | null;
+  digital_address?: string | null;
 };
 
 /** The client form fields, shared by "Add a client" and the client page. */
@@ -28,7 +30,14 @@ export function ClientFields({ client = {}, showActive = false }: { client?: Cli
         Area
         <input name="area" maxLength={120} defaultValue={client.area ?? ""} placeholder="e.g. Spintex Road" className={adminInput} />
       </label>
-      <span className="hidden md:block" />
+      <label className="text-sm font-medium text-brand-900">
+        Ghana Post digital address
+        <input name="digital_address" maxLength={14} defaultValue={client.digital_address ?? ""} placeholder="e.g. GA-183-8164" className={adminInput} />
+      </label>
+      <label className="text-sm font-medium text-brand-900 md:col-span-2">
+        House address or directions
+        <input name="address" maxLength={300} defaultValue={client.address ?? ""} placeholder="e.g. Blue gate opposite the Shell station" className={adminInput} />
+      </label>
       <label className="text-sm font-medium text-brand-900 md:col-span-2">
         Care notes for the care worker
         <textarea

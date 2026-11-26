@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
         source: "/portal/:path*",
         headers: [{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" }],
       },
+      {
+        // The "I need care" form can use the phone's location to pin where care will happen.
+        source: "/register/:path*",
+        headers: [{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" }],
+      },
     ];
   },
 };
