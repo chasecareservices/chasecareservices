@@ -126,3 +126,21 @@ insert into public.care_plans (client_id, about_me, goals, visit_tasks, risks, m
    null,
    current_date - 3)
 on conflict (client_id) do nothing;
+
+-- Demo visits (local only): yesterday (one done, one missed), today and the coming days.
+insert into public.care_shifts (client_id, worker_id, shift_date, start_time, end_time, notes)
+select v.client::uuid, u.id, current_date + v.day_offset, v.st::time, v.en::time, v.notes
+from (values
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local', -1, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c002', 'carer@chasecare.local', -1, '15:00', '18:00', 'After school'),
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local',  0, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c002', 'carer@chasecare.local',  0, '15:00', '18:00', 'After school'),
+  ('00000000-0000-4000-8000-00000000c001', 'carer@chasecare.local',  1, '09:00', '13:00', null),
+  ('00000000-0000-4000-8000-00000000c003', 'carer2@chasecare.local', 0, '08:00', '11:00', null)
+) as v(client, email, day_offset, st, en, notes)
+join auth.users u on u.email = v.email;
+
+-- Yesterday's morning visit with Auntie Akosua was reported; the afternoon one with Kofi was missed.
+insert into public.care_reports (client_id, worker_id, visit_date, start_time, end_time, mood, summary, location_status)
+select '00000000-0000-4000-8000-00000000c001', u.id, current_date - 1, '09:00', '13:00', 'good', 'Lunch, walking exercises and a long chat about her grandchildren.', 'not_recorded'
+from auth.users u where u.email = 'carer@chasecare.local';

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConcernBadge, Mood, ReportStatus, formatVisitDate } from "@/components/portal/ReportBits";
+import { ConcernBadge, Mood, ReportStatus, VisitStatus, formatVisitDate, hhmm } from "@/components/portal/ReportBits";
 import { todayInGhana } from "@/lib/care";
 import { requireWorker } from "@/lib/portal/session";
 
@@ -53,7 +53,8 @@ function greeting(now = new Date()) {
 export default async function PortalHome() {
   const worker = await requireWorker();
   const today = todayInGhana();
-  const [{ data: clients }, { data: recent }, { data: todays }, { data: plans }] = await Promise.all([
+  const weekAhead = new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
+  const [{ data: clients }, { data: recent }, { data: todays }, { data: plans }, { data: shifts }] = await Promise.all([
     worker.supabase.from("care_clients").select("id, full_name, preferred_name, area, care_summary").order("full_name"),
     worker.supabase
       .from("care_reports")
@@ -63,7 +64,22 @@ export default async function PortalHome() {
       .limit(5),
     worker.supabase.from("care_reports").select("client_id").eq("worker_id", worker.user.id).eq("visit_date", today),
     worker.supabase.from("care_plans").select("client_id, about_me, visit_tasks, risks, medication_notes"),
+    worker.supabase
+      .from("care_shift_status")
+      .select("id, client_id, shift_date, start_time, end_time, notes, visit_status")
+      .eq("worker_id", worker.user.id)
+      .gte("shift_date", today)
+      .lte("shift_date", weekAhead)
+      .neq("visit_status", "cancelled")
+      .order("shift_date")
+      .order("start_time"),
   ]);
+  const clientName = (id: string) => {
+    const c = (clients ?? []).find((x) => x.id === id);
+    return c ? c.preferred_name || c.full_name : "Client";
+  };
+  const visitsToday = (shifts ?? []).filter((v) => v.shift_date === today);
+  const comingUp = (shifts ?? []).filter((v) => v.shift_date > today);
   const planFor = new Map((plans ?? []).map((p) => [p.client_id, p]));
   const reportedToday = new Set((todays ?? []).map((r) => r.client_id));
   const notes = (recent ?? []).filter((r) => r.office_note);
@@ -77,6 +93,55 @@ export default async function PortalHome() {
         <p className="mt-1 text-muted">
           {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date())}
         </p>
+      </section>
+
+      <section aria-labelledby="visits-h">
+        <h2 id="visits-h" className="text-xl font-bold text-brand-900">
+          Your visits today
+        </h2>
+        {!visitsToday.length ? (
+          <p className="mt-2 text-muted">No visits booked for today.</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {visitsToday.map((v) => (
+              <li key={v.id!} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-brand-100">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-bold text-brand-900">
+                      {hhmm(v.start_time!)} – {hhmm(v.end_time!)}
+                    </p>
+                    <p className="text-ink">{clientName(v.client_id!)}</p>
+                    {v.notes && <p className="text-sm text-muted">{v.notes}</p>}
+                  </div>
+                  <VisitStatus status={v.visit_status!} />
+                </div>
+                {v.visit_status !== "done" && (
+                  <Link
+                    href={`/portal/report/new?shift=${v.id}`}
+                    className="mt-3 flex min-h-12 items-center justify-center rounded-full bg-accent-500 px-5 font-semibold text-brand-950 hover:bg-accent-400"
+                  >
+                    Write report for this visit
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {comingUp.length > 0 && (
+          <details className="mt-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-brand-100">
+            <summary className="min-h-8 cursor-pointer font-semibold text-brand-800">Coming up this week ({comingUp.length})</summary>
+            <ul className="mt-2 divide-y divide-brand-100 text-sm">
+              {comingUp.map((v) => (
+                <li key={v.id!} className="flex justify-between gap-3 py-2">
+                  <span>
+                    <strong className="text-brand-900">{formatVisitDate(v.shift_date!)}</strong> · {hhmm(v.start_time!)}–{hhmm(v.end_time!)}
+                  </span>
+                  <span className="text-right text-ink">{clientName(v.client_id!)}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </section>
 
       {notes.length > 0 && (
@@ -93,7 +158,7 @@ export default async function PortalHome() {
 
       <section aria-labelledby="clients-h">
         <h2 id="clients-h" className="text-xl font-bold text-brand-900">
-          Who are you caring for today?
+          Your clients
         </h2>
         {!clients?.length ? (
           <p className="mt-3 rounded-2xl bg-white p-5 text-muted ring-1 ring-brand-100">

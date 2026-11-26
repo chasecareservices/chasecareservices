@@ -132,6 +132,8 @@ export const mapsEmbed = (lat: number, lng: number) => `https://maps.google.com/
 /** The answers a care worker gives, as typed in the form. */
 export type ReportInput = {
   client_id: string;
+  /** The booked visit this report is for, if any. */
+  shift_id?: string;
   visit_date: string;
   start_time: string;
   end_time: string;
@@ -198,6 +200,7 @@ export function validateReport(
   };
 
   if (!v.client_id) errors.client_id = "Choose who you visited.";
+  if (v.shift_id && !/^[0-9a-f-]{36}$/.test(v.shift_id)) v.shift_id = "";
   if (needLocation) {
     const loc = v.location;
     if (!loc) errors.location = "Share your location, or choose to send without it.";

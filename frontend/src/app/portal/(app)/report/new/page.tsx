@@ -6,14 +6,19 @@ import { requireWorker } from "@/lib/portal/session";
 
 export const metadata = { title: "New report" };
 
-export default async function NewReportPage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
-  const { client } = await searchParams;
+export default async function NewReportPage({ searchParams }: { searchParams: Promise<{ client?: string; shift?: string }> }) {
+  const { client, shift: shiftId } = await searchParams;
   const worker = await requireWorker();
   const [{ data: clients }, settings, { data: plans }] = await Promise.all([
     worker.supabase.from("care_clients").select("id, full_name, preferred_name").order("full_name"),
     getSiteSettings(),
     worker.supabase.from("care_plans").select("client_id, visit_tasks"),
   ]);
+  // From "Write report" on a booked visit: prefill its client, day and times.
+  const { data: shift } =
+    shiftId && /^[0-9a-f-]{36}$/.test(shiftId)
+      ? await worker.supabase.from("care_shifts").select("id, client_id, shift_date, start_time, end_time").eq("id", shiftId).maybeSingle()
+      : { data: null };
   const list = (clients ?? []).map((c) => ({ id: c.id, name: c.preferred_name || c.full_name, fullName: c.full_name }));
 
   if (!list.length) {
@@ -29,11 +34,18 @@ export default async function NewReportPage({ searchParams }: { searchParams: Pr
   }
 
   // Sensible defaults: the chosen (or only) client, today's date. The worker can change any of them.
-  const chosen = list.find((c) => c.id === client)?.id ?? (list.length === 1 ? list[0].id : "");
+  const chosen = shift?.client_id ?? list.find((c) => c.id === client)?.id ?? (list.length === 1 ? list[0].id : "");
   return (
     <ReportForm
       clients={list}
-      initial={{ ...EMPTY_REPORT, client_id: chosen, visit_date: todayInGhana() }}
+      initial={{
+        ...EMPTY_REPORT,
+        client_id: chosen,
+        visit_date: shift && shift.shift_date <= todayInGhana() ? shift.shift_date : todayInGhana(),
+        start_time: shift?.start_time.slice(0, 5) ?? "",
+        end_time: shift?.end_time.slice(0, 5) ?? "",
+        shift_id: shift?.id ?? "",
+      }}
       officePhone={settings.phone}
       planTasks={Object.fromEntries((plans ?? []).map((p) => [p.client_id, p.visit_tasks]))}
     />

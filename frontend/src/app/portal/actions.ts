@@ -11,12 +11,14 @@ export type SaveResult = { errors?: ReportErrors; message?: string } | undefined
 
 function friendly(message: string) {
   if (/already been read/i.test(message)) return "The office has already read this report, so it can't be changed. Please call the office.";
+  if (/visit is not yours/i.test(message)) return "That visit isn't on your schedule. Please choose your client again, or call the office.";
   if (/row-level security|permission/i.test(message)) return "You can only write reports for the people you are assigned to. Please call the office if this looks wrong.";
   return "Your report could not be sent. Check your connection and try again — nothing you typed has been lost.";
 }
 
 const columns = (v: ReportInput) => ({
   client_id: v.client_id,
+  shift_id: v.shift_id || null,
   visit_date: v.visit_date,
   start_time: v.start_time || null,
   end_time: v.end_time || null,

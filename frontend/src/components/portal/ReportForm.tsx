@@ -382,6 +382,7 @@ export function ReportForm({
                 onChange={(v) => {
                   set("client_id", v as string);
                   set("tasks_done", []); // ticks belong to the previous client's plan
+                  set("shift_id", ""); // and the booked visit was for the previous client
                 }}
                 error={errors.client_id}
               />

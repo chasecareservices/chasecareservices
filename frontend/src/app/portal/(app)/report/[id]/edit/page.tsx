@@ -39,6 +39,7 @@ export default async function EditReportPage({ params }: { params: Promise<{ id:
       officePhone={settings.phone}
       initial={{
         client_id: r.client_id,
+        shift_id: r.shift_id ?? "",
         visit_date: r.visit_date,
         start_time: r.start_time?.slice(0, 5) ?? "",
         end_time: r.end_time?.slice(0, 5) ?? "",

@@ -15,9 +15,11 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   }
 
   let careToRead = 0;
+  let missedVisits = 0;
   if (staff.can("care_ops.view")) {
-    const { data } = await staff.supabase.rpc("care_report_counts");
+    const [{ data }, { data: missed }] = await Promise.all([staff.supabase.rpc("care_report_counts"), staff.supabase.rpc("missed_visit_count")]);
     careToRead = Number(data?.[0]?.to_read ?? 0);
+    missedVisits = Number(missed ?? 0);
   }
 
   const contentLinks = RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({
@@ -36,6 +38,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       title: "Care",
       items: [
         ...(staff.can("care_ops.view") ? [{ label: "Care reports", href: "/admin/care-reports", badge: careToRead }] : []),
+        ...(staff.can("care_ops.view") ? [{ label: "Visit schedule", href: "/admin/care-schedule", badge: missedVisits }] : []),
         ...(staff.can("clients.view") ? [{ label: "Clients & care workers", href: "/admin/care-clients" }] : []),
       ],
     },
