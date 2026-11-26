@@ -26,6 +26,7 @@ optional note → **Mark as read**.
 ## Principles applied
 
 ### Norman
+
 | Principle | Where |
 |---|---|
 | **Visibility / discoverability** | The three things a worker does (Today, New report, My reports) are always visible in the bottom tab bar. "Call office" is always in the header. |
@@ -36,6 +37,7 @@ optional note → **Mark as read**.
 | **Conceptual model** | A report is like a paper visit sheet handed to the office: *Sent* → *Read by the office*. Same words in the portal and the dashboard. |
 
 ### Shneiderman's 8 Golden Rules
+
 1. **Consistency** — the same labels, badges ("‼ Urgent", "✓ Sent", "✓✓ Read by the office") and mood words in both the portal and the dashboard (one shared source: `src/lib/care.ts`).
 2. **Universal usability** — works for first-time and experienced workers; large text (17px base), large targets, keyboard and screen-reader support.
 3. **Informative feedback** — see Norman: feedback above.
@@ -46,6 +48,7 @@ optional note → **Mark as read**.
 8. **Reduce memory load** — the worker never types a client name or remembers codes; their clients and care notes are shown; the review screen shows everything at once.
 
 ### Nielsen's 10 heuristics
+
 | # | Heuristic | Where |
 |---|---|---|
 | 1 | Visibility of system status | "Step 2 of 4" + progress bar; autosave status; Sent / Read status on every report; unread badge in the office sidebar. |
@@ -60,11 +63,13 @@ optional note → **Mark as read**.
 | 10 | Help and documentation | Short hints under questions; "Emergency? Call 112 first"; "Call office" always available. |
 
 ### Cognitive load (Week 1)
+
 - One task per screen and 4–5 options per question.
 - Chunking into three named steps.
 - Icons always paired with words (never icon-only, never colour-only).
 
 ### WCAG 2.2 AA (Week 6)
+
 - **Perceivable:** text contrast ≥ 4.5:1 (the orange used for small text was darkened site-wide to pass); urgency shown with text and symbols, not colour alone.
 - **Operable:** every control works by keyboard; visible focus rings; touch targets 48–56px (WCAG minimum is 24px); no time limits.
 - **Understandable:** visible labels linked to fields; errors identified in text and linked with `aria-describedby`; consistent navigation; the worker never re-enters information already given (WCAG 2.2 *Redundant Entry*).
@@ -72,6 +77,7 @@ optional note → **Mark as read**.
 - Checked with axe (WCAG 2.2 AA rules): no violations on the portal screens or the office screens.
 
 ### Designing for Ghana (Week 7)
+
 - **Mobile first** — designed for a phone, then widened for the office's laptop.
 - **Thumb zone** — Continue / Send and the tab bar are at the bottom of the screen.
 - **Interruptions** — answers are saved on the phone as they are typed; the next visit to "New report" offers to continue.
@@ -103,6 +109,7 @@ not proof. Location access is allowed only on the portal pages (browser `Permiss
 the rest of the website.
 
 ## Privacy and safety (Data Protection Act, 2012 — Act 843)
+
 - Care workers only see the clients assigned to them, and only their own reports (enforced by the database, tested in `backend/supabase/tests/database/07_care_reports.test.sql`).
 - Reports cannot be deleted, and every change is recorded in the Activity log.
 - Locations are taken once per report with the worker's knowledge, never in the background, and only office staff with care permissions can see them.
@@ -110,4 +117,5 @@ the rest of the website.
 - Urgent concerns tell the worker to call the office, or 112 if anyone is in danger — the report is never the only alarm.
 
 ## Next steps (from user testing)
+
 Test with 3–5 real care workers on their own phones (formative evaluation, Week 5): time to send a report, errors made, and how they rate it. Ideas to try next: email/SMS to the office for urgent reports, Twi labels, and an offline queue for sending when the network returns.
