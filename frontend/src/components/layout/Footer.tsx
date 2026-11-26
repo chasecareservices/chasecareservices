@@ -14,7 +14,7 @@ const QUICK_LINKS = [
   { label: "Respite & Accommodation", href: "/respite" },
   { label: "ChaseCare Academy", href: "/academy" },
   { label: "Join Our Team", href: "/join-our-team" },
-  { label: "The ChaseCare Journal", href: "/journal" },
+  { label: "News & Blog", href: "/journal" },
 ];
 
 /** Used if the footer menu in the database is empty: the policies in src/lib/legal. */
