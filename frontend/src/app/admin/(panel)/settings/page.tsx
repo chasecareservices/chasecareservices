@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { saveSettings } from "./actions";
-import { saveAlertRecipients } from "./alert-actions";
+import { saveAlertRecipients, sendTestEmail } from "./alert-actions";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { ALERT_TOPICS } from "@/lib/email/notify";
 import { emailTransport } from "@/lib/email/send";
@@ -43,7 +43,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   return (
     <>
       {saved === "alerts" && <Notice>Alert emails saved.</Notice>}
-      {saved && saved !== "alerts" && <Notice>Settings saved. The website has been updated.</Notice>}
+      {saved === "test-email" && <Notice>Test email sent to {staff.user.email}. Check that inbox (and the spam folder).</Notice>}
+      {saved && saved !== "alerts" && saved !== "test-email" && <Notice>Settings saved. The website has been updated.</Notice>}
       {error === "email" && <Notice tone="error">Please enter a valid email address.</Notice>}
       {error === "save" && <Notice tone="error">The settings could not be saved. Please try again.</Notice>}
       <PageHeader title="Site settings" intro={`Contact details and information shown across the website. Last changed ${formatDateTime(s.updated_at)}.`} />
@@ -176,6 +177,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               Email sending isn&apos;t switched on yet: add SMTP_USER and SMTP_PASS (e.g. the office Gmail and an App Password) in
               Vercel&apos;s settings. Until then no alerts are sent, but everything still appears in the dashboard.
             </Notice>
+          )}
+          {canEdit && emailVia && (
+            <div className="mb-4">
+              <ActionForm action={sendTestEmail} submitLabel={`Send a test email to ${staff.user.email}`} pendingLabel="Sending…" secondary inline>
+                <span />
+              </ActionForm>
+            </div>
           )}
           <p className="mb-4 text-sm text-muted">
             Who is emailed when something needs attention. One address per line. If a box is empty, alerts go to the contact email above

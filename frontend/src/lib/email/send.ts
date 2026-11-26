@@ -72,7 +72,8 @@ export async function sendEmail(email: Email): Promise<SendResult> {
       return { sent: true, via };
     } catch (e) {
       console.error("[email] SMTP send failed:", e instanceof Error ? e.message : e);
-      return { sent: false, via, reason: "smtp-error" };
+      const code = (e as { code?: string } | null)?.code;
+      return { sent: false, via, reason: code === "EAUTH" ? "smtp-auth" : code === "ETIMEDOUT" || code === "ECONNECTION" ? "smtp-connection" : "smtp-error" };
     }
   }
 
