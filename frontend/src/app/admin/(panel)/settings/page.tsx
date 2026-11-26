@@ -3,6 +3,7 @@ import { saveSettings } from "./actions";
 import { saveAlertRecipients } from "./alert-actions";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { ALERT_TOPICS } from "@/lib/email/notify";
+import { emailTransport } from "@/lib/email/send";
 import { SOCIAL_NETWORKS } from "./fields";
 import { Card, Notice, PageHeader, adminButton, adminInput, formatDateTime } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
@@ -30,7 +31,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     staff.supabase.from("notification_recipients").select("topic, email").order("email"),
   ]);
   const alertList = (topic: string) => (alertRows ?? []).filter((r) => r.topic === topic).map((r) => r.email).join("\n");
-  const emailReady = Boolean(process.env.RESEND_API_KEY);
+  const emailVia = emailTransport();
   if (!s) return <Notice tone="error">Could not load the site settings.</Notice>;
 
   const canEdit = staff.can("settings.edit");
@@ -166,12 +167,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
       <section id="email-alerts" className="mt-10 scroll-mt-24">
         <Card title="Email alerts">
-          {emailReady ? (
-            <p className="mb-4 text-sm text-green-800">✓ Email sending is switched on.</p>
+          {emailVia ? (
+            <p className="mb-4 text-sm text-green-800">
+              ✓ Email sending is switched on ({emailVia === "smtp" ? `through ${process.env.SMTP_USER}` : "through Resend"}).
+            </p>
           ) : (
             <Notice tone="info">
-              Email sending isn&apos;t switched on yet: add the RESEND_API_KEY setting in Vercel. Until then no alerts are sent, but
-              everything still appears in the dashboard.
+              Email sending isn&apos;t switched on yet: add SMTP_USER and SMTP_PASS (e.g. the office Gmail and an App Password) in
+              Vercel&apos;s settings. Until then no alerts are sent, but everything still appears in the dashboard.
             </Notice>
           )}
           <p className="mb-4 text-sm text-muted">
