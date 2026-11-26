@@ -48,7 +48,7 @@ Sign-in for Chase Care staff, separate from the public site (not indexed by sear
 | Staff & roles | `users.view` / `.edit` | Invite by email, give or remove roles, deactivate. Only a Super Admin can grant Super Admin; the last one can't be removed |
 | Homepage & banners | `content.edit` | The 4 homepage slides (photo, headings, text, two buttons) and a background photo for each page banner (saved with the `set_page_banners` database function) |
 | Services · Pages · Team & board · Partners · Testimonials · Menus | `content.*` | List, create, edit, publish/draft/archive, delete. Photos upload straight from the form |
-| The Journal | `blog.*` | Articles with headings (`## `), bullet lists (`- `), scheduled publishing, categories and tags |
+| The Journal | `blog.*` | Articles with headings (a line starting with `##`), bullet lists (a line starting with `-`), scheduled publishing, categories and tags |
 | Courses | `academy.*` · Shop products `shop.*` · Announcements `communications.*` | Same editor |
 | Media library | `media.*` | Upload up to 10 photos at once, folders, descriptions for screen readers, delete |
 | Activity log | `audit.view` | Every change with who, when and which fields — read-only |
