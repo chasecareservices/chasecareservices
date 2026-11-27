@@ -1,3 +1,4 @@
+import { compliance, stateInline, type Credential } from "@/lib/credentials";
 import Link from "next/link";
 import { ConcernBadge, Mood, ReportStatus, VisitStatus, formatVisitDate, hhmm } from "@/components/portal/ReportBits";
 import { todayInGhana } from "@/lib/care";
@@ -52,6 +53,13 @@ function greeting(now = new Date()) {
 
 export default async function PortalHome() {
   const worker = await requireWorker();
+  const { data: myCreds } = await worker.supabase
+    .from("worker_credentials")
+    .select("id, doc_type, title, reference, issued_on, expires_on, status, note, created_at")
+    .eq("worker_id", worker.user.id);
+  const docRows = compliance((myCreds ?? []) as Credential[], [], new Date().toISOString().slice(0, 10)).filter(
+    (r) => r.required && !r.pending && (r.state === "expired" || r.state === "expiring" || r.state === "rejected"),
+  );
   const today = todayInGhana();
   const weekAhead = new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
   const [{ data: clients }, { data: recent }, { data: todays }, { data: plans }, { data: shifts }] = await Promise.all([
@@ -90,6 +98,14 @@ export default async function PortalHome() {
         <h1 className="text-3xl font-bold text-brand-900">
           {greeting()}, {worker.firstName}
         </h1>
+      {docRows.length > 0 && (
+        <div role="note" className={`mt-4 rounded-2xl p-4 ring-1 ${docRows.some((r) => r.state !== "expiring") ? "bg-red-50 text-red-950 ring-red-300" : "bg-amber-50 text-amber-950 ring-amber-300"}`}>
+          <p className="font-semibold">Please renew: {docRows.map((r) => `${r.label} (${stateInline(r)})`).join("; ")}</p>
+          <Link href="/portal/documents" className="mt-1 inline-block text-sm font-semibold underline">
+            Send the new details
+          </Link>
+        </div>
+      )}
         <p className="mt-1 text-muted">
           {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date())}
         </p>
@@ -275,6 +291,16 @@ export default async function PortalHome() {
         <p className="mt-1 text-sm text-ink">The days and hours you can work, and your leave. The office books visits around them.</p>
         <Link href="/portal/availability" className="mt-3 inline-flex min-h-12 items-center rounded-full px-5 font-semibold text-brand-800 ring-2 ring-brand-800 hover:bg-brand-50">
           Update my availability
+        </Link>
+      </section>
+
+      <section aria-labelledby="docs-h" className="rounded-2xl bg-white p-5 ring-1 ring-brand-100">
+        <h2 id="docs-h" className="text-lg font-bold text-brand-900">
+          My documents
+        </h2>
+        <p className="mt-1 text-sm text-ink">Your ID, police check and certificates, and when they expire.</p>
+        <Link href="/portal/documents" className="mt-3 inline-flex min-h-12 items-center rounded-full px-5 font-semibold text-brand-800 ring-2 ring-brand-800 hover:bg-brand-50">
+          My documents
         </Link>
       </section>
     </div>

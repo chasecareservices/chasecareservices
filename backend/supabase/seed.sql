@@ -269,3 +269,17 @@ update public.care_clients set required_skills = array['dementia', 'personal_car
 where id = '00000000-0000-4000-8000-00000000c001';
 update public.care_clients set required_skills = array['autism'], languages = array['English']
 where id = '00000000-0000-4000-8000-00000000c003';
+
+-- Worker documents (local only): Ama mostly in order (first aid expiring soon); Kwame's police check expired, and he sent a new one.
+insert into public.worker_credentials (worker_id, doc_type, reference, issued_on, expires_on, status)
+select u.id, v.t, v.r, v.i, v.e, v.s from auth.users u join (values
+  ('carer@chasecare.local', 'ghana_card', 'GHA-712345678-9', current_date - 900, current_date + 2700, 'verified'),
+  ('carer@chasecare.local', 'police_check', 'PC/ACC/2026/1182', current_date - 200, current_date + 165, 'verified'),
+  ('carer@chasecare.local', 'first_aid', 'FA-55102', current_date - 1070, current_date + 25, 'verified'),
+  ('carer@chasecare.local', 'safeguarding', null, current_date - 100, current_date + 265, 'verified'),
+  ('carer@chasecare.local', 'health_check', null, current_date - 60, current_date + 305, 'verified'),
+  ('carer2@chasecare.local', 'ghana_card', 'GHA-798765432-1', current_date - 400, current_date + 3200, 'verified'),
+  ('carer2@chasecare.local', 'police_check', 'PC/TEM/2025/0410', current_date - 380, current_date - 15, 'verified'),
+  ('carer2@chasecare.local', 'police_check', 'PC/TEM/2026/0921', current_date - 2, current_date + 363, 'pending'),
+  ('carer2@chasecare.local', 'first_aid', 'FA-60331', current_date - 300, current_date + 795, 'verified')
+) v(email, t, r, i, e, s) on u.email = v.email;

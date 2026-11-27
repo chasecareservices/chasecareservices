@@ -82,3 +82,16 @@ describe("availabilityFromForm", () => {
     expect(availabilityFromForm(f({ day_3: "on", from_3: "16:00", to_3: "08:00" }))).toEqual({ error: "On Wednesday the finish time must be after the start time." });
   });
 });
+
+describe("documents in matching", () => {
+  it("warns about expired documents and ranks the worker lower", () => {
+    const ok = { ...base, id: "ok", name: "Ok" };
+    const expired = { ...base, id: "exp", name: "Exp", on_care_team: true, certificates: ["Dementia Care"], document_blocks: ["Police check: expired 3 nov 2026"] };
+    const missing = { ...base, id: "mis", name: "Mis", document_warnings: ["Health check: missing"] };
+    const r = rankWorkers(client, monday, [expired, missing, ok]);
+    expect(r.map((m) => m.worker.id)).toEqual(["ok", "mis", "exp"]);
+    expect(r[2].blocked).toBe(true);
+    expect(r[2].checks[0]).toEqual({ ok: false, text: "Police check: expired 3 nov 2026" });
+    expect(r[1].checks[0]).toEqual({ ok: false, text: "Health check: missing" });
+  });
+});

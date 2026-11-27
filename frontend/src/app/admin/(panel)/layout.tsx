@@ -34,6 +34,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     newApplications = Number(data ?? 0);
   }
 
+  let docsAttention = 0;
+  if (staff.can("workforce.view") || staff.can("care_ops.view")) {
+    const { data } = await staff.supabase.rpc("credential_counts");
+    const c = data?.[0];
+    docsAttention = Number(c?.expired ?? 0) + Number(c?.expiring ?? 0) + Number(c?.to_check ?? 0);
+  }
+
   let wellbeingNew = 0;
   if (staff.can("wellbeing.view")) {
     const { data } = await staff.supabase.rpc("wellbeing_counts");
@@ -63,6 +70,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         ...(staff.can("clients.view") ? [{ label: "Clients", href: "/admin/clients" }] : []),
         ...(staff.can("clients.view") || staff.can("care_ops.view") ? [{ label: "Care workers", href: "/admin/care-workers" }] : []),
         ...(staff.can("workforce.view") ? [{ label: "Recruitment", href: "/admin/recruitment", badge: newApplications }] : []),
+        ...(staff.can("workforce.view") || staff.can("care_ops.view") ? [{ label: "Worker documents", href: "/admin/worker-documents", badge: docsAttention }] : []),
       ],
     },
     {

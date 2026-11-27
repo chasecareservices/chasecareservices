@@ -9,6 +9,8 @@ import { SKILLS, TIME_OFF_KINDS, WEEKDAYS, workerSkills } from "@/lib/matching";
 import { ConcernBadge, Mood, ReportStatus, VisitStatus, formatVisitDate, hhmm } from "@/components/portal/ReportBits";
 import { IncidentStatus, SeverityBadge } from "@/components/care/IncidentBits";
 import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
+import { CredentialsPanel } from "@/components/admin/CredentialsPanel";
+import type { Credential } from "@/lib/credentials";
 import { requireStaff } from "@/lib/admin/session";
 import { phoneDigits, whatsappLink } from "@/lib/format";
 import { formatIncidentTime, kindLabel } from "@/lib/incidents";
@@ -20,6 +22,10 @@ const SAVED: Record<string, string> = {
   availability: "Availability saved.",
   timeoff: "Time off added.",
   "timeoff-removed": "Time off removed.",
+  "doc-added": "Document recorded.",
+  "doc-removed": "Record removed.",
+  verified: "Accepted. The new expiry date is used for reminders.",
+  rejected: "Marked as not accepted. The care worker sees the reason in their portal.",
 };
 
 export default async function CareWorkerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
@@ -58,6 +64,10 @@ export default async function CareWorkerPage({ params, searchParams }: { params:
       ? staff.supabase.from("care_incidents").select("id, reference, occurred_at, kind, severity, status").eq("reported_by", id).order("occurred_at", { ascending: false }).limit(10)
       : Promise.resolve({ data: [] as never[] }),
   ]);
+  const canDocs = staff.can("workforce.view") || staff.can("care_ops.view");
+  const { data: creds } = canDocs
+    ? await staff.supabase.from("worker_credentials").select("id, doc_type, title, reference, issued_on, expires_on, status, note, created_at").eq("worker_id", id)
+    : { data: [] };
   const [{ data: profile }, { data: availability }, { data: timeOff }, { data: certs }] = await Promise.all([
     staff.supabase.from("worker_profiles").select("*").eq("worker_id", id).maybeSingle(),
     staff.supabase.from("worker_availability").select("weekday, start_time, end_time").eq("worker_id", id).order("weekday"),
@@ -174,6 +184,7 @@ export default async function CareWorkerPage({ params, searchParams }: { params:
             </Card>
           )}
 
+          {canDocs && <CredentialsPanel workerId={id} creds={(creds ?? []) as Credential[]} skills={profile?.skills ?? []} canEdit={staff.can("workforce.edit")} />}
           <DocumentsPanel owner={{ kind: "worker", id, name: w.full_name ?? w.email ?? "Care worker" }} />
         </div>
 

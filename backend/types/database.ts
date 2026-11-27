@@ -2627,6 +2627,69 @@ export type Database = {
           },
         ];
       };
+      worker_credentials: {
+        Row: {
+          created_at: string;
+          doc_type: string;
+          expires_on: string | null;
+          id: string;
+          issued_on: string | null;
+          note: string | null;
+          reference: string | null;
+          reminder_stage: number;
+          status: string;
+          submitted_by: string | null;
+          title: string | null;
+          updated_at: string;
+          verified_at: string | null;
+          verified_by: string | null;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          doc_type: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          note?: string | null;
+          reference?: string | null;
+          reminder_stage?: number;
+          status?: string;
+          submitted_by?: string | null;
+          title?: string | null;
+          updated_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          doc_type?: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          note?: string | null;
+          reference?: string | null;
+          reminder_stage?: number;
+          status?: string;
+          submitted_by?: string | null;
+          title?: string | null;
+          updated_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_credentials_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       worker_profiles: {
         Row: {
           gender: string | null;
@@ -2812,6 +2875,14 @@ export type Database = {
           options: string[];
           question: string;
           sort_order: number;
+        }[];
+      };
+      credential_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          expired: number;
+          expiring: number;
+          to_check: number;
         }[];
       };
       current_user_has_role: { Args: { role: string }; Returns: boolean };

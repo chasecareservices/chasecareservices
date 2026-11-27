@@ -130,3 +130,34 @@ export function enrolledAlert(p: { first_name: string; course_title: string }, s
   );
   return { subject: `You're enrolled: ${p.course_title}`, html, text };
 }
+
+const longDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const expiryWords = (d: string, today: string) => {
+  const left = Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400_000);
+  return left < 0 ? `expired on ${longDate(d)}` : left === 0 ? "expires today" : `expires on ${longDate(d)} (in ${left} ${left === 1 ? "day" : "days"})`;
+};
+
+/** To a care worker: a document needs renewing. */
+export function credentialWorkerReminder(p: { first_name: string; items: { label: string; expires_on: string }[]; today: string }, siteUrl: string) {
+  const expired = p.items.some((i) => i.expires_on < p.today);
+  const { html, text } = layout(
+    `Hello ${p.first_name}, ${expired ? "a document has expired" : "a document needs renewing soon"}`,
+    p.items.map((i) => [i.label, expiryWords(i.expires_on, p.today)] as [string, string]),
+    { label: "Send the new details", href: `${siteUrl}/portal/documents` },
+    `Please renew it and send the new details (and a photo or PDF) in your care worker portal, or bring it to the office.${expired ? " Until it's renewed you may not be booked for visits." : ""} Sent by Chase Care Services.`,
+  );
+  return { subject: expired ? "Action needed: a document has expired" : "Reminder: please renew your document", html, text };
+}
+
+/** To the office: documents expiring or expired today's run found. */
+export function credentialOfficeDigest(p: { items: { worker: string; label: string; expires_on: string }[]; to_check: number; today: string }, siteUrl: string) {
+  const rows: [string, string][] = p.items.map((i) => [i.worker, `${i.label}: ${expiryWords(i.expires_on, p.today)}`]);
+  if (p.to_check) rows.push(["Waiting to be checked", `${p.to_check} renewed ${p.to_check === 1 ? "document" : "documents"} sent by care workers`]);
+  const { html, text } = layout(
+    "Care worker documents need attention",
+    rows,
+    { label: "Open worker documents", href: `${siteUrl}/admin/worker-documents` },
+    "The care workers listed have also been emailed a reminder. Sent automatically by the Chase Care website.",
+  );
+  return { subject: `Worker documents: ${p.items.length} expiring or expired`, html, text };
+}

@@ -82,6 +82,10 @@ export type MatchWorker = {
   /** Minutes already booked in the visit's week. */
   week_minutes: number;
   on_care_team: boolean;
+  /** Required documents expired or not accepted: these block, e.g. "Police check: expired 3 nov 2026". */
+  document_blocks?: string[];
+  /** Required documents not recorded yet: a strong warning. */
+  document_warnings?: string[];
 };
 export type Check = { ok: boolean | null; text: string };
 export type Match = { worker: MatchWorker; score: number; blocked: boolean; checks: Check[] };
@@ -108,6 +112,17 @@ export function rankWorkers(client: MatchClient, slot: Slot, workers: MatchWorke
     if (clash) {
       blocked = true;
       checks.push({ ok: false, text: `Already booked ${hhmm(clash.start_time)}–${hhmm(clash.end_time)} with ${clash.client}` });
+    }
+
+    // Documents: no placement without valid checks. Expired or rejected ones block;
+    // ones not recorded yet are a strong warning (the office may not have entered them).
+    for (const p of w.document_blocks ?? []) {
+      blocked = true;
+      checks.push({ ok: false, text: p });
+    }
+    for (const p of w.document_warnings ?? []) {
+      score -= 30;
+      checks.push({ ok: false, text: p });
     }
 
     // Usual availability.

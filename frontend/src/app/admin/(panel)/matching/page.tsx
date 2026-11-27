@@ -3,6 +3,7 @@ import { bookVisit } from "../care-schedule/actions";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, PageHeader, adminInput } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
+import { compliance, stateInline, type Credential } from "@/lib/credentials";
 import { rankWorkers, skillLabel, weekOf, type MatchWorker } from "@/lib/matching";
 
 export const metadata = { title: "Find a care worker" };
@@ -34,7 +35,7 @@ export default async function MatchingPage({ searchParams }: Props) {
   let client: { id: string; full_name: string; required_skills: string[]; preferred_gender: string | null; languages: string[]; home_lat: number | null; home_lng: number | null } | null = null;
   if (ready) {
     const { monday, sunday } = weekOf(date);
-    const [{ data: c }, { data: workers }, { data: profiles }, { data: availability }, { data: off }, { data: shifts }, { data: team }, { data: certs }] = await Promise.all([
+    const [{ data: c }, { data: workers }, { data: profiles }, { data: availability }, { data: off }, { data: shifts }, { data: team }, { data: certs }, { data: creds }] = await Promise.all([
       sb.from("care_clients").select("id, full_name, required_skills, preferred_gender, languages, home_lat, home_lng").eq("id", clientId).maybeSingle(),
       sb.rpc("list_care_workers"),
       sb.from("worker_profiles").select("*"),
@@ -43,6 +44,7 @@ export default async function MatchingPage({ searchParams }: Props) {
       sb.from("care_shifts").select("worker_id, shift_date, start_time, end_time, client:care_clients(full_name)").neq("status", "cancelled").gte("shift_date", monday).lte("shift_date", sunday),
       sb.from("care_assignments").select("worker_id").eq("client_id", clientId).eq("is_active", true),
       sb.rpc("care_worker_certificates"),
+      sb.from("worker_credentials").select("id, worker_id, doc_type, title, reference, issued_on, expires_on, status, note, created_at"),
     ]);
     client = c;
     if (c) {
@@ -69,6 +71,14 @@ export default async function MatchingPage({ searchParams }: Props) {
               .map((s) => ({ start_time: s.start_time, end_time: s.end_time, client: (s.client as unknown as { full_name: string } | null)?.full_name ?? "another client" })),
             week_minutes: mine.reduce((sum, s) => sum + minutes(s.start_time, s.end_time), 0),
             on_care_team: (team ?? []).some((t) => t.worker_id === w.id),
+            // Checked against the visit date: a document valid today may have expired by then.
+            ...(() => {
+              const rows = compliance((creds ?? []).filter((x) => x.worker_id === w.id) as Credential[], p?.skills ?? [], date).filter((r) => r.required);
+              return {
+                document_blocks: rows.filter((r) => r.state === "expired" || r.state === "rejected").map((r) => `${r.label}: ${stateInline(r)}`),
+                document_warnings: rows.filter((r) => r.state === "missing").map((r) => `${r.label}: not recorded`),
+              };
+            })(),
           };
         });
       ranked = rankWorkers({ ...c, lat: c.home_lat, lng: c.home_lng }, { date, start, end }, list);
