@@ -50,7 +50,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     ],
   },
   {
-    image: { src: null, alt: "A caregiver supporting an elderly woman at home" },
+    image: { src: "/images/hero/slide-2-home-care.jpg", alt: "A caregiver in blue scrubs helping an older woman walk with a frame at home", focus: "55% 30%" },
     eyebrow: "Chase Care Services · Ghana",
     heading: "Quality Care. Compassionate Support. Empowered Lives.",
     text: "Professional, person-centred care and support for individuals and families in Ghana and across the diaspora.",
@@ -60,7 +60,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     ],
   },
   {
-    image: { src: null, alt: "A family video-calling a relative in Ghana" },
+    image: { src: "/images/hero/slide-3-diaspora.jpg", alt: "A caregiver and an older woman laughing together on a video call", focus: "45% 30%" },
     eyebrow: "Care from anywhere in the world",
     heading: "Your loved one is in Ghana. We're right there with them.",
     text: "Trusted care, welfare visits and regular updates for families living abroad.",
@@ -123,10 +123,10 @@ export const SECTION_IMAGES = {
     src: "/brand/chase-care-hero.jpg",
     alt: "A Chase Care Services caregiver checking on an elderly client",
   },
-  diaspora: { src: null, alt: "An elderly parent in Ghana smiling with their caregiver" },
+  diaspora: { src: "/images/home/home-diaspora.jpg", alt: "A smiling caregiver hugging an older woman on the sofa" },
   academy: { src: null, alt: "Trainees practising care skills" },
   wellbeing: { src: null, alt: "Care workers at a wellbeing session" },
-  community: { src: null, alt: "People at the ChaseCare Community Forum" },
+  community: { src: "/images/home/home-community.jpg", alt: "Older and younger people talking together around a table at a community meeting" },
 } satisfies Record<string, SiteImage>;
 
 /**
