@@ -181,8 +181,8 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                   </li>
                   <li>
                     or add one yourself in{" "}
-                    <Link href="/admin/care-clients" className="font-semibold text-brand-700 underline">
-                      Clients &amp; care workers → Add a client
+                    <Link href="/admin/clients" className="font-semibold text-brand-700 underline">
+                      Clients → Add a client
                     </Link>
                     .
                   </li>
@@ -191,7 +191,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
               <li>
                 <strong>2. A care worker.</strong>
                 {activeWorkers.length > 0 && <span className="ml-1 font-semibold text-green-800">✓ done</span>}{" "}
-                <Link href="/admin/care-clients#care-workers" className="font-semibold text-brand-700 underline">
+                <Link href="/admin/care-workers" className="font-semibold text-brand-700 underline">
                   Invite a care worker
                 </Link>{" "}
                 (they get an email to set up their account).
@@ -267,7 +267,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                 </label>
                 <p className="text-xs text-muted">
                   Any care worker can be booked: they&apos;re added to the client&apos;s care team automatically, so they can see the care plan and send reports. Missing a client?{" "}
-                  <Link href="/admin/care-clients" className="font-semibold text-brand-700 underline">
+                  <Link href="/admin/clients" className="font-semibold text-brand-700 underline">
                     Add one
                   </Link>{" "}
                   or create one from a{" "}

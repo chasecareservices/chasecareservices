@@ -186,6 +186,85 @@ export type Database = {
           },
         ];
       };
+      care_documents: {
+        Row: {
+          category: string;
+          client_id: string | null;
+          created_at: string;
+          drive_file_id: string;
+          id: string;
+          mime_type: string;
+          name: string;
+          report_id: string | null;
+          size_bytes: number;
+          uploaded_by: string;
+          worker_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: string;
+          client_id?: string | null;
+          created_at?: string;
+          drive_file_id: string;
+          id?: string;
+          mime_type: string;
+          name: string;
+          report_id?: string | null;
+          size_bytes: number;
+          uploaded_by?: string;
+          worker_id?: string | null;
+        };
+        Update: {
+          category?: string;
+          client_id?: string | null;
+          created_at?: string;
+          drive_file_id?: string;
+          id?: string;
+          mime_type?: string;
+          name?: string;
+          report_id?: string | null;
+          size_bytes?: number;
+          uploaded_by?: string;
+          worker_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "care_documents_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "care_clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_documents_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "care_reports";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_documents_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "care_shift_status";
+            referencedColumns: ["report_id"];
+          },
+          {
+            foreignKeyName: "care_documents_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "care_documents_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       care_family_links: {
         Row: {
           client_id: string;
@@ -1717,6 +1796,48 @@ export type Database = {
         }[];
       };
       current_user_has_role: { Args: { role: string }; Returns: boolean };
+      drive_connection_clear: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      drive_connection_get: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          account_email: string;
+          clients_folder_id: string;
+          connected_at: string;
+          refresh_token_enc: string;
+          root_folder_id: string;
+          workers_folder_id: string;
+        }[];
+      };
+      drive_connection_save: {
+        Args: {
+          account_email: string;
+          clients_folder_id: string;
+          connected_by: string;
+          refresh_token_enc: string;
+          root_folder_id: string;
+          workers_folder_id: string;
+        };
+        Returns: undefined;
+      };
+      drive_folder_get: {
+        Args: { owner_id: string; owner_kind: string };
+        Returns: string;
+      };
+      drive_folder_save: {
+        Args: { folder_id: string; owner_id: string; owner_kind: string };
+        Returns: undefined;
+      };
+      drive_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          account_email: string;
+          connected: boolean;
+          connected_at: string;
+        }[];
+      };
       enquiry_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { reviewReport, setHomeFromReport } from "../actions";
 import { VisitLocationPanel } from "@/components/admin/VisitLocation";
+import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, Notice, adminInput, formatDateTime } from "@/components/admin/ui";
 import { ConcernBadge, Mood, ReportStatus, formatVisitDate } from "@/components/portal/ReportBits";
@@ -100,6 +101,8 @@ export default async function CareReportPage({ params, searchParams }: { params:
           <Card title="How the visit went">
             <p className="whitespace-pre-line text-lg leading-relaxed">{r.summary}</p>
           </Card>
+
+          <DocumentsPanel owner={{ kind: "client", id: client.id, name: client.full_name }} reportId={r.id} />
 
           <Card title="Visit location">
             <VisitLocationPanel
