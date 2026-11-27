@@ -64,7 +64,13 @@ export async function createClientFromEnquiry(formData: FormData): Promise<{ err
     .select("id")
     .single();
   if (error || !client) {
-    return { error: error?.code === "23505" ? "A client record has already been created from this request." : "The client record could not be created. Please try again." };
+    if (error?.code === "23505") return { error: "A client record has already been created from this request." };
+    // A missing column means the live database hasn't had the latest update yet.
+    if (error?.code === "42703" || error?.code === "PGRST204") {
+      return { error: "The database needs an update before clients can be created this way: run chasecare-client-registration.sql in Supabase (SQL Editor), then try again." };
+    }
+    console.error("[clients] create from enquiry failed:", error?.code, error?.message);
+    return { error: "The client record could not be created. Please try again." };
   }
   await Promise.all([
     staff.supabase.from("enquiries").update({ status: "converted" }).eq("id", enquiryId),

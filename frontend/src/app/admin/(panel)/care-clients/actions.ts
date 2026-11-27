@@ -78,6 +78,9 @@ export async function saveClient(formData: FormData): Promise<Result> {
   const { data, error } = id
     ? await staff.supabase.from("care_clients").update(row).eq("id", id).select("id").single()
     : await staff.supabase.from("care_clients").insert(row).select("id").single();
+  if (error?.code === "42703" || error?.code === "PGRST204") {
+    return { error: "The database needs an update before the address fields can be saved: run chasecare-client-registration.sql in Supabase (SQL Editor), then try again." };
+  }
   if (error || !data) return { error: "The client could not be saved. Please try again." };
   revalidatePath("/admin/care-clients");
   redirect(`/admin/care-clients/${data.id}?saved=client`);
