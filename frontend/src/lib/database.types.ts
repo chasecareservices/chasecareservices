@@ -1399,6 +1399,152 @@ export type Database = {
         };
         Relationships: [];
       };
+      recruitment_applicants: {
+        Row: {
+          availability: string | null;
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          enquiry_id: string | null;
+          experience: string | null;
+          full_name: string;
+          id: string;
+          location: string | null;
+          phone: string | null;
+          role_applied: string | null;
+          stage: string;
+          stage_changed_at: string;
+          updated_at: string;
+          worker_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          availability?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          enquiry_id?: string | null;
+          experience?: string | null;
+          full_name: string;
+          id?: string;
+          location?: string | null;
+          phone?: string | null;
+          role_applied?: string | null;
+          stage?: string;
+          stage_changed_at?: string;
+          updated_at?: string;
+          worker_id?: string | null;
+        };
+        Update: {
+          availability?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          enquiry_id?: string | null;
+          experience?: string | null;
+          full_name?: string;
+          id?: string;
+          location?: string | null;
+          phone?: string | null;
+          role_applied?: string | null;
+          stage?: string;
+          stage_changed_at?: string;
+          updated_at?: string;
+          worker_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_applicants_enquiry_id_fkey";
+            columns: ["enquiry_id"];
+            isOneToOne: true;
+            referencedRelation: "enquiries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recruitment_applicants_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recruitment_checks: {
+        Row: {
+          applicant_id: string;
+          check_key: string;
+          checked_at: string;
+          checked_by: string | null;
+          note: string | null;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          applicant_id: string;
+          check_key: string;
+          checked_at?: string;
+          checked_by?: string | null;
+          note?: string | null;
+          status: string;
+        };
+        Update: {
+          applicant_id?: string;
+          check_key?: string;
+          checked_at?: string;
+          checked_by?: string | null;
+          note?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_checks_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "recruitment_applicants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recruitment_notes: {
+        Row: {
+          applicant_id: string;
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          applicant_id: string;
+          author_id?: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+        };
+        Update: {
+          applicant_id?: string;
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_notes_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "recruitment_applicants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recruitment_notes_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       role_permissions: {
         Row: {
           permission_key: string;
@@ -1741,6 +1887,224 @@ export type Database = {
           },
         ];
       };
+      wellbeing_messages: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          internal: boolean;
+          request_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          request_id: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          request_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellbeing_messages_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_messages_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: false;
+            referencedRelation: "wellbeing_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wellbeing_requests: {
+        Row: {
+          assigned_to: string | null;
+          closed_at: string | null;
+          contact_method: string;
+          contact_times: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          message: string;
+          reference: string;
+          service_id: string | null;
+          status: string;
+          updated_at: string;
+          urgency: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assigned_to?: string | null;
+          closed_at?: string | null;
+          contact_method?: string;
+          contact_times?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          message: string;
+          reference?: string;
+          service_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          urgency?: string;
+          worker_id?: string;
+        };
+        Update: {
+          assigned_to?: string | null;
+          closed_at?: string | null;
+          contact_method?: string;
+          contact_times?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          message?: string;
+          reference?: string;
+          service_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          urgency?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellbeing_requests_assigned_to_fkey";
+            columns: ["assigned_to"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_requests_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "wellbeing_services";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_requests_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wellbeing_resources: {
+        Row: {
+          audience: string;
+          created_at: string;
+          id: string;
+          kind: string;
+          place: string | null;
+          sort_order: number;
+          starts_at: string | null;
+          status: string;
+          summary: string | null;
+          title: string;
+          updated_at: string;
+          url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience?: string;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          place?: string | null;
+          sort_order?: number;
+          starts_at?: string | null;
+          status?: string;
+          summary?: string | null;
+          title: string;
+          updated_at?: string;
+          url?: string | null;
+        };
+        Update: {
+          audience?: string;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          place?: string | null;
+          sort_order?: number;
+          starts_at?: string | null;
+          status?: string;
+          summary?: string | null;
+          title?: string;
+          updated_at?: string;
+          url?: string | null;
+        };
+        Relationships: [];
+      };
+      wellbeing_services: {
+        Row: {
+          audience: string;
+          benefit: string | null;
+          created_at: string;
+          description: string | null;
+          how_to_access: string | null;
+          id: string;
+          kind: string;
+          location: string | null;
+          name: string;
+          phone: string | null;
+          provider: string | null;
+          sort_order: number;
+          status: string;
+          updated_at: string;
+          website_url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience?: string;
+          benefit?: string | null;
+          created_at?: string;
+          description?: string | null;
+          how_to_access?: string | null;
+          id?: string;
+          kind: string;
+          location?: string | null;
+          name: string;
+          phone?: string | null;
+          provider?: string | null;
+          sort_order?: number;
+          status?: string;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Update: {
+          audience?: string;
+          benefit?: string | null;
+          created_at?: string;
+          description?: string | null;
+          how_to_access?: string | null;
+          id?: string;
+          kind?: string;
+          location?: string | null;
+          name?: string;
+          phone?: string | null;
+          provider?: string | null;
+          sort_order?: number;
+          status?: string;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       care_shift_status: {
@@ -1919,6 +2283,21 @@ export type Database = {
           unsubscribed: number;
         }[];
       };
+      recruitment_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          n: number;
+          stage: string;
+        }[];
+      };
+      recruitment_missing_checks: {
+        Args: { applicant: string };
+        Returns: string[];
+      };
+      recruitment_new_applications: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
       search_site: {
         Args: { max_results?: number; query: string };
         Returns: {
@@ -1949,6 +2328,13 @@ export type Database = {
           website?: string;
         };
         Returns: string;
+      };
+      wellbeing_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          new_requests: number;
+          urgent_open: number;
+        }[];
       };
     };
     Enums: {

@@ -18,6 +18,7 @@ export async function saveAlertRecipients(formData: FormData): Promise<Result> {
   const lists = {
     [ALERT_TOPICS.enquiries]: parse(String(formData.get("enquiries") ?? "")),
     [ALERT_TOPICS.careConcerns]: parse(String(formData.get("care_concerns") ?? "")),
+    [ALERT_TOPICS.wellbeing]: parse(String(formData.get("wellbeing") ?? "")),
   };
   const bad = Object.values(lists).flat().find((e) => !EMAIL.test(e));
   if (bad) return { error: `“${bad}” doesn't look like an email address.` };

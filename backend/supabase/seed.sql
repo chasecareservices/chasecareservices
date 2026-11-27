@@ -26,6 +26,7 @@ begin
       ('editor@chasecare.local',   'Demo Content Editor',     'content_editor'),
       ('ops@chasecare.local',      'Demo Operations Manager', 'operations_manager'),
       ('training@chasecare.local', 'Demo Training Coordinator', 'training_coordinator'),
+      ('wellbeing@chasecare.local', 'Demo Wellbeing Officer',  'wellbeing_officer'),
       ('carer@chasecare.local',    'Ama Mensah (demo carer)',  'worker'),
       ('carer2@chasecare.local',   'Kwame Owusu (demo carer)', 'worker'),
       ('family@chasecare.local',   'Efua Boateng (demo family)', 'client')
@@ -161,3 +162,38 @@ alter table public.care_reports disable trigger care_reports_guard; -- demo data
 update public.care_reports set status = 'reviewed', reviewed_at = now(), office_note = 'Thanks Ama, lovely report.'
 where client_id = '00000000-0000-4000-8000-00000000c001' and visit_date = current_date - 1;
 alter table public.care_reports enable trigger care_reports_guard;
+
+-- Recruitment pipeline (local only): one new website application, plus applicants at different stages.
+insert into public.enquiries (enquiry_type, full_name, email, phone, message, payload, consent_given)
+values ('worker_application', 'Abena Owusu', 'abena.owusu@example.com', '+233 24 555 0101',
+        'I cared for my grandmother for three years and would love to do this work professionally.',
+        '{"role": "Caregiver", "location": "Kumasi, Ashanti", "travel_areas": "Kumasi and Ejisu", "availability": ["Full-time", "Weekends"], "experience_years": "1–3 years", "languages": ["Twi", "English"], "has_ghana_card": "Yes", "checks_consent": true}'::jsonb,
+        true);
+insert into public.recruitment_applicants (id, full_name, email, phone, role_applied, location, availability, stage) values
+  ('00000000-0000-4000-8000-0000000ea001', 'Kwame Asante', 'kwame.asante@example.com', '+233 20 555 0102', 'Nurse', 'Accra, East Legon', 'Full-time', 'screening'),
+  ('00000000-0000-4000-8000-0000000ea002', 'Esi Mensah', 'esi.mensah@example.com', '+233 27 555 0103', 'Healthcare assistant', 'Tema', 'Part-time, Nights', 'training'),
+  ('00000000-0000-4000-8000-0000000ea003', 'Yaw Boateng', null, '+233 55 555 0104', 'Caregiver', 'Cape Coast', 'Live-in', 'registered');
+insert into public.recruitment_checks (applicant_id, check_key, status) values
+  ('00000000-0000-4000-8000-0000000ea001', 'interview', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea001', 'id_verified', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'interview', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'id_verified', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'references', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'background_check', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'safeguarding_training', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'comp_practical', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'comp_communication', 'passed');
+
+-- Wellbeing Hub (local only): example services, resources and one request from Ama.
+insert into public.wellbeing_services (name, kind, provider, description, benefit, how_to_access, location, audience, status, sort_order) values
+  ('Confidential counselling', 'counselling', 'Chase Care wellbeing team', 'Talk to someone in confidence about stress, grief, burnout or anything on your mind. We arrange sessions with a qualified counsellor.', 'Free for ChaseCare care workers', 'Ask through the Wellbeing Hub in your portal.', 'In person or by phone', 'public', 'published', 10),
+  ('Health check referral', 'health', 'Demo partner clinic', 'A general health check, blood pressure and advice from a nurse.', null, 'Ask through the Wellbeing Hub and we will book you in.', 'Accra', 'workers', 'published', 20),
+  ('Laboratory tests', 'laboratory', 'Demo partner laboratory', 'Routine tests such as full blood count, malaria, hepatitis B and typhoid, when your role or your doctor needs them.', 'Discounted for ChaseCare workers', 'Ask through the Wellbeing Hub for a referral letter.', 'Accra and Kumasi', 'workers', 'published', 30),
+  ('Worker insurance', 'insurance', 'Chase Care Services', 'What our cover includes while you are working, and how to make a claim.', null, 'Ask the wellbeing team for the policy summary.', null, 'workers', 'published', 40);
+insert into public.wellbeing_resources (title, kind, summary, url, starts_at, place, audience, status) values
+  ('Looking after yourself as a carer', 'article', 'Simple daily habits that protect your energy, sleep and mood.', null, null, null, 'public', 'published'),
+  ('Coping with stress and burnout', 'webinar', 'An hour with a counsellor: spotting burnout early and what helps.', null, date_trunc('day', now()) + interval '8 days 16 hours', 'Online (link sent the day before)', 'workers', 'published'),
+  ('Monthly carers'' support circle', 'support_session', 'A relaxed, confidential space to share and be heard.', null, date_trunc('day', now()) + interval '15 days 17 hours', 'Chase Care office, Accra', 'workers', 'published');
+insert into public.wellbeing_requests (worker_id, kind, urgency, contact_method, contact_times, message)
+select u.id, 'counselling', 'soon', 'whatsapp', 'Weekday evenings', 'I have been finding it hard to sleep since one of my clients passed away last month.'
+from auth.users u where u.email = 'carer@chasecare.local';
