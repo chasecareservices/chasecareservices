@@ -55,3 +55,14 @@ export async function sendTestEmail(): Promise<Result> {
   if (!result.sent) return { error: TEST_FAILURES[result.reason ?? ""] ?? "The test email could not be sent. Please check the settings in Vercel and try again." };
   redirect(`/admin/settings?saved=test-email#email-alerts`);
 }
+
+/** Disconnects the company Google Drive (files stay in Drive; the website just stops using it). */
+export async function disconnectDrive(): Promise<Result> {
+  await requirePermission("settings.edit");
+  const { createSecretClient } = await import("@/lib/supabase/server-auth");
+  const admin = createSecretClient();
+  if (!admin) return { error: "Documents aren't set up yet." };
+  const { error } = await admin.rpc("drive_connection_clear");
+  if (error) return { error: "Could not disconnect. Please try again." };
+  redirect("/admin/settings?drive=disconnected#documents");
+}

@@ -45,7 +45,7 @@ export default async function CareReportsPage({ searchParams }: { searchParams: 
         title="Care reports"
         intro="Reports care workers send after each visit. Read them, reply with a note, and act on concerns."
         actions={
-          <Link href="/admin/care-clients" className="inline-flex min-h-11 items-center rounded-full border border-brand-300 px-4 text-sm font-semibold text-brand-800 hover:bg-brand-50">
+          <Link href="/admin/clients" className="inline-flex min-h-11 items-center rounded-full border border-brand-300 px-4 text-sm font-semibold text-brand-800 hover:bg-brand-50">
             Clients &amp; care workers
           </Link>
         }

@@ -46,7 +46,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         ...(staff.can("care_ops.view") ? [{ label: "Care reports", href: "/admin/care-reports", badge: careToRead }] : []),
         ...(staff.can("care_ops.view") ? [{ label: "Visit schedule", href: "/admin/care-schedule", badge: missedVisits }] : []),
         ...(staff.can("care_ops.view") ? [{ label: "Incidents", href: "/admin/incidents", badge: openIncidents }] : []),
-        ...(staff.can("clients.view") ? [{ label: "Clients & care workers", href: "/admin/care-clients" }] : []),
+        ...(staff.can("clients.view") ? [{ label: "Clients", href: "/admin/clients" }] : []),
+        ...(staff.can("clients.view") || staff.can("care_ops.view") ? [{ label: "Care workers", href: "/admin/care-workers" }] : []),
       ],
     },
     {

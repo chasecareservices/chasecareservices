@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { inviteFamily, saveAssignments, saveCarePlan, saveClient, setFamilyAccess } from "../actions";
 import { ClientFields } from "../ClientFields";
+import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { Card, Notice, PageHeader, adminInput, formatDateTime } from "@/components/admin/ui";
 import { ConcernBadge, Mood, formatVisitDate } from "@/components/portal/ReportBits";
@@ -39,12 +40,26 @@ export default async function CareClientPage({ params, searchParams }: { params:
       {saved === "family-linked" && <Notice>They already had a family account, so they can see this client in their portal now.</Notice>}
       {saved === "family-on" && <Notice>Family access switched on.</Notice>}
       {saved === "family-off" && <Notice>Family access switched off. They can no longer see this client.</Notice>}
-      <Link href="/admin/care-clients" className="text-sm font-semibold text-brand-700 underline underline-offset-4">
-        ← Clients &amp; care workers
+      <Link href="/admin/clients" className="text-sm font-semibold text-brand-700 underline underline-offset-4">
+        ← Clients
       </Link>
       <div className="mt-3">
         <PageHeader title={client.full_name} intro={client.area ?? undefined} />
       </div>
+
+      <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-2 text-sm">
+        {[
+          ["#care-plan", "Care plan"],
+          ["#documents", "Documents"],
+          ["#details", "Details & address"],
+          ["#family", "Family access"],
+          [`/admin/care-schedule`, "Visit schedule"],
+        ].map(([href, label]) => (
+          <a key={href} href={href} className="rounded-full bg-white px-4 py-2 font-semibold text-brand-800 ring-1 ring-gray-200 hover:bg-brand-50">
+            {label}
+          </a>
+        ))}
+      </nav>
 
       <section id="care-plan" className="mb-6 scroll-mt-24">
         <Card title="Care plan">
@@ -99,7 +114,11 @@ export default async function CareClientPage({ params, searchParams }: { params:
         </Card>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="mb-6">
+        <DocumentsPanel owner={{ kind: "client", id: client.id, name: client.full_name }} />
+      </div>
+
+      <div id="details" className="grid scroll-mt-24 gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <Card title="Details">
           {canEdit ? (
             <ActionForm action={saveClient} submitLabel="Save details" inline>
@@ -134,7 +153,7 @@ export default async function CareClientPage({ params, searchParams }: { params:
             {!workers?.length ? (
               <p className="text-sm text-muted">
                 No care workers yet.{" "}
-                <Link href="/admin/care-clients#care-workers" className="font-semibold text-brand-700 underline">
+                <Link href="/admin/care-workers" className="font-semibold text-brand-700 underline">
                   Invite one
                 </Link>
                 .

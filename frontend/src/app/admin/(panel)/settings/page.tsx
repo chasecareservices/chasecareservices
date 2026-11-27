@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { saveSettings } from "./actions";
-import { saveAlertRecipients, sendTestEmail } from "./alert-actions";
+import { disconnectDrive, saveAlertRecipients, sendTestEmail } from "./alert-actions";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { ALERT_TOPICS } from "@/lib/email/notify";
 import { emailTransport } from "@/lib/email/send";
+import { driveConfigured } from "@/lib/drive/google";
 import { SOCIAL_NETWORKS } from "./fields";
 import { Card, Notice, PageHeader, adminButton, adminInput, formatDateTime } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
@@ -23,8 +24,18 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ saved?: string; error?: string }> }) {
-  const { saved, error } = await searchParams;
+const DRIVE_NOTICES: Record<string, { tone: "success" | "error" | "info"; text: string }> = {
+  connected: { tone: "success", text: "Google Drive connected. Documents will be kept in the \"Chase Care Documents\" folder." },
+  disconnected: { tone: "info", text: "Google Drive disconnected. The files are still in Drive; the website no longer uses it." },
+  cancelled: { tone: "info", text: "Google Drive wasn't connected: the sign-in was cancelled." },
+  "no-refresh": { tone: "error", text: "Google didn't give lasting access. Remove \"Chase Care Website\" from your Google Account's third-party connections, then connect again." },
+  "no-permission": { tone: "error", text: "Google Drive access wasn't allowed. Connect again and tick the Google Drive box." },
+  "not-configured": { tone: "error", text: "Google Drive isn't set up yet: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET need adding in Vercel." },
+  failed: { tone: "error", text: "Google Drive couldn't be connected. Please try again." },
+};
+
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ saved?: string; error?: string; drive?: string }> }) {
+  const { saved, error, drive } = await searchParams;
   const staff = await requirePermission("settings.view");
   const [{ data: s }, { data: alertRows }] = await Promise.all([
     staff.supabase.from("site_settings").select("*").maybeSingle(),
@@ -32,6 +43,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   ]);
   const alertList = (topic: string) => (alertRows ?? []).filter((r) => r.topic === topic).map((r) => r.email).join("\n");
   const emailVia = emailTransport();
+  const [{ data: driveRows }] = await Promise.all([staff.supabase.rpc("drive_status")]);
+  const driveStatus = driveRows?.[0];
+  const driveReady = driveConfigured();
   if (!s) return <Notice tone="error">Could not load the site settings.</Notice>;
 
   const canEdit = staff.can("settings.edit");
@@ -42,6 +56,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
+      {drive && DRIVE_NOTICES[drive] && <Notice tone={DRIVE_NOTICES[drive].tone}>{DRIVE_NOTICES[drive].text}</Notice>}
       {saved === "alerts" && <Notice>Alert emails saved.</Notice>}
       {saved === "test-email" && <Notice>Test email sent to {staff.user.email}. Check that inbox (and the spam folder).</Notice>}
       {saved && saved !== "alerts" && saved !== "test-email" && <Notice>Settings saved. The website has been updated.</Notice>}
@@ -207,6 +222,55 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           )}
         </Card>
       </section>
+
+      <section id="documents" className="mt-10 scroll-mt-24">
+        <Card title="Documents (Google Drive)">
+          {driveStatus?.connected ? (
+            <>
+              <p className="text-sm text-green-800">
+                ✓ Connected to <strong>{driveStatus.account_email}</strong> since {formatDateTime(driveStatus.connected_at)}.
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Client and care worker documents are kept in that account&apos;s Google Drive, in the &ldquo;Chase Care Documents&rdquo; folder. The website can only see the files it put there.
+              </p>
+              {canEdit && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {/* A full page load on purpose: this hands over to Google's sign-in. */}
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                  <a href="/api/google/connect" className="inline-flex min-h-11 items-center rounded-full border-2 border-brand-800 px-5 text-sm font-semibold text-brand-800 hover:bg-brand-50">
+                    Reconnect
+                  </a>
+                  <ActionForm action={disconnectDrive} submitLabel="Disconnect" secondary inline confirm="Disconnect Google Drive? Files stay in Drive, but nobody can upload or open them from the dashboard until it's connected again.">
+                    <span />
+                  </ActionForm>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-ink">
+                Connect the company Google account once. Client and care worker documents (PDFs, Word files, photos) are then kept in its Google Drive, and only office staff can open them
+                from the dashboard.
+              </p>
+              {!driveReady && (
+                <p className="mt-2 text-sm text-amber-900">
+                  First, GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET need adding in Vercel (from Google Cloud). Ask your developer for the steps.
+                </p>
+              )}
+              {canEdit && driveReady && (
+                <>
+                  {/* A full page load on purpose: this hands over to Google's sign-in. */}
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                  <a href="/api/google/connect" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-brand-800 px-5 text-sm font-semibold text-white hover:bg-brand-700">
+                    Connect Google Drive
+                  </a>
+                </>
+              )}
+            </>
+          )}
+        </Card>
+      </section>
+
     </>
   );
 }

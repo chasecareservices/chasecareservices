@@ -82,7 +82,7 @@ export async function saveClient(formData: FormData): Promise<Result> {
     return { error: "The database needs an update before the address fields can be saved: run chasecare-client-registration.sql in Supabase (SQL Editor), then try again." };
   }
   if (error || !data) return { error: "The client could not be saved. Please try again." };
-  revalidatePath("/admin/care-clients");
+  revalidatePath("/admin", "layout");
   redirect(`/admin/care-clients/${data.id}?saved=client`);
 }
 
@@ -105,7 +105,7 @@ export async function saveAssignments(formData: FormData): Promise<Result> {
     const { error } = await staff.supabase.from("care_assignments").insert([...chosen].map((worker_id) => ({ client_id: clientId, worker_id })));
     if (error) return { error: "The care team could not be saved. Please try again." };
   }
-  revalidatePath("/admin/care-clients");
+  revalidatePath("/admin", "layout");
   redirect(`/admin/care-clients/${clientId}?saved=team`);
 }
 
@@ -143,8 +143,8 @@ export async function inviteWorker(formData: FormData): Promise<Result> {
     phone ? admin.from("profiles").update({ phone }).eq("id", data.user.id) : Promise.resolve({ error: null }),
   ]);
   if (roleError) return { error: "The invitation was sent, but the Worker role could not be added. Ask the Owner to add it in Staff & roles." };
-  revalidatePath("/admin/care-clients");
-  redirect(`/admin/care-clients?saved=invited&who=${encodeURIComponent(email)}#care-workers`);
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/care-workers?saved=invited&who=${encodeURIComponent(email)}`);
 }
 
 /** "one per line" text → a clean list (blank lines dropped, each trimmed). */
@@ -177,7 +177,7 @@ export async function saveCarePlan(formData: FormData): Promise<Result> {
     updated_by: staff.user.id,
   });
   if (error) return { error: "The care plan could not be saved. Please try again." };
-  revalidatePath("/admin/care-clients");
+  revalidatePath("/admin", "layout");
   revalidatePath("/portal", "layout");
   redirect(`/admin/care-clients/${clientId}?saved=plan#care-plan`);
 }
