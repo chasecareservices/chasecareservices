@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Keeps admin sign-in sessions fresh and sends signed-out visitors to the login page.
- * Runs for the staff dashboard (/admin), the care worker portal (/portal) and the family portal (/family). Detailed checks (staff role, two-step) happen in the pages.
+ * Runs for the staff dashboard (/admin), the care worker portal (/portal), the family portal (/family) and the learner area (/learn). Detailed checks (staff role, two-step) happen in the pages.
  */
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,9 +27,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublicPage = ["/admin/login", "/admin/forgot-password", "/admin/set-password", "/portal/login", "/family/login"].some((p) => path.startsWith(p));
+  const isPublicPage = ["/admin/login", "/admin/forgot-password", "/admin/set-password", "/portal/login", "/family/login", "/learn/login"].some((p) => path.startsWith(p));
   if (!user && !isPublicPage) {
-    const area = path.startsWith("/portal") ? "/portal" : path.startsWith("/family") ? "/family" : "/admin";
+    const area = path.startsWith("/portal") ? "/portal" : path.startsWith("/family") ? "/family" : path.startsWith("/learn") ? "/learn" : "/admin";
     const login = request.nextUrl.clone();
     login.pathname = `${area}/login`;
     login.search = path === area ? "" : `?next=${encodeURIComponent(path)}`;
@@ -42,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/portal/:path*", "/family/:path*"],
+  matcher: ["/admin/:path*", "/portal/:path*", "/family/:path*", "/learn/:path*"],
 };

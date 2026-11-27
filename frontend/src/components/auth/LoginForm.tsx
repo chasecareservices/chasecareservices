@@ -6,9 +6,9 @@ import { useState, type FormEvent } from "react";
 import { AuthError, authButton, authInput } from "@/components/admin/AuthCard";
 import { createAuthBrowserClient } from "@/lib/supabase/browser-auth";
 
-/** Only follow ?next= links inside this site's own staff and worker areas. */
+/** Only follow ?next= links inside this site's own staff, worker and learner areas. */
 function safeNext(value: string | null, fallback: string) {
-  return value && (value.startsWith("/admin") || value.startsWith("/portal")) && !value.startsWith("//") ? value : fallback;
+  return value && (value.startsWith("/admin") || value.startsWith("/portal") || value.startsWith("/learn")) && !value.startsWith("//") ? value : fallback;
 }
 
 export function LoginForm({ home = "/admin" }: { home?: string }) {

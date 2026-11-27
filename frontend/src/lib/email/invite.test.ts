@@ -17,3 +17,13 @@ describe("invitation emails", () => {
     expect(m.text).toContain("Reply to this email");
   });
 });
+
+describe("learner invitation", () => {
+  it("names the course and sends them to My learning", async () => {
+    const { inviteEmail } = await import("./invite");
+    const e = inviteEmail({ kind: "learner", name: "Abena Owusu", link: "https://x.test/l", clientName: "Dementia Care" });
+    expect(e.subject).toBe("Your ChaseCare Academy course: Dementia Care");
+    expect(e.text).toContain("Welcome to the ChaseCare Academy, Abena");
+    expect(e.text).toContain("My learning");
+  });
+});

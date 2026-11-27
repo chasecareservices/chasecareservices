@@ -12,11 +12,12 @@ const loadSession = async () => {
   } = await supabase.auth.getUser();
   if (!user) return { kind: "signed-out" as const };
 
-  const [{ data: aal }, { data: isStaff }, { data: isWorker }, { data: isFamily }, { data: mfaRequired }, { data: profile }] = await Promise.all([
+  const [{ data: aal }, { data: isStaff }, { data: isWorker }, { data: isFamily }, { data: isLearner }, { data: mfaRequired }, { data: profile }] = await Promise.all([
     supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
     supabase.rpc("has_staff_role"),
     supabase.rpc("is_care_worker"),
     supabase.rpc("is_family_member"),
+    supabase.rpc("is_learner"),
     supabase.rpc("staff_mfa_required"),
     supabase.from("profiles").select("full_name, is_active").eq("id", user.id).maybeSingle(),
   ]);
@@ -28,6 +29,7 @@ const loadSession = async () => {
     isStaff: isStaff === true,
     isWorker: isWorker === true,
     isFamily: isFamily === true,
+    isLearner: isLearner === true,
     mfaRequired: mfaRequired !== false,
     currentLevel: aal?.currentLevel ?? "aal1",
     nextLevel: aal?.nextLevel ?? "aal1",
@@ -45,7 +47,7 @@ export const getSession = cache(loadSession);
 export const requireStaff = cache(async () => {
   const session = await getSession();
   if (session.kind === "signed-out") redirect("/admin/login");
-  if (!session.isStaff) redirect(session.isWorker ? "/portal" : session.isFamily ? "/family" : "/admin/no-access");
+  if (!session.isStaff) redirect(session.isWorker ? "/portal" : session.isFamily ? "/family" : session.isLearner ? "/learn" : "/admin/no-access");
   if (session.mfaRequired && session.currentLevel !== "aal2") redirect("/admin/two-step");
 
   const { data } = await session.supabase.rpc("my_permissions");

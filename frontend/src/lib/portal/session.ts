@@ -10,7 +10,7 @@ import { getSession } from "@/lib/admin/session";
 export const requireWorker = cache(async () => {
   const session = await getSession();
   if (session.kind === "signed-out") redirect("/portal/login");
-  if (!session.isWorker) redirect(session.isStaff ? "/admin" : session.isFamily ? "/family" : "/portal/no-access");
+  if (!session.isWorker) redirect(session.isStaff ? "/admin" : session.isFamily ? "/family" : session.isLearner ? "/learn" : "/portal/no-access");
   const firstName = session.displayName.replace(/\s*\(.*\)$/, "").split(/\s+/)[0];
   return { ...session, firstName };
 });

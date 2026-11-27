@@ -119,3 +119,14 @@ export function wellbeingReplyAlert(r: { id: string; reference: string; first_na
   );
   return { subject: "A new message from the ChaseCare Wellbeing Hub", html, text };
 }
+
+/** To someone who already has an account: they've been enrolled on an online course. */
+export function enrolledAlert(p: { first_name: string; course_title: string }, siteUrl: string) {
+  const { html, text } = layout(
+    `Hello ${p.first_name}, your course is ready`,
+    [["Course", p.course_title]],
+    { label: "Start learning", href: `${siteUrl}/learn` },
+    "Sign in with your usual Chase Care email and password. Sent by the ChaseCare Academy.",
+  );
+  return { subject: `You're enrolled: ${p.course_title}`, html, text };
+}

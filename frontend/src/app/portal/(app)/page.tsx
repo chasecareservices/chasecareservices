@@ -257,6 +257,16 @@ export default async function PortalHome() {
           </Link>
         </div>
       </section>
+
+      <section aria-labelledby="training-h" className="rounded-2xl bg-white p-5 ring-1 ring-brand-100">
+        <h2 id="training-h" className="text-lg font-bold text-brand-900">
+          Training & certificates
+        </h2>
+        <p className="mt-1 text-sm text-ink">Your ChaseCare Academy online courses, CPD hours and certificates.</p>
+        <Link href="/learn" className="mt-3 inline-flex min-h-12 items-center rounded-full bg-brand-800 px-5 font-semibold text-white hover:bg-brand-700">
+          My learning
+        </Link>
+      </section>
     </div>
   );
 }

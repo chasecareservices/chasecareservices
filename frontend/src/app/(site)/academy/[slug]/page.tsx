@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { CmsPageView, cmsPageMetadata } from "@/components/CmsPageView";
 import { PageBlocks, toBlocks } from "@/components/PageBlocks";
@@ -5,6 +6,8 @@ import { RelatedInfo } from "@/components/RelatedInfo";
 import { Badge, ButtonLink, CheckList, PageHero, Section } from "@/components/ui";
 import { getCourse, courseImage } from "@/lib/content";
 import { certificationLabel, formatMoney } from "@/lib/format";
+import { formatHours, groupBySection } from "@/lib/learning";
+import { getServerClient } from "@/lib/supabase/client";
 
 export const revalidate = 300;
 
@@ -24,11 +27,17 @@ export default async function CoursePage({ params }: Props) {
   const { slug } = await params;
   const course = await getCourse(slug);
   if (!course) return <CmsPageView slug={`academy/${slug}`} />;
+  const supabase = course.online_enabled ? getServerClient() : null;
+  const { data: outline } = supabase ? await supabase.rpc("course_outline", { course: course.id }) : { data: null };
+  const lessons = outline ?? [];
+  const minutes = lessons.reduce((s, l) => s + (l.minutes ?? 0), 0);
 
   const facts = [
     { label: "Certificate", value: certificationLabel(course.certification_type) },
     course.accrediting_body ? { label: "Accredited by", value: course.accrediting_body } : null,
     course.duration_text ? { label: "Duration", value: course.duration_text } : null,
+    course.cpd_hours ? { label: "CPD hours", value: formatHours(Number(course.cpd_hours)) } : null,
+    lessons.length ? { label: "Online lessons", value: `${lessons.length}${minutes ? ` (about ${Math.max(1, Math.round(minutes / 60))} h)` : ""}` } : null,
     { label: "Delivery", value: DELIVERY[course.delivery_mode] ?? course.delivery_mode },
     { label: "Fee", value: course.fee_amount != null ? formatMoney(course.fee_amount, course.fee_currency) : "Contact us" },
   ].filter((f): f is { label: string; value: string } => f !== null);
@@ -53,6 +62,33 @@ export default async function CoursePage({ params }: Props) {
                 <h2 className="mb-4 text-2xl font-bold text-brand-900">What you will learn</h2>
                 <CheckList items={course.learning_outcomes} />
               </>
+            )}
+            {lessons.length > 0 && (
+              <section aria-labelledby="outline-h" className="mt-10">
+                <h2 id="outline-h" className="mb-4 text-2xl font-bold text-brand-900">
+                  Course content (online)
+                </h2>
+                {groupBySection(lessons).map((g, gi) => (
+                  <div key={gi} className="mb-4">
+                    {g.section && <h3 className="mb-2 font-semibold text-brand-800">{g.section}</h3>}
+                    <ol className="divide-y divide-brand-100 rounded-2xl bg-white ring-1 ring-brand-100">
+                      {g.lessons.map((l, li) => (
+                        <li key={li} className="flex justify-between gap-4 px-4 py-3">
+                          <span>{l.title}</span>
+                          {l.minutes && <span className="text-sm text-muted">{l.minutes} min</span>}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+                <p className="text-sm text-muted">
+                  Learn at your own pace on your phone or computer. Already enrolled?{" "}
+                  <Link href="/learn" className="font-semibold text-brand-700 underline">
+                    Sign in to start learning
+                  </Link>
+                  .
+                </p>
+              </section>
             )}
           </div>
           <div className="h-fit space-y-6 lg:sticky lg:top-32">

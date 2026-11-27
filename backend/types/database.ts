@@ -619,6 +619,86 @@ export type Database = {
           },
         ];
       };
+      certificates: {
+        Row: {
+          accrediting_body: string | null;
+          certification_type: Database["public"]["Enums"]["certification_type"];
+          completed_on: string;
+          course_id: string | null;
+          course_title: string;
+          cpd_hours: number | null;
+          enrolment_id: string | null;
+          id: string;
+          issued_at: string;
+          issued_by: string | null;
+          learner_name: string;
+          number: string;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+          user_id: string | null;
+          verify_code: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accrediting_body?: string | null;
+          certification_type?: Database["public"]["Enums"]["certification_type"];
+          completed_on?: string;
+          course_id?: string | null;
+          course_title: string;
+          cpd_hours?: number | null;
+          enrolment_id?: string | null;
+          id?: string;
+          issued_at?: string;
+          issued_by?: string | null;
+          learner_name: string;
+          number?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          user_id?: string | null;
+          verify_code?: string;
+        };
+        Update: {
+          accrediting_body?: string | null;
+          certification_type?: Database["public"]["Enums"]["certification_type"];
+          completed_on?: string;
+          course_id?: string | null;
+          course_title?: string;
+          cpd_hours?: number | null;
+          enrolment_id?: string | null;
+          id?: string;
+          issued_at?: string;
+          issued_by?: string | null;
+          learner_name?: string;
+          number?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          user_id?: string | null;
+          verify_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: true;
+            referencedRelation: "course_enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       community_event_links: {
         Row: {
           event_id: string;
@@ -710,6 +790,154 @@ export type Database = {
         };
         Relationships: [];
       };
+      course_enrolments: {
+        Row: {
+          completed_at: string | null;
+          course_id: string;
+          enrolled_at: string;
+          enrolled_by: string | null;
+          id: string;
+          source: string;
+          status: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string | null;
+          course_id: string;
+          enrolled_at?: string;
+          enrolled_by?: string | null;
+          id?: string;
+          source?: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          course_id?: string;
+          enrolled_at?: string;
+          enrolled_by?: string | null;
+          id?: string;
+          source?: string;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_enrolments_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "course_enrolments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      course_lessons: {
+        Row: {
+          body: string | null;
+          course_id: string;
+          created_at: string;
+          id: string;
+          minutes: number | null;
+          published: boolean;
+          resource_label: string | null;
+          resource_url: string | null;
+          section: string | null;
+          sort_order: number;
+          title: string;
+          updated_at: string;
+          video_url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string | null;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          minutes?: number | null;
+          published?: boolean;
+          resource_label?: string | null;
+          resource_url?: string | null;
+          section?: string | null;
+          sort_order?: number;
+          title: string;
+          updated_at?: string;
+          video_url?: string | null;
+        };
+        Update: {
+          body?: string | null;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          minutes?: number | null;
+          published?: boolean;
+          resource_label?: string | null;
+          resource_url?: string | null;
+          section?: string | null;
+          sort_order?: number;
+          title?: string;
+          updated_at?: string;
+          video_url?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      course_quiz_questions: {
+        Row: {
+          correct_option: number;
+          course_id: string;
+          created_at: string;
+          explanation: string | null;
+          id: string;
+          options: string[];
+          question: string;
+          sort_order: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          correct_option: number;
+          course_id: string;
+          created_at?: string;
+          explanation?: string | null;
+          id?: string;
+          options: string[];
+          question: string;
+          sort_order?: number;
+        };
+        Update: {
+          correct_option?: number;
+          course_id?: string;
+          created_at?: string;
+          explanation?: string | null;
+          id?: string;
+          options?: string[];
+          question?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_quiz_questions_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           accreditation_reference: string | null;
@@ -717,6 +945,7 @@ export type Database = {
           audience: Database["public"]["Enums"]["course_audience"];
           category: string | null;
           certification_type: Database["public"]["Enums"]["certification_type"];
+          cpd_hours: number | null;
           created_at: string;
           delivery_mode: Database["public"]["Enums"]["delivery_mode"];
           description: NonNullable<Json>;
@@ -727,6 +956,9 @@ export type Database = {
           image_path: string | null;
           is_signature: boolean;
           learning_outcomes: string[];
+          online_enabled: boolean;
+          pass_mark: number;
+          self_enrol: boolean;
           seo_description: string | null;
           seo_title: string | null;
           slug: string;
@@ -743,6 +975,7 @@ export type Database = {
           audience?: Database["public"]["Enums"]["course_audience"];
           category?: string | null;
           certification_type?: Database["public"]["Enums"]["certification_type"];
+          cpd_hours?: number | null;
           created_at?: string;
           delivery_mode?: Database["public"]["Enums"]["delivery_mode"];
           description?: NonNullable<Json>;
@@ -753,6 +986,9 @@ export type Database = {
           image_path?: string | null;
           is_signature?: boolean;
           learning_outcomes?: string[];
+          online_enabled?: boolean;
+          pass_mark?: number;
+          self_enrol?: boolean;
           seo_description?: string | null;
           seo_title?: string | null;
           slug: string;
@@ -768,6 +1004,7 @@ export type Database = {
           audience?: Database["public"]["Enums"]["course_audience"];
           category?: string | null;
           certification_type?: Database["public"]["Enums"]["certification_type"];
+          cpd_hours?: number | null;
           created_at?: string;
           delivery_mode?: Database["public"]["Enums"]["delivery_mode"];
           description?: NonNullable<Json>;
@@ -778,6 +1015,9 @@ export type Database = {
           image_path?: string | null;
           is_signature?: boolean;
           learning_outcomes?: string[];
+          online_enabled?: boolean;
+          pass_mark?: number;
+          self_enrol?: boolean;
           seo_description?: string | null;
           seo_title?: string | null;
           slug?: string;
@@ -957,6 +1197,40 @@ export type Database = {
             columns: ["event_id"];
             isOneToOne: false;
             referencedRelation: "community_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_progress: {
+        Row: {
+          completed_at: string;
+          lesson_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string;
+          lesson_id: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string;
+          lesson_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "course_lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_progress_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1552,6 +1826,55 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      quiz_attempts: {
+        Row: {
+          answers: number[];
+          created_at: string;
+          enrolment_id: string;
+          id: string;
+          passed: boolean;
+          score: number;
+          total: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers: number[];
+          created_at?: string;
+          enrolment_id: string;
+          id?: string;
+          passed: boolean;
+          score: number;
+          total: number;
+          user_id: string;
+        };
+        Update: {
+          answers?: number[];
+          created_at?: string;
+          enrolment_id?: string;
+          id?: string;
+          passed?: boolean;
+          score?: number;
+          total?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "course_enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       recruitment_applicants: {
         Row: {
@@ -2324,6 +2647,24 @@ export type Database = {
           upcoming_events: number;
         }[];
       };
+      complete_lesson: { Args: { lesson: string }; Returns: string };
+      course_outline: {
+        Args: { course: string };
+        Returns: {
+          minutes: number;
+          section: string;
+          title: string;
+        }[];
+      };
+      course_quiz: {
+        Args: { course: string };
+        Returns: {
+          id: string;
+          options: string[];
+          question: string;
+          sort_order: number;
+        }[];
+      };
       current_user_has_role: { Args: { role: string }; Returns: boolean };
       drive_connection_clear: {
         Args: Record<PropertyKey, never>;
@@ -2409,12 +2750,14 @@ export type Database = {
           worker_first_name: string;
         }[];
       };
+      find_user_id_by_email: { Args: { lookup: string }; Returns: string };
       has_permission: { Args: { perm: string }; Returns: boolean };
       has_staff_role: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_assigned_to: { Args: { client: string }; Returns: boolean };
       is_care_worker: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_family_member: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_family_of: { Args: { client: string }; Returns: boolean };
+      is_learner: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_worker_profile: { Args: { uid: string }; Returns: boolean };
       list_care_workers: {
@@ -2489,6 +2832,7 @@ export type Database = {
           url: string;
         }[];
       };
+      self_enrol: { Args: { course: string }; Returns: string };
       set_page_banners: { Args: { banners: Json }; Returns: undefined };
       staff_mfa_required: {
         Args: Record<PropertyKey, never>;
@@ -2509,6 +2853,29 @@ export type Database = {
           website?: string;
         };
         Returns: string;
+      };
+      submit_quiz: {
+        Args: { answers: number[]; course: string };
+        Returns: {
+          certificate_number: string;
+          pass_mark: number;
+          passed: boolean;
+          score: number;
+          total: number;
+        }[];
+      };
+      verify_certificate: {
+        Args: { code: string };
+        Returns: {
+          accrediting_body: string;
+          certification_type: Database["public"]["Enums"]["certification_type"];
+          completed_on: string;
+          course_title: string;
+          cpd_hours: number;
+          learner_name: string;
+          number: string;
+          revoked: boolean;
+        }[];
       };
       wellbeing_counts: {
         Args: Record<PropertyKey, never>;
