@@ -16,7 +16,7 @@ describe("resource definitions", () => {
     expect(new Set(keys).size).toBe(keys.length);
     for (const r of RESOURCES) {
       expect(r.fields.some((f) => f.name === r.titleField), r.key).toBe(true);
-      expect(["content", "blog", "academy", "shop", "communications"]).toContain(r.section);
+      expect(["content", "blog", "academy", "shop", "communications", "wellbeing"]).toContain(r.section);
       const names = r.fields.map((f) => f.name);
       expect(new Set(names).size, `${r.key} duplicate fields`).toBe(names.length);
     }

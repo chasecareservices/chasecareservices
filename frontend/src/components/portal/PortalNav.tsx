@@ -23,17 +23,23 @@ const ITEMS = [
     icon: <path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" />,
     match: (p: string) => p.startsWith("/portal/reports") || (p.startsWith("/portal/report/") && !p.startsWith("/portal/report/new")),
   },
+  {
+    href: "/portal/wellbeing",
+    label: "Wellbeing",
+    icon: <path d="M12 20s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 10c0 5.65-7 10-7 10z" />,
+    match: (p: string) => p.startsWith("/portal/wellbeing"),
+  },
 ];
 
 /**
- * Bottom tab bar: the three things a care worker does, always in the same place and
+ * Bottom tab bar: the things a care worker does most, always in the same place and
  * within thumb reach. Each tab has an icon and a word (never an icon alone).
  */
 export function PortalNav() {
   const pathname = usePathname();
   return (
     <nav aria-label="Portal" className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="mx-auto grid max-w-xl grid-cols-3">
+      <ul className="mx-auto grid max-w-xl grid-cols-4">
         {ITEMS.map((item) => {
           const active = item.match(pathname);
           return (

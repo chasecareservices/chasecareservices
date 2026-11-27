@@ -1887,6 +1887,224 @@ export type Database = {
           },
         ];
       };
+      wellbeing_messages: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          internal: boolean;
+          request_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          request_id: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          request_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellbeing_messages_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_messages_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: false;
+            referencedRelation: "wellbeing_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wellbeing_requests: {
+        Row: {
+          assigned_to: string | null;
+          closed_at: string | null;
+          contact_method: string;
+          contact_times: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          message: string;
+          reference: string;
+          service_id: string | null;
+          status: string;
+          updated_at: string;
+          urgency: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assigned_to?: string | null;
+          closed_at?: string | null;
+          contact_method?: string;
+          contact_times?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          message: string;
+          reference?: string;
+          service_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          urgency?: string;
+          worker_id?: string;
+        };
+        Update: {
+          assigned_to?: string | null;
+          closed_at?: string | null;
+          contact_method?: string;
+          contact_times?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          message?: string;
+          reference?: string;
+          service_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          urgency?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellbeing_requests_assigned_to_fkey";
+            columns: ["assigned_to"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_requests_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "wellbeing_services";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wellbeing_requests_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wellbeing_resources: {
+        Row: {
+          audience: string;
+          created_at: string;
+          id: string;
+          kind: string;
+          place: string | null;
+          sort_order: number;
+          starts_at: string | null;
+          status: string;
+          summary: string | null;
+          title: string;
+          updated_at: string;
+          url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience?: string;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          place?: string | null;
+          sort_order?: number;
+          starts_at?: string | null;
+          status?: string;
+          summary?: string | null;
+          title: string;
+          updated_at?: string;
+          url?: string | null;
+        };
+        Update: {
+          audience?: string;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          place?: string | null;
+          sort_order?: number;
+          starts_at?: string | null;
+          status?: string;
+          summary?: string | null;
+          title?: string;
+          updated_at?: string;
+          url?: string | null;
+        };
+        Relationships: [];
+      };
+      wellbeing_services: {
+        Row: {
+          audience: string;
+          benefit: string | null;
+          created_at: string;
+          description: string | null;
+          how_to_access: string | null;
+          id: string;
+          kind: string;
+          location: string | null;
+          name: string;
+          phone: string | null;
+          provider: string | null;
+          sort_order: number;
+          status: string;
+          updated_at: string;
+          website_url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience?: string;
+          benefit?: string | null;
+          created_at?: string;
+          description?: string | null;
+          how_to_access?: string | null;
+          id?: string;
+          kind: string;
+          location?: string | null;
+          name: string;
+          phone?: string | null;
+          provider?: string | null;
+          sort_order?: number;
+          status?: string;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Update: {
+          audience?: string;
+          benefit?: string | null;
+          created_at?: string;
+          description?: string | null;
+          how_to_access?: string | null;
+          id?: string;
+          kind?: string;
+          location?: string | null;
+          name?: string;
+          phone?: string | null;
+          provider?: string | null;
+          sort_order?: number;
+          status?: string;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       care_shift_status: {
@@ -2110,6 +2328,13 @@ export type Database = {
           website?: string;
         };
         Returns: string;
+      };
+      wellbeing_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          new_requests: number;
+          urgent_open: number;
+        }[];
       };
     };
     Enums: {

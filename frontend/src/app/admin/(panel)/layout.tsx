@@ -34,7 +34,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     newApplications = Number(data ?? 0);
   }
 
-  const contentLinks = RESOURCES.filter((r) => staff.can(`${r.section}.view`)).map((r) => ({
+  let wellbeingNew = 0;
+  if (staff.can("wellbeing.view")) {
+    const { data } = await staff.supabase.rpc("wellbeing_counts");
+    wellbeingNew = Number(data?.[0]?.new_requests ?? 0);
+  }
+
+  const contentLinks = RESOURCES.filter((r) => r.section !== "wellbeing" && staff.can(`${r.section}.view`)).map((r) => ({
     label: r.title,
     href: `/admin/content/${r.key}`,
   }));
@@ -56,6 +62,16 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         ...(staff.can("clients.view") || staff.can("care_ops.view") ? [{ label: "Care workers", href: "/admin/care-workers" }] : []),
         ...(staff.can("workforce.view") ? [{ label: "Recruitment", href: "/admin/recruitment", badge: newApplications }] : []),
       ],
+    },
+    {
+      title: "Wellbeing Hub",
+      items: staff.can("wellbeing.view")
+        ? [
+            { label: "Support requests", href: "/admin/wellbeing", badge: wellbeingNew },
+            { label: "Services & partners", href: "/admin/content/wellbeing-services" },
+            { label: "Resources & webinars", href: "/admin/content/wellbeing-resources" },
+          ]
+        : [],
     },
     {
       title: "Website",

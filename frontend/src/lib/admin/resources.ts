@@ -3,6 +3,8 @@
  * screens are generated from these definitions (see app/admin/(panel)/content).
  */
 
+import { RESOURCE_KINDS, SUPPORT_KINDS } from "@/lib/wellbeing";
+
 export type Option = { value: string; label: string };
 
 export type FieldType =
@@ -48,9 +50,11 @@ export type Resource = {
     | "partners"
     | "testimonials"
     | "navigation_items"
-    | "announcements";
+    | "announcements"
+    | "wellbeing_services"
+    | "wellbeing_resources";
   /** Permission section, e.g. "content" → content.view / content.edit … */
-  section: "content" | "blog" | "academy" | "shop" | "communications";
+  section: "content" | "blog" | "academy" | "shop" | "communications" | "wellbeing";
   title: string;
   singular: string;
   intro: string;
@@ -68,6 +72,12 @@ const STATUS: Option[] = [
   { value: "draft", label: "Draft (hidden)" },
   { value: "published", label: "Published" },
   { value: "archived", label: "Archived (hidden)" },
+];
+
+const WELLBEING_KINDS: Option[] = SUPPORT_KINDS.map((k) => ({ value: k.value, label: k.short }));
+const WELLBEING_AUDIENCE: Option[] = [
+  { value: "workers", label: "Care workers only" },
+  { value: "public", label: "Everyone (public website)" },
 ];
 
 const SEO: Field[] = [
@@ -410,6 +420,66 @@ export const RESOURCES: Resource[] = [
       { name: "starts_at", label: "Show from", type: "datetime", hint: "Leave empty to start now." },
       { name: "ends_at", label: "Show until", type: "datetime", hint: "Leave empty to keep showing." },
       { name: "is_active", label: "Active", type: "checkbox" },
+    ],
+  },
+  {
+    key: "wellbeing-services",
+    table: "wellbeing_services",
+    section: "wellbeing",
+    title: "Wellbeing services",
+    singular: "wellbeing service",
+    intro: "Counselling, health, laboratory and insurance support for care workers. Choose who can see each one: everyone, or care workers only (in their portal).",
+    titleField: "name",
+    columns: [
+      { name: "name", label: "Service" },
+      { name: "kind", label: "Type", options: WELLBEING_KINDS },
+      { name: "audience", label: "Who sees it", options: WELLBEING_AUDIENCE },
+      { name: "status", label: "Status", options: STATUS },
+    ],
+    order: [{ column: "sort_order", ascending: true }, { column: "name", ascending: true }],
+    publicUrl: (r) => (r.audience === "public" ? "/wellbeing#services" : null),
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true, max: 200 },
+      { name: "kind", label: "Type", type: "select", required: true, options: WELLBEING_KINDS },
+      { name: "audience", label: "Who sees it", type: "select", required: true, options: WELLBEING_AUDIENCE },
+      { name: "status", label: "Status", type: "select", required: true, options: STATUS },
+      { name: "provider", label: "Provided by", type: "text", max: 200, hint: "e.g. the partner clinic's name. Only name a partner once they have agreed." },
+      { name: "benefit", label: "Benefit for our workers", type: "text", max: 300, hint: "Optional, e.g. Free for ChaseCare care workers" },
+      { name: "description", label: "Description", type: "textarea", max: 3000, wide: true },
+      { name: "how_to_access", label: "How to get it", type: "textarea", max: 1000, wide: true, hint: "e.g. Ask through the Wellbeing Hub in your portal." },
+      { name: "location", label: "Where", type: "text", max: 200 },
+      { name: "phone", label: "Phone", type: "text", max: 40 },
+      { name: "website_url", label: "Website", type: "url" },
+      { name: "sort_order", label: "Order", type: "number", hint: "Lower numbers come first." },
+    ],
+  },
+  {
+    key: "wellbeing-resources",
+    table: "wellbeing_resources",
+    section: "wellbeing",
+    title: "Wellbeing resources & webinars",
+    singular: "resource",
+    intro: "Health education, articles, videos, webinars and support sessions. Webinars and sessions with a date show as “coming up” until they have passed.",
+    titleField: "title",
+    columns: [
+      { name: "title", label: "Title" },
+      { name: "kind", label: "Type", options: [...RESOURCE_KINDS] },
+      { name: "starts_at", label: "Date" },
+      { name: "audience", label: "Who sees it", options: WELLBEING_AUDIENCE },
+      { name: "status", label: "Status", options: STATUS },
+    ],
+    order: [{ column: "starts_at", ascending: false }, { column: "sort_order", ascending: true }],
+    publicUrl: (r) => (r.audience === "public" ? "/wellbeing#resources" : null),
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true, max: 200 },
+      { name: "kind", label: "Type", type: "select", required: true, options: [...RESOURCE_KINDS] },
+      { name: "audience", label: "Who sees it", type: "select", required: true, options: WELLBEING_AUDIENCE },
+      { name: "status", label: "Status", type: "select", required: true, options: STATUS },
+      { name: "summary", label: "Summary", type: "textarea", max: 600, wide: true },
+      { name: "url", label: "Link", type: "url", hint: "The article, video, or the webinar joining link." },
+      { name: "starts_at", label: "Date and time (webinars and sessions)", type: "datetime", hint: "Ghana time. Leave empty for articles and videos." },
+      { name: "place", label: "Where", type: "text", max: 200, hint: "e.g. Online (Zoom) or Chase Care office, Accra" },
+      { name: "sort_order", label: "Order", type: "number" },
     ],
   },
 ];

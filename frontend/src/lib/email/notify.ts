@@ -1,12 +1,12 @@
 import "server-only";
 import { headers } from "next/headers";
-import { careConcernAlert, enquiryAlert, incidentAlert } from "@/lib/email/alerts";
+import { careConcernAlert, enquiryAlert, incidentAlert, wellbeingAlert, wellbeingReplyAlert } from "@/lib/email/alerts";
 import { kindLabel } from "@/lib/incidents";
 import { sendEmail } from "@/lib/email/send";
 import { createSecretClient } from "@/lib/supabase/server-auth";
 
 /** Topics in notification_recipients. */
-export const ALERT_TOPICS = { enquiries: "enquiry.all", careConcerns: "care.concerns" } as const;
+export const ALERT_TOPICS = { enquiries: "enquiry.all", careConcerns: "care.concerns", wellbeing: "wellbeing.requests" } as const;
 
 /** The site's own address, for links in emails. */
 export async function siteUrl() {
@@ -105,4 +105,30 @@ export async function notifyIncident(id: string) {
       await siteUrl(),
     ),
   });
+}
+
+/** Emails the wellbeing team about a new request: reference and urgency only. */
+export async function notifyWellbeingRequest(id: string) {
+  const admin = createSecretClient();
+  if (!admin) return;
+  const { data: r } = await admin.from("wellbeing_requests").select("id, reference, urgency, created_at").eq("id", id).maybeSingle();
+  if (!r || Date.now() - Date.parse(r.created_at) > 15 * 60_000) return;
+  const to = await recipients(admin, [ALERT_TOPICS.wellbeing]);
+  if (to.length) await sendEmail({ to, ...wellbeingAlert(r, await siteUrl()) });
+}
+
+/** Tells a care worker the wellbeing team has written to them (not what it says). */
+export async function notifyWellbeingReply(requestId: string) {
+  const admin = createSecretClient();
+  if (!admin) return;
+  const { data: r } = await admin.from("wellbeing_requests").select("id, reference, worker_id").eq("id", requestId).maybeSingle();
+  if (!r) return;
+  const [{ data: user }, { data: profile }] = await Promise.all([
+    admin.auth.admin.getUserById(r.worker_id),
+    admin.from("profiles").select("full_name").eq("id", r.worker_id).maybeSingle(),
+  ]);
+  const email = user?.user?.email;
+  if (!email) return;
+  const firstName = (profile?.full_name ?? "").replace(/\s*\(.*\)$/, "").split(/\s+/)[0] || "there";
+  await sendEmail({ to: [email], ...wellbeingReplyAlert({ id: r.id, reference: r.reference, first_name: firstName }, await siteUrl()) });
 }

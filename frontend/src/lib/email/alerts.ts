@@ -93,3 +93,29 @@ export function incidentAlert(
   );
   return { subject: `${serious ? "SERIOUS: " : ""}Incident — ${r.client_name} (${r.reference})`, html, text };
 }
+
+/** To the wellbeing team: a care worker asked for support. Deliberately says nothing about who or why. */
+export function wellbeingAlert(r: { id: string; reference: string; urgency: string }, siteUrl: string) {
+  const urgent = r.urgency === "urgent";
+  const { html, text } = layout(
+    urgent ? "URGENT: a care worker has asked for wellbeing support" : "A care worker has asked for wellbeing support",
+    [
+      ["Request", r.reference],
+      ["How soon", urgent ? "As soon as possible: today or tomorrow" : r.urgency === "soon" ? "In the next few days" : "When you can"],
+    ],
+    { label: "Open the request", href: `${siteUrl}/admin/wellbeing/${r.id}` },
+    "This request is confidential. Who sent it and what it says are only in the dashboard. Sent automatically by the Chase Care website.",
+  );
+  return { subject: `${urgent ? "URGENT: " : ""}Wellbeing request ${r.reference}`, html, text };
+}
+
+/** To the care worker: the wellbeing team replied. The message itself stays in the portal. */
+export function wellbeingReplyAlert(r: { id: string; reference: string; first_name: string }, siteUrl: string) {
+  const { html, text } = layout(
+    `Hello ${r.first_name}, you have a new message`,
+    [["About", `Your wellbeing request ${r.reference}`]],
+    { label: "Read it in your portal", href: `${siteUrl}/portal/wellbeing/${r.id}` },
+    "For your privacy, the message is only in your care worker portal. Sent by the ChaseCare Wellbeing Hub.",
+  );
+  return { subject: "A new message from the ChaseCare Wellbeing Hub", html, text };
+}
