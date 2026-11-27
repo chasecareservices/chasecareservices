@@ -14,6 +14,8 @@ export default function SetPasswordPage() {
   const [ready, setReady] = useState<"checking" | "ok" | "invalid">("checking");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Accounts with two-step verification must confirm a code before the password can change. */
+  const [factorId, setFactorId] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createAuthBrowserClient();
@@ -28,6 +30,14 @@ export default function SetPasswordPage() {
       }
       window.history.replaceState(null, "", "/admin/set-password");
       const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          const totp = factors?.totp.find((f) => f.status === "verified");
+          if (totp) setFactorId(totp.id);
+        }
+      }
       setReady(data.user ? "ok" : "invalid");
     })().catch(() => setReady("invalid"));
   }, []);
@@ -44,9 +54,23 @@ export default function SetPasswordPage() {
       setError("Use at least 10 characters, with upper-case and lower-case letters and a number.");
       return;
     }
+    const code = String(form.get("code") ?? "").replace(/\s/g, "");
+    if (factorId && !/^\d{6}$/.test(code)) {
+      setError("Enter the 6-digit code from your authenticator app.");
+      return;
+    }
     setPending(true);
     setError(null);
-    const { error } = await createAuthBrowserClient().auth.updateUser({ password });
+    const supabase = createAuthBrowserClient();
+    if (factorId) {
+      const { error: codeError } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
+      if (codeError) {
+        setPending(false);
+        setError("That code didn't work. Check the time on your phone and try the newest code.");
+        return;
+      }
+    }
+    const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       setPending(false);
       setError(error.message);
@@ -72,6 +96,21 @@ export default function SetPasswordPage() {
             Repeat new password
             <input name="confirm" type="password" required minLength={10} autoComplete="new-password" className={authInput} />
           </label>
+          {factorId && (
+            <label className="block text-sm font-semibold text-brand-900">
+              6-digit code from your authenticator app
+              <input
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9 ]{6,7}"
+                maxLength={7}
+                required
+                className={authInput}
+              />
+              <span className="mt-1 block text-xs font-normal text-muted">Your account uses two-step verification, so the code is needed to change the password.</span>
+            </label>
+          )}
           <AuthError message={error} />
           <button type="submit" disabled={pending} className={authButton}>
             {pending ? "Saving…" : "Save password"}
