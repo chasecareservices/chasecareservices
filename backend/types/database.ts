@@ -619,6 +619,97 @@ export type Database = {
           },
         ];
       };
+      community_event_links: {
+        Row: {
+          event_id: string;
+          online_url: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          event_id: string;
+          online_url: string;
+          updated_at?: string;
+        };
+        Update: {
+          event_id?: string;
+          online_url?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_event_links_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: true;
+            referencedRelation: "community_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      community_events: {
+        Row: {
+          capacity: number | null;
+          created_at: string;
+          description: string | null;
+          ends_at: string | null;
+          id: string;
+          image_path: string | null;
+          kind: string;
+          online: boolean;
+          registration_open: boolean;
+          slug: string;
+          speaker: string | null;
+          starts_at: string;
+          status: string;
+          summary: string | null;
+          title: string;
+          topic: string | null;
+          updated_at: string;
+          venue: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          image_path?: string | null;
+          kind?: string;
+          online?: boolean;
+          registration_open?: boolean;
+          slug: string;
+          speaker?: string | null;
+          starts_at: string;
+          status?: string;
+          summary?: string | null;
+          title: string;
+          topic?: string | null;
+          updated_at?: string;
+          venue?: string | null;
+        };
+        Update: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          image_path?: string | null;
+          kind?: string;
+          online?: boolean;
+          registration_open?: boolean;
+          slug?: string;
+          speaker?: string | null;
+          starts_at?: string;
+          status?: string;
+          summary?: string | null;
+          title?: string;
+          topic?: string | null;
+          updated_at?: string;
+          venue?: string | null;
+        };
+        Relationships: [];
+      };
       courses: {
         Row: {
           accreditation_reference: string | null;
@@ -803,6 +894,69 @@ export type Database = {
             columns: ["enquiry_id"];
             isOneToOne: false;
             referencedRelation: "enquiries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_registrations: {
+        Row: {
+          attend_mode: string;
+          confirmed_at: string | null;
+          created_at: string;
+          email: string | null;
+          event_id: string;
+          full_name: string;
+          id: string;
+          needs: string | null;
+          organisation: string | null;
+          phone: string | null;
+          reminded_at: string | null;
+          source: string;
+          status: string;
+          token: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attend_mode?: string;
+          confirmed_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          event_id: string;
+          full_name: string;
+          id?: string;
+          needs?: string | null;
+          organisation?: string | null;
+          phone?: string | null;
+          reminded_at?: string | null;
+          source?: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Update: {
+          attend_mode?: string;
+          confirmed_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          event_id?: string;
+          full_name?: string;
+          id?: string;
+          needs?: string | null;
+          organisation?: string | null;
+          phone?: string | null;
+          reminded_at?: string | null;
+          source?: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "community_events";
             referencedColumns: ["id"];
           },
         ];
@@ -2144,6 +2298,10 @@ export type Database = {
       };
     };
     Functions: {
+      cancel_event_registration: {
+        Args: { registration_token: string };
+        Returns: string;
+      };
       care_incident_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2157,6 +2315,13 @@ export type Database = {
           monitor: number;
           to_read: number;
           urgent: number;
+        }[];
+      };
+      community_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          registrations_upcoming: number;
+          upcoming_events: number;
         }[];
       };
       current_user_has_role: { Args: { role: string }; Returns: boolean };
@@ -2209,6 +2374,8 @@ export type Database = {
           total: number;
         }[];
       };
+      ensure_forums: { Args: Record<PropertyKey, never>; Returns: undefined };
+      event_places_left: { Args: { event: string }; Returns: number };
       family_message_office: {
         Args: { client: string; message: string };
         Returns: string;
@@ -2297,6 +2464,20 @@ export type Database = {
       recruitment_new_applications: {
         Args: Record<PropertyKey, never>;
         Returns: number;
+      };
+      register_for_event: {
+        Args: {
+          attend_mode?: string;
+          consent_given: boolean;
+          email?: string;
+          event: string;
+          full_name: string;
+          needs?: string;
+          organisation?: string;
+          phone?: string;
+          website?: string;
+        };
+        Returns: string;
       };
       search_site: {
         Args: { max_results?: number; query: string };

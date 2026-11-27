@@ -64,6 +64,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       ],
     },
     {
+      title: "Community",
+      items: staff.can("community.view") ? [{ label: "Events & Monthly Forum", href: "/admin/events" }] : [],
+    },
+    {
       title: "Wellbeing Hub",
       items: staff.can("wellbeing.view")
         ? [

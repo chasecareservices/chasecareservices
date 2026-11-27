@@ -197,3 +197,22 @@ insert into public.wellbeing_resources (title, kind, summary, url, starts_at, pl
 insert into public.wellbeing_requests (worker_id, kind, urgency, contact_method, contact_times, message)
 select u.id, 'counselling', 'soon', 'whatsapp', 'Weekday evenings', 'I have been finding it hard to sleep since one of my clients passed away last month.'
 from auth.users u where u.email = 'carer@chasecare.local';
+
+-- Community events (local only): the next forum has a topic and a few registrations; one outreach day.
+update public.community_events set topic = 'Dementia', speaker = 'A dementia nurse specialist (demo)', venue = 'Chase Care office, Accra',
+  description = 'Understanding dementia: early signs, communicating with kindness, and support for families and carers. Questions welcome.'
+where id = (select id from public.community_events where kind = 'forum' order by starts_at limit 1);
+insert into public.community_event_links (event_id, online_url)
+select id, 'https://meet.example.com/chasecare-forum' from public.community_events where kind = 'forum' order by starts_at limit 1;
+insert into public.event_registrations (event_id, full_name, email, phone, attend_mode, needs)
+select e.id, v.n, v.e, v.p, v.m, v.needs
+from (select id from public.community_events where kind = 'forum' order by starts_at limit 1) e,
+(values ('Akosua Mensah', 'akosua@example.com', '+233 24 555 0201', 'in_person', 'My mother uses a wheelchair.'),
+        ('Kofi Asante', 'kofi@example.com', null, 'online', null),
+        ('Yaa Boateng', null, '+233 20 555 0203', 'in_person', null)) v(n, e, p, m, needs);
+insert into public.community_events (slug, kind, title, summary, description, starts_at, ends_at, venue, capacity, status)
+values ('disability-inclusion-outreach-day', 'outreach', 'Disability inclusion outreach day',
+        'A morning of games, health checks and information for families living with disability.',
+        'Free health checks, inclusive play for children, and information stands from local partners. Everyone welcome.',
+        date_trunc('day', now()) + interval '24 days 9 hours', date_trunc('day', now()) + interval '24 days 13 hours',
+        'Community centre, Madina', 60, 'published');

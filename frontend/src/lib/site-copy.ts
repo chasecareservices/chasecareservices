@@ -331,6 +331,7 @@ export const PAGE_COPY: Record<string, PageCopy> = {
     ],
     ctas: [
       { label: "Monthly Community Forum", href: "/community/monthly-forum" },
+      { label: "Upcoming community events", href: "/community/events" },
       { label: "Partner With ChaseCare", href: "/contact?topic=partnership" },
     ],
   },
@@ -355,7 +356,7 @@ export const PAGE_COPY: Record<string, PageCopy> = {
         ],
       },
     ],
-    ctas: [{ label: "Register for the next forum", href: "/contact?topic=forum_registration" }],
+    ctas: [{ label: "Register for the next forum", href: "/community/monthly-forum" }],
   },
   "parent-and-family-learning": {
     eyebrow: "Parent & Family Learning Centre",
