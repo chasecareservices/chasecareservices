@@ -251,3 +251,21 @@ where u.email = 'carer@chasecare.local' and c.slug = 'dementia-care' and l.sort_
 insert into public.certificates (user_id, course_id, learner_name, course_title, certification_type, completed_on)
 select u.id, c.id, 'Ama Mensah', c.title, c.certification_type, current_date - 40
 from auth.users u, public.courses c where u.email = 'carer@chasecare.local' and c.slug = 'first-aid';
+
+-- Matching & availability (local only): profiles, weekly availability and leave for the demo carers; needs for clients.
+insert into public.worker_profiles (worker_id, gender, skills, languages, home_area, home_lat, home_lng, travel_km, max_hours_week)
+select u.id, v.g, v.s, v.l, v.area, v.lat, v.lng, v.km, v.mx
+from auth.users u join (values
+  ('carer@chasecare.local', 'female', array['dementia', 'elderly_care', 'personal_care', 'medication'], array['Twi', 'English'], 'East Legon, Accra', 5.6350, -0.1610, 15, 40),
+  ('carer2@chasecare.local', 'male', array['autism', 'special_needs', 'childcare'], array['Ga', 'English'], 'Tema', 5.6698, -0.0166, 20, 30)
+) v(email, g, s, l, area, lat, lng, km, mx) on u.email = v.email;
+insert into public.worker_availability (worker_id, weekday, start_time, end_time)
+select u.id, d, '08:00', '16:00' from auth.users u, generate_series(1, 5) d where u.email = 'carer@chasecare.local';
+insert into public.worker_availability (worker_id, weekday, start_time, end_time)
+select u.id, d, '12:00', '20:00' from auth.users u, generate_series(1, 6) d where u.email = 'carer2@chasecare.local';
+insert into public.worker_time_off (worker_id, starts_on, ends_on, kind, note)
+select u.id, current_date + 9, current_date + 11, 'leave', 'Family wedding' from auth.users u where u.email = 'carer2@chasecare.local';
+update public.care_clients set required_skills = array['dementia', 'personal_care'], preferred_gender = 'female', languages = array['Twi']
+where id = '00000000-0000-4000-8000-00000000c001';
+update public.care_clients set required_skills = array['autism'], languages = array['English']
+where id = '00000000-0000-4000-8000-00000000c003';

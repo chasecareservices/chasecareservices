@@ -134,7 +134,10 @@ export type Database = {
           home_lng: number | null;
           id: string;
           is_active: boolean;
+          languages: string[];
+          preferred_gender: string | null;
           preferred_name: string | null;
+          required_skills: string[];
           source_enquiry_id: string | null;
           updated_at: string;
           updated_by: string | null;
@@ -153,7 +156,10 @@ export type Database = {
           home_lng?: number | null;
           id?: string;
           is_active?: boolean;
+          languages?: string[];
+          preferred_gender?: string | null;
           preferred_name?: string | null;
+          required_skills?: string[];
           source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
@@ -171,7 +177,10 @@ export type Database = {
           home_lng?: number | null;
           id?: string;
           is_active?: boolean;
+          languages?: string[];
+          preferred_gender?: string | null;
           preferred_name?: string | null;
+          required_skills?: string[];
           source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
@@ -2582,6 +2591,138 @@ export type Database = {
         };
         Relationships: [];
       };
+      worker_availability: {
+        Row: {
+          created_at: string;
+          end_time: string;
+          id: string;
+          start_time: string;
+          weekday: number;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          end_time: string;
+          id?: string;
+          start_time: string;
+          weekday: number;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          end_time?: string;
+          id?: string;
+          start_time?: string;
+          weekday?: number;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_availability_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      worker_profiles: {
+        Row: {
+          gender: string | null;
+          home_area: string | null;
+          home_lat: number | null;
+          home_lng: number | null;
+          languages: string[];
+          max_hours_week: number | null;
+          notes: string | null;
+          skills: string[];
+          travel_km: number;
+          updated_at: string;
+          updated_by: string | null;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          gender?: string | null;
+          home_area?: string | null;
+          home_lat?: number | null;
+          home_lng?: number | null;
+          languages?: string[];
+          max_hours_week?: number | null;
+          notes?: string | null;
+          skills?: string[];
+          travel_km?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          worker_id: string;
+        };
+        Update: {
+          gender?: string | null;
+          home_area?: string | null;
+          home_lat?: number | null;
+          home_lng?: number | null;
+          languages?: string[];
+          max_hours_week?: number | null;
+          notes?: string | null;
+          skills?: string[];
+          travel_km?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_profiles_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      worker_time_off: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          ends_on: string;
+          id: string;
+          kind: string;
+          note: string | null;
+          starts_on: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_on: string;
+          id?: string;
+          kind?: string;
+          note?: string | null;
+          starts_on: string;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_on?: string;
+          id?: string;
+          kind?: string;
+          note?: string | null;
+          starts_on?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_time_off_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       care_shift_status: {
@@ -2638,6 +2779,14 @@ export type Database = {
           monitor: number;
           to_read: number;
           urgent: number;
+        }[];
+      };
+      care_worker_certificates: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          completed_on: string;
+          course_title: string;
+          worker_id: string;
         }[];
       };
       community_counts: {

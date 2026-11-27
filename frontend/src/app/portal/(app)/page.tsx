@@ -267,6 +267,16 @@ export default async function PortalHome() {
           My learning
         </Link>
       </section>
+
+      <section aria-labelledby="avail-h" className="rounded-2xl bg-white p-5 ring-1 ring-brand-100">
+        <h2 id="avail-h" className="text-lg font-bold text-brand-900">
+          My availability
+        </h2>
+        <p className="mt-1 text-sm text-ink">The days and hours you can work, and your leave. The office books visits around them.</p>
+        <Link href="/portal/availability" className="mt-3 inline-flex min-h-12 items-center rounded-full px-5 font-semibold text-brand-800 ring-2 ring-brand-800 hover:bg-brand-50">
+          Update my availability
+        </Link>
+      </section>
     </div>
   );
 }
