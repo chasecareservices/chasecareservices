@@ -193,7 +193,7 @@ export const PAGE_COPY: Record<string, PageCopy> = {
       },
     ],
     ctas: [
-      { label: "Register your interest", href: "/contact?topic=worker_application" },
+      { label: "Apply now", href: "/register/worker" },
       { label: "Explore our training", href: "/academy" },
     ],
   },

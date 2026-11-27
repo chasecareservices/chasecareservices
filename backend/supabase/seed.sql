@@ -161,3 +161,24 @@ alter table public.care_reports disable trigger care_reports_guard; -- demo data
 update public.care_reports set status = 'reviewed', reviewed_at = now(), office_note = 'Thanks Ama, lovely report.'
 where client_id = '00000000-0000-4000-8000-00000000c001' and visit_date = current_date - 1;
 alter table public.care_reports enable trigger care_reports_guard;
+
+-- Recruitment pipeline (local only): one new website application, plus applicants at different stages.
+insert into public.enquiries (enquiry_type, full_name, email, phone, message, payload, consent_given)
+values ('worker_application', 'Abena Owusu', 'abena.owusu@example.com', '+233 24 555 0101',
+        'I cared for my grandmother for three years and would love to do this work professionally.',
+        '{"role": "Caregiver", "location": "Kumasi, Ashanti", "travel_areas": "Kumasi and Ejisu", "availability": ["Full-time", "Weekends"], "experience_years": "1–3 years", "languages": ["Twi", "English"], "has_ghana_card": "Yes", "checks_consent": true}'::jsonb,
+        true);
+insert into public.recruitment_applicants (id, full_name, email, phone, role_applied, location, availability, stage) values
+  ('00000000-0000-4000-8000-0000000ea001', 'Kwame Asante', 'kwame.asante@example.com', '+233 20 555 0102', 'Nurse', 'Accra, East Legon', 'Full-time', 'screening'),
+  ('00000000-0000-4000-8000-0000000ea002', 'Esi Mensah', 'esi.mensah@example.com', '+233 27 555 0103', 'Healthcare assistant', 'Tema', 'Part-time, Nights', 'training'),
+  ('00000000-0000-4000-8000-0000000ea003', 'Yaw Boateng', null, '+233 55 555 0104', 'Caregiver', 'Cape Coast', 'Live-in', 'registered');
+insert into public.recruitment_checks (applicant_id, check_key, status) values
+  ('00000000-0000-4000-8000-0000000ea001', 'interview', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea001', 'id_verified', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'interview', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'id_verified', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'references', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'background_check', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'safeguarding_training', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'comp_practical', 'passed'),
+  ('00000000-0000-4000-8000-0000000ea002', 'comp_communication', 'passed');

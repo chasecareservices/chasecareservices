@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { addFromEnquiry } from "../../recruitment/actions";
 import { addEnquiryNote, createClientFromEnquiry, updateEnquiryStatus } from "../actions";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { mapsEmbed, mapsLink } from "@/lib/care";
@@ -47,6 +48,11 @@ export default async function EnquiryPage({ params, searchParams }: Props) {
   const { data: existingClient } = isCareRequest
     ? await staff.supabase.from("care_clients").select("id, full_name").eq("source_enquiry_id", e.id).maybeSingle()
     : { data: null };
+  const isApplication = e.enquiry_type === "worker_application";
+  const { data: applicant } = isApplication
+    ? await staff.supabase.from("recruitment_applicants").select("id, stage").eq("enquiry_id", e.id).maybeSingle()
+    : { data: null };
+  const canAddApplicant = isApplication && !applicant && staff.can("workforce.create");
   const canConvert = isCareRequest && !existingClient && staff.can("clients.create") && staff.can("enquiries.edit");
   const recipientName = p("care_recipient_name") || (p("who_needs_care") === "Myself" ? e.full_name : "");
   const summary = [
@@ -219,6 +225,24 @@ export default async function EnquiryPage({ params, searchParams }: Props) {
             </Card>
           )}
 
+          {isApplication && applicant && (
+            <Card title="Recruitment">
+              <p className="text-sm">
+                In the recruitment pipeline.{" "}
+                <Link href={`/admin/recruitment/${applicant.id}`} className="font-semibold text-brand-700 underline">
+                  Open their applicant page
+                </Link>
+              </p>
+            </Card>
+          )}
+          {canAddApplicant && (
+            <Card title="Recruitment">
+              <p className="mb-3 text-sm text-muted">Start screening this applicant: interview, ID, references, training and competency checks.</p>
+              <ActionForm action={addFromEnquiry} submitLabel="Add to recruitment pipeline" inline>
+                <input type="hidden" name="enquiry_id" value={e.id} />
+              </ActionForm>
+            </Card>
+          )}
           {canConvert && (
             <Card title="Create client record">
               <p className="mb-3 text-sm text-muted">

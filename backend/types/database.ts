@@ -1399,6 +1399,152 @@ export type Database = {
         };
         Relationships: [];
       };
+      recruitment_applicants: {
+        Row: {
+          availability: string | null;
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          enquiry_id: string | null;
+          experience: string | null;
+          full_name: string;
+          id: string;
+          location: string | null;
+          phone: string | null;
+          role_applied: string | null;
+          stage: string;
+          stage_changed_at: string;
+          updated_at: string;
+          worker_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          availability?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          enquiry_id?: string | null;
+          experience?: string | null;
+          full_name: string;
+          id?: string;
+          location?: string | null;
+          phone?: string | null;
+          role_applied?: string | null;
+          stage?: string;
+          stage_changed_at?: string;
+          updated_at?: string;
+          worker_id?: string | null;
+        };
+        Update: {
+          availability?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          enquiry_id?: string | null;
+          experience?: string | null;
+          full_name?: string;
+          id?: string;
+          location?: string | null;
+          phone?: string | null;
+          role_applied?: string | null;
+          stage?: string;
+          stage_changed_at?: string;
+          updated_at?: string;
+          worker_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_applicants_enquiry_id_fkey";
+            columns: ["enquiry_id"];
+            isOneToOne: true;
+            referencedRelation: "enquiries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recruitment_applicants_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recruitment_checks: {
+        Row: {
+          applicant_id: string;
+          check_key: string;
+          checked_at: string;
+          checked_by: string | null;
+          note: string | null;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          applicant_id: string;
+          check_key: string;
+          checked_at?: string;
+          checked_by?: string | null;
+          note?: string | null;
+          status: string;
+        };
+        Update: {
+          applicant_id?: string;
+          check_key?: string;
+          checked_at?: string;
+          checked_by?: string | null;
+          note?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_checks_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "recruitment_applicants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recruitment_notes: {
+        Row: {
+          applicant_id: string;
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          applicant_id: string;
+          author_id?: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+        };
+        Update: {
+          applicant_id?: string;
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_notes_applicant_id_fkey";
+            columns: ["applicant_id"];
+            isOneToOne: false;
+            referencedRelation: "recruitment_applicants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recruitment_notes_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       role_permissions: {
         Row: {
           permission_key: string;
@@ -1918,6 +2064,21 @@ export type Database = {
           subscribed: number;
           unsubscribed: number;
         }[];
+      };
+      recruitment_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          n: number;
+          stage: string;
+        }[];
+      };
+      recruitment_missing_checks: {
+        Args: { applicant: string };
+        Returns: string[];
+      };
+      recruitment_new_applications: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
       };
       search_site: {
         Args: { max_results?: number; query: string };
