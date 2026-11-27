@@ -3,6 +3,9 @@ import { signOutLearner } from "@/app/learn/actions";
 import { LogoMark } from "@/components/LogoMark";
 import { requireLearner } from "@/lib/learn/session";
 
+// Every learner page depends on who is signed in: never pre-build them.
+export const dynamic = "force-dynamic";
+
 export default async function LearnLayout({ children }: { children: React.ReactNode }) {
   const learner = await requireLearner();
   return (
