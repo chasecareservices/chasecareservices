@@ -20,6 +20,7 @@ hold the documents.
 
 1. **Google Auth Platform** (or "OAuth consent screen") → **Get started**.
 2. App name `Chase Care Website`, support email: the company email. Audience: **External**.
+   Under **Branding → Authorised domains**, add `chasecareservices.org`.
 3. **Data access → Add or remove scopes**: tick only `.../auth/drive.file`.
 4. **Audience → Publish app**. (In "Testing", Google disconnects the website every 7 days.)
 
@@ -27,8 +28,7 @@ hold the documents.
 
 1. **Clients → Create client → Web application**.
 2. **Authorised redirect URIs**: add
-   `https://chasecareservices.vercel.app/api/google/callback`
-   (and later `https://<your-domain>/api/google/callback` when the domain is connected).
+   `https://www.chasecareservices.org/api/google/callback`
 3. **Create**, then copy the **Client ID** and **Client secret**.
 
 ## 5. Add them to Vercel
