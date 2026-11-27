@@ -67,7 +67,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     buttons: [{ label: "Arrange Care in Ghana", href: "/diaspora" }],
   },
   {
-    image: { src: null, alt: "Caregivers in training at the ChaseCare Academy" },
+    image: { src: "/images/pexels/academy-classroom.jpg", alt: "An instructor leading a training session for a class of students in uniform", focus: "50% 40%" },
     eyebrow: "ChaseCare Academy",
     heading: "Build your career in care.",
     text: "Competency-based training, CPD and a structured route into care for young people.",
@@ -77,7 +77,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     ],
   },
   {
-    image: { src: null, alt: "A young person enjoying a supported activity during a respite stay" },
+    image: { src: "/images/pexels/carer-playing-with-children.jpg", alt: "A smiling carer playing a building game on the floor with two boys", focus: "50% 45%" },
     eyebrow: "Respite & Accommodation",
     heading: "Time to rest, knowing your loved one is cared for.",
     text: "Planned respite and safe, supportive short stays for young people and adults with additional needs.",
@@ -87,22 +87,22 @@ export const HERO_SLIDES: HeroSlide[] = [
 
 /** Background photos behind the purple banner at the top of each page. */
 export const PAGE_BANNERS: Record<string, SiteImage> = {
-  "care-services": { src: null, alt: "" },
-  diaspora: { src: null, alt: "" },
-  respite: { src: null, alt: "" },
-  academy: { src: null, alt: "" },
-  about: { src: null, alt: "" },
-  journal: { src: null, alt: "" },
+  "care-services": { src: "/images/hero/slide-2-home-care.jpg", alt: "", focus: "55% 30%" },
+  diaspora: { src: "/images/hero/slide-3-diaspora.jpg", alt: "", focus: "45% 30%" },
+  respite: { src: "/images/pexels/carer-playing-with-children.jpg", alt: "", focus: "50% 45%" },
+  academy: { src: "/images/pexels/academy-classroom.jpg", alt: "", focus: "50% 40%" },
+  about: { src: "/images/pexels/team-meeting.jpg", alt: "", focus: "50% 35%" },
+  journal: { src: "/images/pexels/writing-at-desk.jpg", alt: "", focus: "60% 40%" },
   shop: { src: null, alt: "" },
-  contact: { src: null, alt: "" },
-  "register/client": { src: null, alt: "" },
-  "join-our-team": { src: null, alt: "" },
-  wellbeing: { src: null, alt: "" },
-  community: { src: null, alt: "" },
-  "community/monthly-forum": { src: null, alt: "" },
-  "schools-and-hospitals": { src: null, alt: "" },
-  "parent-and-family-learning": { src: null, alt: "" },
-  "academy/workforce-standards": { src: null, alt: "" },
+  contact: { src: "/images/pexels/office-headset-desk.jpg", alt: "", focus: "45% 30%" },
+  "register/client": { src: "/images/home/home-diaspora.jpg", alt: "", focus: "50% 30%" },
+  "join-our-team": { src: "/images/pexels/nurse-portrait-wide.jpg", alt: "", focus: "50% 30%" },
+  wellbeing: { src: "/images/pexels/wellbeing-conversation.jpg", alt: "", focus: "50% 40%" },
+  community: { src: "/images/home/home-community.jpg", alt: "", focus: "50% 40%" },
+  "community/monthly-forum": { src: "/images/pexels/forum-discussion.jpg", alt: "", focus: "50% 35%" },
+  "schools-and-hospitals": { src: "/images/pexels/reading-with-child.jpg", alt: "", focus: "50% 40%" },
+  "parent-and-family-learning": { src: "/images/pexels/parent-reading-with-baby.jpg", alt: "", focus: "55% 45%" },
+  "academy/workforce-standards": { src: "/images/pexels/nurses-in-uniform.jpg", alt: "", focus: "50% 25%" },
 };
 
 /**
@@ -124,8 +124,8 @@ export const SECTION_IMAGES = {
     alt: "A Chase Care Services caregiver checking on an elderly client",
   },
   diaspora: { src: "/images/home/home-diaspora.jpg", alt: "A smiling caregiver hugging an older woman on the sofa" },
-  academy: { src: null, alt: "Trainees practising care skills" },
-  wellbeing: { src: null, alt: "Care workers at a wellbeing session" },
+  academy: { src: "/images/pexels/nurses-in-uniform.jpg", alt: "Four smiling nurses in blue uniforms", focus: "50% 30%" },
+  wellbeing: { src: "/images/pexels/wellbeing-conversation.jpg", alt: "Women relaxing and talking together on sofas", focus: "50% 40%" },
   community: { src: "/images/home/home-community.jpg", alt: "Older and younger people talking together around a table at a community meeting" },
 } satisfies Record<string, SiteImage>;
 
