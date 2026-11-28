@@ -1,4 +1,5 @@
 import "server-only";
+import { getEmailCopy } from "@/lib/email/copy";
 import { compliance, docLabel, reminderDue, type Credential } from "@/lib/credentials";
 import { credentialOfficeDigest, credentialWorkerReminder } from "@/lib/email/alerts";
 import { ALERT_TOPICS, recipients } from "@/lib/email/notify";
@@ -29,6 +30,7 @@ export async function runCredentialReminders(site: string, today = new Date().to
   // Only the newest verified document of each type counts (a renewed one replaces the old).
   const { data: all } = ids.length ? await admin.from("worker_credentials").select("*").in("worker_id", ids) : { data: [] };
   const digest: { worker: string; label: string; expires_on: string }[] = [];
+  const [copyExpiring, copyExpired] = await Promise.all([getEmailCopy("document_expiring"), getEmailCopy("document_expired")]);
   let workersEmailed = 0;
   let notConfigured = false;
   for (const id of ids) {
@@ -51,7 +53,7 @@ export async function runCredentialReminders(site: string, today = new Date().to
     const toRemind = items.filter((i) => !i.renewalSent);
     if (email && toRemind.length) {
       const first = name.replace(/\s*\(.*\)$/, "").split(/\s+/)[0];
-      const res = await sendEmail({ to: [email], ...credentialWorkerReminder({ first_name: first, items: toRemind, today }, site) });
+      const res = await sendEmail({ to: [email], ...credentialWorkerReminder({ first_name: first, items: toRemind, today }, site, toRemind.some((i) => i.expires_on < today) ? copyExpired : copyExpiring) });
       if (res.reason === "not-configured") notConfigured = true;
       if (res.sent) workersEmailed++;
     }

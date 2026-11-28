@@ -402,9 +402,9 @@ export const RESOURCES: Resource[] = [
     key: "announcements",
     table: "announcements",
     section: "communications",
-    title: "Announcements",
-    singular: "announcement",
-    intro: "A message bar across the top of the website, between the dates you choose.",
+    title: "Website notice bar",
+    singular: "notice",
+    intro: "A short message bar across the top of the public website, between the dates you choose. For messages to care workers and families, use Communications → Announcements.",
     titleField: "message",
     columns: [
       { name: "message", label: "Message" },

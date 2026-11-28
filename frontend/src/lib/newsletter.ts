@@ -1,3 +1,4 @@
+import { renderCopy, type Copy } from "@/lib/email/templates";
 /**
  * News & blog subscriptions: checks and email wording. No server code here, so
  * it can be unit tested. Every email carries a one-click unsubscribe link.
@@ -25,19 +26,20 @@ const button = (href: string, label: string) =>
   `<p style="margin:24px 0"><a href="${esc(href)}" style="display:inline-block;background:#f89a00;color:#1d0533;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold">${esc(label)}</a></p>`;
 
 /** "Please confirm" email sent when someone signs up. */
-export function confirmEmail(siteUrl: string, token: string, name?: string | null) {
+export function confirmEmail(siteUrl: string, token: string, name?: string | null, copy?: Partial<Copy> | null) {
+  const c = renderCopy("newsletter_confirm", copy, {});
   const link = `${siteUrl}/newsletter/confirm/${token}`;
   const hello = name ? `Hello ${name},` : "Hello,";
   const html = frame(
-    `<h1 style="margin:0 0 16px;font-size:20px;color:#3b0a5e">Please confirm your subscription</h1>
+    `<h1 style="margin:0 0 16px;font-size:20px;color:#3b0a5e">${esc(c.heading)}</h1>
 <p style="margin:0 0 12px;font-size:15px;line-height:1.5">${esc(hello)}</p>
-<p style="margin:0;font-size:15px;line-height:1.5">You asked to get new articles and news from Chase Care Services by email. Please confirm it was you:</p>
+<p style="margin:0;font-size:15px;line-height:1.5">${esc(c.message)}</p>
 ${button(link, "Yes, subscribe me")}
 <p style="margin:0;font-size:13px;color:#6b6475">If you didn't ask for this, ignore this email and you won't hear from us.</p>`,
     "Chase Care Services · Ghana",
   );
-  const text = `${hello}\n\nYou asked to get new articles and news from Chase Care Services by email. Please confirm it was you:\n${link}\n\nIf you didn't ask for this, ignore this email and you won't hear from us.`;
-  return { subject: "Please confirm your subscription to Chase Care news", html, text };
+  const text = `${hello}\n\n${c.message}\n${link}\n\nIf you didn't ask for this, ignore this email and you won't hear from us.`;
+  return { subject: c.subject, html, text };
 }
 
 export type ArticleForEmail = { title: string; excerpt: string | null; url: string; imageUrl: string | null; category: string | null };

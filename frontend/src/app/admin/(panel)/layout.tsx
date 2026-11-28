@@ -106,6 +106,14 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       ],
     },
     {
+      title: "Communications",
+      items: [
+        ...(staff.can("communications.view") ? [{ label: "Announcements", href: "/admin/communications/announcements" }] : []),
+        ...(staff.can("communications.view") || staff.can("workforce.view") ? [{ label: "Policies", href: "/admin/communications/policies" }] : []),
+        ...(staff.can("communications.view") ? [{ label: "Email templates", href: "/admin/communications/templates" }] : []),
+      ],
+    },
+    {
       title: "Admin",
       items: [
         ...(staff.can("reports.view") ? [{ label: "Reports", href: "/admin/reports" }] : []),

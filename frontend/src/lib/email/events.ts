@@ -1,5 +1,6 @@
 /** Emails to people who register for a community event. Kept free of server code. */
 import { layout } from "@/lib/email/alerts";
+import { renderCopy, type Copy } from "@/lib/email/templates";
 import { attendLabel, eventDate, eventTime } from "@/lib/events";
 
 export type EventEmailInput = {
@@ -25,24 +26,16 @@ function footer(site: string, input: EventEmailInput) {
   return `Add it to your calendar: ${site}/api/events/${input.event.slug}/calendar. Can't come any more? Let us know so someone else can have your place: ${site}/events/cancel/${input.registration.token}`;
 }
 
-export function registrationConfirmation(input: EventEmailInput, site: string) {
+export function registrationConfirmation(input: EventEmailInput, site: string, copy?: Partial<Copy> | null) {
   const first = input.registration.full_name.split(/\s+/)[0];
-  const { html, text } = layout(
-    `You're registered, ${first}!`,
-    rows(input),
-    { label: "See the event details", href: `${site}/community/events/${input.event.slug}` },
-    footer(site, input),
-  );
-  return { subject: `You're registered: ${input.event.title}`, html, text };
+  const c = renderCopy("event_confirmation", copy, { first_name: first, event: input.event.title, date: eventDate(input.event.starts_at) });
+  const { html, text } = layout(c.heading, rows(input), { label: "See the event details", href: `${site}/community/events/${input.event.slug}` }, footer(site, input), c.message);
+  return { subject: c.subject, html, text };
 }
 
-export function eventReminder(input: EventEmailInput, site: string) {
+export function eventReminder(input: EventEmailInput, site: string, copy?: Partial<Copy> | null) {
   const first = input.registration.full_name.split(/\s+/)[0];
-  const { html, text } = layout(
-    `See you soon, ${first}`,
-    rows(input),
-    { label: "See the event details", href: `${site}/community/events/${input.event.slug}` },
-    footer(site, input),
-  );
-  return { subject: `Reminder: ${input.event.title}, ${eventDate(input.event.starts_at)}`, html, text };
+  const c = renderCopy("event_reminder", copy, { first_name: first, event: input.event.title, date: eventDate(input.event.starts_at) });
+  const { html, text } = layout(c.heading, rows(input), { label: "See the event details", href: `${site}/community/events/${input.event.slug}` }, footer(site, input), c.message);
+  return { subject: c.subject, html, text };
 }

@@ -1,3 +1,4 @@
+import { AnnouncementList } from "@/components/announcements/AnnouncementList";
 import { compliance, stateInline, type Credential } from "@/lib/credentials";
 import Link from "next/link";
 import { ConcernBadge, Mood, ReportStatus, VisitStatus, formatVisitDate, hhmm } from "@/components/portal/ReportBits";
@@ -57,6 +58,10 @@ export default async function PortalHome() {
     .from("worker_credentials")
     .select("id, doc_type, title, reference, issued_on, expires_on, status, note, created_at")
     .eq("worker_id", worker.user.id);
+  const [{ data: news }, { data: toRead }] = await Promise.all([
+    worker.supabase.from("portal_announcements").select("id, title, body, important, publish_at").order("publish_at", { ascending: false }).limit(5),
+    worker.supabase.rpc("my_policies_to_read"),
+  ]);
   const docRows = compliance((myCreds ?? []) as Credential[], [], new Date().toISOString().slice(0, 10)).filter(
     (r) => r.required && !r.pending && (r.state === "expired" || r.state === "expiring" || r.state === "rejected"),
   );
@@ -106,10 +111,20 @@ export default async function PortalHome() {
           </Link>
         </div>
       )}
+      {Number(toRead ?? 0) > 0 && (
+        <div role="note" className="mt-4 rounded-2xl bg-accent-50 p-4 text-ink ring-1 ring-accent-300">
+          <p className="font-semibold">{Number(toRead) === 1 ? "1 policy" : `${toRead} policies`} to read and confirm</p>
+          <Link href="/portal/policies" className="mt-1 inline-block text-sm font-semibold underline">
+            Read the policies
+          </Link>
+        </div>
+      )}
         <p className="mt-1 text-muted">
           {new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date())}
         </p>
       </section>
+
+      <AnnouncementList items={news ?? []} />
 
       <section aria-labelledby="visits-h">
         <h2 id="visits-h" className="text-xl font-bold text-brand-900">
@@ -291,6 +306,16 @@ export default async function PortalHome() {
         <p className="mt-1 text-sm text-ink">The days and hours you can work, and your leave. The office books visits around them.</p>
         <Link href="/portal/availability" className="mt-3 inline-flex min-h-12 items-center rounded-full px-5 font-semibold text-brand-800 ring-2 ring-brand-800 hover:bg-brand-50">
           Update my availability
+        </Link>
+      </section>
+
+      <section aria-labelledby="pol-h" className="rounded-2xl bg-white p-5 ring-1 ring-brand-100">
+        <h2 id="pol-h" className="text-lg font-bold text-brand-900">
+          Policies
+        </h2>
+        <p className="mt-1 text-sm text-ink">How we work at Chase Care: safeguarding, confidentiality and more.</p>
+        <Link href="/portal/policies" className="mt-3 inline-flex min-h-12 items-center rounded-full px-5 font-semibold text-brand-800 ring-2 ring-brand-800 hover:bg-brand-50">
+          Read the policies
         </Link>
       </section>
 

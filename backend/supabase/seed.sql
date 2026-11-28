@@ -283,3 +283,13 @@ select u.id, v.t, v.r, v.i, v.e, v.s from auth.users u join (values
   ('carer2@chasecare.local', 'police_check', 'PC/TEM/2026/0921', current_date - 2, current_date + 363, 'pending'),
   ('carer2@chasecare.local', 'first_aid', 'FA-60331', current_date - 300, current_date + 795, 'verified')
 ) v(email, t, r, i, e, s) on u.email = v.email;
+
+-- Communications (local only): an announcement for workers, one for families, and two policies.
+insert into public.portal_announcements (title, body, audience, important, status) values
+  ('Team meeting this Friday', E'All care workers are invited to the monthly team meeting at the office on Friday at 4pm.\n\nWe''ll cover the new visit report form and the December rota.', 'workers', false, 'published'),
+  ('Office closed for Christmas', E'The office is closed on 25 and 26 December. Care visits go ahead as booked.\n\nIn an emergency call 112, then the on-call number.', 'both', true, 'published');
+insert into public.policies (title, category, summary, body, must_read, status, sort_order) values
+  ('Safeguarding policy', 'Safeguarding', 'How we protect the people we care for, and what to do if you are worried.',
+   E'Everyone has the right to be safe.\n\nIf you see or suspect abuse or neglect, make the person safe, then report it to the office the same day. Never promise to keep a secret.\n\nIn an emergency, call 112 first.', true, 'published', 1),
+  ('Confidentiality and data protection', 'Privacy', 'Keeping clients'' information private.',
+   E'Only share a client''s information with people who need it to care for them.\n\nDon''t post anything about clients on social media, and don''t take photos of clients without written consent.', true, 'published', 2);
