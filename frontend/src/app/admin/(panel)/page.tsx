@@ -54,23 +54,20 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
       <PageHeader title={`Welcome, ${firstName}`} intro="Here's what is happening on the Chase Care website." />
 
       <dl className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((s) => {
-          const inner = (
-            <>
-              <dt className="text-sm text-muted">{s.label}</dt>
-              <dd className={`mt-1 text-3xl font-bold ${s.highlight && s.value > 0 ? "text-accent-700" : "text-brand-900"}`}>{s.value}</dd>
-            </>
-          );
-          return s.href ? (
-            <Link key={s.label} href={s.href} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 hover:ring-brand-300">
-              {inner}
-            </Link>
-          ) : (
-            <div key={s.label} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
-              {inner}
-            </div>
-          );
-        })}
+        {stats.map((s) => (
+          <div key={s.label} className={`relative rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 ${s.href ? "hover:ring-brand-300" : ""}`}>
+            <dt className="text-sm text-muted">
+              {s.href ? (
+                <Link href={s.href} className="after:absolute after:inset-0 after:rounded-2xl">
+                  {s.label}
+                </Link>
+              ) : (
+                s.label
+              )}
+            </dt>
+            <dd className={`mt-1 text-3xl font-bold ${s.highlight && s.value > 0 ? "text-accent-700" : "text-brand-900"}`}>{s.value}</dd>
+          </div>
+        ))}
       </dl>
 
       {glance && (

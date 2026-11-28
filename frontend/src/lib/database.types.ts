@@ -1038,6 +1038,58 @@ export type Database = {
         };
         Relationships: [];
       };
+      data_requests: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          details: string | null;
+          due_on: string;
+          handled_by: string | null;
+          id: string;
+          kind: string;
+          outcome: string | null;
+          person_email: string | null;
+          person_name: string;
+          received_on: string;
+          status: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          details?: string | null;
+          due_on?: string;
+          handled_by?: string | null;
+          id?: string;
+          kind: string;
+          outcome?: string | null;
+          person_email?: string | null;
+          person_name: string;
+          received_on?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          details?: string | null;
+          due_on?: string;
+          handled_by?: string | null;
+          id?: string;
+          kind?: string;
+          outcome?: string | null;
+          person_email?: string | null;
+          person_name?: string;
+          received_on?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       email_templates: {
         Row: {
           heading: string | null;
@@ -2992,6 +3044,7 @@ export type Database = {
     };
     Functions: {
       acknowledge_policy: { Args: { policy: string }; Returns: number };
+      apply_retention: { Args: Record<PropertyKey, never>; Returns: Json };
       cancel_event_registration: {
         Args: { registration_token: string };
         Returns: string;
@@ -3095,6 +3148,7 @@ export type Database = {
           connected_at: string;
         }[];
       };
+      end_user_sessions: { Args: { target: string }; Returns: number };
       enquiry_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -3103,6 +3157,7 @@ export type Database = {
         }[];
       };
       ensure_forums: { Args: Record<PropertyKey, never>; Returns: undefined };
+      erase_person: { Args: { lookup: string }; Returns: Json };
       event_places_left: { Args: { event: string }; Returns: number };
       family_message_office: {
         Args: { client: string; message: string };
@@ -3170,6 +3225,17 @@ export type Database = {
           user_id: string;
         }[];
       };
+      login_history: {
+        Args: { for_user?: string; max_rows?: number };
+        Returns: {
+          action: string;
+          at: string;
+          email: string;
+          full_name: string;
+          ip: string;
+          user_id: string;
+        }[];
+      };
       missed_visit_count: { Args: Record<PropertyKey, never>; Returns: number };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
       my_policies_to_read: {
@@ -3184,6 +3250,7 @@ export type Database = {
           unsubscribed: number;
         }[];
       };
+      person_data: { Args: { lookup: string }; Returns: Json };
       recruitment_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -3227,8 +3294,20 @@ export type Database = {
           url: string;
         }[];
       };
+      security_options: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          require_staff_mfa: boolean;
+          retention_enquiry_months: number;
+          staff_idle_minutes: number;
+        }[];
+      };
       self_enrol: { Args: { course: string }; Returns: string };
       set_page_banners: { Args: { banners: Json }; Returns: undefined };
+      set_security_options: {
+        Args: { idle_minutes: number; retention_months: number };
+        Returns: undefined;
+      };
       staff_mfa_required: {
         Args: Record<PropertyKey, never>;
         Returns: boolean;
@@ -3257,6 +3336,20 @@ export type Database = {
           passed: boolean;
           score: number;
           total: number;
+        }[];
+      };
+      user_sessions: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          email: string;
+          full_name: string;
+          ip: string;
+          last_active: string;
+          session_id: string;
+          started_at: string;
+          two_step: boolean;
+          user_agent: string;
+          user_id: string;
         }[];
       };
       verify_certificate: {

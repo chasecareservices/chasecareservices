@@ -14,7 +14,13 @@ function safeNext(value: string | null, fallback: string) {
 export function LoginForm({ home = "/admin" }: { home?: string }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [error, setError] = useState<string | null>(params.get("error") === "inactive" ? "This account has been deactivated." : null);
+  const [error, setError] = useState<string | null>(
+    params.get("error") === "inactive"
+      ? "This account has been deactivated."
+      : params.get("error") === "idle"
+        ? "You were signed out because the dashboard wasn't used for a while. Please sign in again."
+        : null,
+  );
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
