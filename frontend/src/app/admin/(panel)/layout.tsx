@@ -34,6 +34,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     newApplications = Number(data ?? 0);
   }
 
+  let docsAttention = 0;
+  if (staff.can("workforce.view") || staff.can("care_ops.view")) {
+    const { data } = await staff.supabase.rpc("credential_counts");
+    const c = data?.[0];
+    docsAttention = Number(c?.expired ?? 0) + Number(c?.expiring ?? 0) + Number(c?.to_check ?? 0);
+  }
+
   let wellbeingNew = 0;
   if (staff.can("wellbeing.view")) {
     const { data } = await staff.supabase.rpc("wellbeing_counts");
@@ -57,11 +64,27 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       items: [
         ...(staff.can("care_ops.view") ? [{ label: "Care reports", href: "/admin/care-reports", badge: careToRead }] : []),
         ...(staff.can("care_ops.view") ? [{ label: "Visit schedule", href: "/admin/care-schedule", badge: missedVisits }] : []),
+        ...(staff.can("care_ops.view") ? [{ label: "Find a care worker", href: "/admin/matching" }] : []),
+        ...(staff.can("care_ops.view") ? [{ label: "Availability", href: "/admin/availability" }] : []),
         ...(staff.can("care_ops.view") ? [{ label: "Incidents", href: "/admin/incidents", badge: openIncidents }] : []),
         ...(staff.can("clients.view") ? [{ label: "Clients", href: "/admin/clients" }] : []),
         ...(staff.can("clients.view") || staff.can("care_ops.view") ? [{ label: "Care workers", href: "/admin/care-workers" }] : []),
         ...(staff.can("workforce.view") ? [{ label: "Recruitment", href: "/admin/recruitment", badge: newApplications }] : []),
+        ...(staff.can("workforce.view") || staff.can("care_ops.view") ? [{ label: "Worker documents", href: "/admin/worker-documents", badge: docsAttention }] : []),
       ],
+    },
+    {
+      title: "Academy",
+      items: staff.can("academy.view")
+        ? [
+            { label: "Online learning", href: "/admin/learning" },
+            { label: "Certificates", href: "/admin/learning/certificates" },
+          ]
+        : [],
+    },
+    {
+      title: "Community",
+      items: staff.can("community.view") ? [{ label: "Events & Monthly Forum", href: "/admin/events" }] : [],
     },
     {
       title: "Wellbeing Hub",

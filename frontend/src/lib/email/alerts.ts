@@ -5,7 +5,7 @@
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function layout(heading: string, rows: [string, string][], button: { label: string; href: string }, note: string) {
+export function layout(heading: string, rows: [string, string][], button: { label: string; href: string }, note: string) {
   const html = `<!doctype html><html><body style="margin:0;background:#f7f2fb;font-family:Arial,Helvetica,sans-serif;color:#1d1a22">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden">
@@ -118,4 +118,46 @@ export function wellbeingReplyAlert(r: { id: string; reference: string; first_na
     "For your privacy, the message is only in your care worker portal. Sent by the ChaseCare Wellbeing Hub.",
   );
   return { subject: "A new message from the ChaseCare Wellbeing Hub", html, text };
+}
+
+/** To someone who already has an account: they've been enrolled on an online course. */
+export function enrolledAlert(p: { first_name: string; course_title: string }, siteUrl: string) {
+  const { html, text } = layout(
+    `Hello ${p.first_name}, your course is ready`,
+    [["Course", p.course_title]],
+    { label: "Start learning", href: `${siteUrl}/learn` },
+    "Sign in with your usual Chase Care email and password. Sent by the ChaseCare Academy.",
+  );
+  return { subject: `You're enrolled: ${p.course_title}`, html, text };
+}
+
+const longDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const expiryWords = (d: string, today: string) => {
+  const left = Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400_000);
+  return left < 0 ? `expired on ${longDate(d)}` : left === 0 ? "expires today" : `expires on ${longDate(d)} (in ${left} ${left === 1 ? "day" : "days"})`;
+};
+
+/** To a care worker: a document needs renewing. */
+export function credentialWorkerReminder(p: { first_name: string; items: { label: string; expires_on: string }[]; today: string }, siteUrl: string) {
+  const expired = p.items.some((i) => i.expires_on < p.today);
+  const { html, text } = layout(
+    `Hello ${p.first_name}, ${expired ? "a document has expired" : "a document needs renewing soon"}`,
+    p.items.map((i) => [i.label, expiryWords(i.expires_on, p.today)] as [string, string]),
+    { label: "Send the new details", href: `${siteUrl}/portal/documents` },
+    `Please renew it and send the new details (and a photo or PDF) in your care worker portal, or bring it to the office.${expired ? " Until it's renewed you may not be booked for visits." : ""} Sent by Chase Care Services.`,
+  );
+  return { subject: expired ? "Action needed: a document has expired" : "Reminder: please renew your document", html, text };
+}
+
+/** To the office: documents expiring or expired today's run found. */
+export function credentialOfficeDigest(p: { items: { worker: string; label: string; expires_on: string }[]; to_check: number; today: string }, siteUrl: string) {
+  const rows: [string, string][] = p.items.map((i) => [i.worker, `${i.label}: ${expiryWords(i.expires_on, p.today)}`]);
+  if (p.to_check) rows.push(["Waiting to be checked", `${p.to_check} renewed ${p.to_check === 1 ? "document" : "documents"} sent by care workers`]);
+  const { html, text } = layout(
+    "Care worker documents need attention",
+    rows,
+    { label: "Open worker documents", href: `${siteUrl}/admin/worker-documents` },
+    "The care workers listed have also been emailed a reminder. Sent automatically by the Chase Care website.",
+  );
+  return { subject: `Worker documents: ${p.items.length} expiring or expired`, html, text };
 }

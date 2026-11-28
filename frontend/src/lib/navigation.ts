@@ -63,6 +63,7 @@ export const FALLBACK_NAV: NavLink[] = [
     children: [
       { label: "News & Blog", href: "/journal" },
       { label: "Monthly Forum", href: "/community/monthly-forum" },
+      { label: "Community Events", href: "/community/events" },
       { label: "Community & Partnerships", href: "/community" },
       { label: "Shop", href: "/shop" },
     ],

@@ -213,6 +213,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <Field label="Care reports with a concern (urgent or “keep an eye on it”)" hint="The email says who and when; the details stay in the dashboard for privacy.">
                   <textarea name="care_concerns" rows={3} defaultValue={alertList(ALERT_TOPICS.careConcerns)} placeholder="care.manager@example.com" className={adminInput} />
                 </Field>
+                <Field label="Care worker documents expiring or expired (daily summary)" hint="Usually the recruitment or operations manager.">
+                  <textarea name="documents" rows={3} defaultValue={alertList(ALERT_TOPICS.documents)} placeholder="recruitment@example.com" className={adminInput} />
+                </Field>
                 <Field label="Wellbeing Hub requests from care workers" hint="Confidential: the email gives only a reference. Use the wellbeing officer's address.">
                   <textarea name="wellbeing" rows={3} defaultValue={alertList(ALERT_TOPICS.wellbeing)} placeholder="wellbeing@example.com" className={adminInput} />
                 </Field>
@@ -220,7 +223,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </ActionForm>
           ) : (
             <p className="text-sm">
-              Enquiries: {alertList(ALERT_TOPICS.enquiries) || "the contact email"} · Care concerns: {alertList(ALERT_TOPICS.careConcerns) || "the contact email"} · Wellbeing: {alertList(ALERT_TOPICS.wellbeing) || "the contact email"}
+              Enquiries: {alertList(ALERT_TOPICS.enquiries) || "the contact email"} · Care concerns: {alertList(ALERT_TOPICS.careConcerns) || "the contact email"} · Wellbeing: {alertList(ALERT_TOPICS.wellbeing) || "the contact email"} · Documents: {alertList(ALERT_TOPICS.documents) || "the contact email"}
             </p>
           )}
         </Card>

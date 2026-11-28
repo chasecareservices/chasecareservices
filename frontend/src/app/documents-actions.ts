@@ -47,6 +47,10 @@ async function mayAdd(input: { ownerKind: "client" | "worker"; ownerId: string; 
     }
     return { session } as const;
   }
+  // Care workers may send their own ID, certificates and checks (e.g. a renewed police check).
+  if (session.isWorker && input.ownerKind === "worker" && input.ownerId === session.user.id && ["identity", "certificate", "assessment"].includes(input.category)) {
+    return { session } as const;
+  }
   return { error: "You don't have permission to add documents here." } as const;
 }
 

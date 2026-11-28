@@ -6,7 +6,7 @@ import { sendEmail } from "@/lib/email/send";
 import { createSecretClient } from "@/lib/supabase/server-auth";
 
 /** Topics in notification_recipients. */
-export const ALERT_TOPICS = { enquiries: "enquiry.all", careConcerns: "care.concerns", wellbeing: "wellbeing.requests" } as const;
+export const ALERT_TOPICS = { enquiries: "enquiry.all", careConcerns: "care.concerns", wellbeing: "wellbeing.requests", documents: "workforce.documents" } as const;
 
 /** The site's own address, for links in emails. */
 export async function siteUrl() {
@@ -18,7 +18,7 @@ export async function siteUrl() {
 type Admin = NonNullable<ReturnType<typeof createSecretClient>>;
 
 /** Who gets an alert: the recipients for these topics, or else the site's own email address. */
-async function recipients(admin: Admin, topics: string[]) {
+export async function recipients(admin: Admin, topics: string[]) {
   const { data } = await admin.from("notification_recipients").select("email").in("topic", topics);
   const list = [...new Set((data ?? []).map((r) => r.email.toLowerCase()))];
   if (list.length) return list;

@@ -27,6 +27,7 @@ begin
       ('ops@chasecare.local',      'Demo Operations Manager', 'operations_manager'),
       ('training@chasecare.local', 'Demo Training Coordinator', 'training_coordinator'),
       ('wellbeing@chasecare.local', 'Demo Wellbeing Officer',  'wellbeing_officer'),
+      ('learner@chasecare.local',  'Abena Owusu (demo learner)', 'learner'),
       ('carer@chasecare.local',    'Ama Mensah (demo carer)',  'worker'),
       ('carer2@chasecare.local',   'Kwame Owusu (demo carer)', 'worker'),
       ('family@chasecare.local',   'Efua Boateng (demo family)', 'client')
@@ -197,3 +198,88 @@ insert into public.wellbeing_resources (title, kind, summary, url, starts_at, pl
 insert into public.wellbeing_requests (worker_id, kind, urgency, contact_method, contact_times, message)
 select u.id, 'counselling', 'soon', 'whatsapp', 'Weekday evenings', 'I have been finding it hard to sleep since one of my clients passed away last month.'
 from auth.users u where u.email = 'carer@chasecare.local';
+
+-- Community events (local only): the next forum has a topic and a few registrations; one outreach day.
+update public.community_events set topic = 'Dementia', speaker = 'A dementia nurse specialist (demo)', venue = 'Chase Care office, Accra',
+  description = 'Understanding dementia: early signs, communicating with kindness, and support for families and carers. Questions welcome.'
+where id = (select id from public.community_events where kind = 'forum' order by starts_at limit 1);
+insert into public.community_event_links (event_id, online_url)
+select id, 'https://meet.example.com/chasecare-forum' from public.community_events where kind = 'forum' order by starts_at limit 1;
+insert into public.event_registrations (event_id, full_name, email, phone, attend_mode, needs)
+select e.id, v.n, v.e, v.p, v.m, v.needs
+from (select id from public.community_events where kind = 'forum' order by starts_at limit 1) e,
+(values ('Akosua Mensah', 'akosua@example.com', '+233 24 555 0201', 'in_person', 'My mother uses a wheelchair.'),
+        ('Kofi Asante', 'kofi@example.com', null, 'online', null),
+        ('Yaa Boateng', null, '+233 20 555 0203', 'in_person', null)) v(n, e, p, m, needs);
+insert into public.community_events (slug, kind, title, summary, description, starts_at, ends_at, venue, capacity, status)
+values ('disability-inclusion-outreach-day', 'outreach', 'Disability inclusion outreach day',
+        'A morning of games, health checks and information for families living with disability.',
+        'Free health checks, inclusive play for children, and information stands from local partners. Everyone welcome.',
+        date_trunc('day', now()) + interval '24 days 9 hours', date_trunc('day', now()) + interval '24 days 13 hours',
+        'Community centre, Madina', 60, 'published');
+
+-- Online learning (local only): Dementia Care online, with lessons and a short assessment.
+-- Ama (demo carer) is halfway through; Abena (demo learner) is enrolled; one in-person certificate.
+update public.courses set online_enabled = true, self_enrol = true, pass_mark = 80, cpd_hours = 4, certification_type = 'cpd'
+where slug = 'dementia-care';
+insert into public.course_lessons (course_id, section, title, body, video_url, minutes, sort_order)
+select c.id, v.section, v.title, v.body, v.video, v.minutes, v.ord
+from public.courses c,
+(values
+  ('Module 1: Understanding dementia', 'What is dementia?', E'Dementia is a group of symptoms that affect memory, thinking and everyday life. It is not a normal part of ageing.\n\nThe most common type is Alzheimer''s disease. Others include vascular dementia and dementia with Lewy bodies.\n\nEvery person with dementia is different. Get to know the person: their history, what they enjoy and what worries them.', null, 10, 1),
+  ('Module 1: Understanding dementia', 'Early signs to look out for', E'Forgetting recent events or conversations, repeating questions, getting lost in familiar places, and changes in mood or behaviour can all be early signs.\n\nIf you notice changes in someone you care for, write them in your visit report so the office and family can follow up.', null, 8, 2),
+  ('Module 2: Communicating with kindness', 'Talking and listening', E'Approach from the front and say your name. Use short, simple sentences and give time to answer.\n\nListen to feelings as well as words. If the person is upset, stay calm and reassure them rather than correcting them.', null, 12, 3),
+  ('Module 2: Communicating with kindness', 'Dignity in everyday care', E'Offer simple choices: "Would you like the blue dress or the green one?"\n\nProtect privacy during personal care. Encourage the person to do what they can for themselves.', null, 10, 4)
+) as v(section, title, body, video, minutes, ord)
+where c.slug = 'dementia-care';
+insert into public.course_quiz_questions (course_id, question, options, correct_option, sort_order)
+select c.id, v.q, v.o, v.a, v.ord from public.courses c,
+(values
+  ('Is dementia a normal part of ageing?', array['Yes, everyone gets it', 'No, it is not a normal part of ageing'], 1, 1),
+  ('How should you approach a person with dementia?', array['From behind, quietly', 'From the front, saying your name', 'Quickly, to save time'], 1, 2),
+  ('The person is upset and says they need to go home (they are at home). What helps most?', array['Tell them firmly they are wrong', 'Stay calm, listen and reassure them', 'Leave the room'], 1, 3),
+  ('Where should you write changes you notice?', array['Nowhere', 'On social media', 'In your visit report'], 2, 4),
+  ('Which supports dignity?', array['Offering simple choices', 'Doing everything for them', 'Talking about them as if they are not there'], 0, 5)
+) as v(q, o, a, ord)
+where c.slug = 'dementia-care';
+insert into public.course_enrolments (course_id, user_id, source)
+select c.id, u.id, 'staff' from public.courses c, auth.users u
+where c.slug = 'dementia-care' and u.email in ('carer@chasecare.local', 'learner@chasecare.local');
+insert into public.lesson_progress (user_id, lesson_id)
+select u.id, l.id from auth.users u, public.course_lessons l join public.courses c on c.id = l.course_id
+where u.email = 'carer@chasecare.local' and c.slug = 'dementia-care' and l.sort_order <= 2;
+insert into public.certificates (user_id, course_id, learner_name, course_title, certification_type, completed_on)
+select u.id, c.id, 'Ama Mensah', c.title, c.certification_type, current_date - 40
+from auth.users u, public.courses c where u.email = 'carer@chasecare.local' and c.slug = 'first-aid';
+
+-- Matching & availability (local only): profiles, weekly availability and leave for the demo carers; needs for clients.
+insert into public.worker_profiles (worker_id, gender, skills, languages, home_area, home_lat, home_lng, travel_km, max_hours_week)
+select u.id, v.g, v.s, v.l, v.area, v.lat, v.lng, v.km, v.mx
+from auth.users u join (values
+  ('carer@chasecare.local', 'female', array['dementia', 'elderly_care', 'personal_care', 'medication'], array['Twi', 'English'], 'East Legon, Accra', 5.6350, -0.1610, 15, 40),
+  ('carer2@chasecare.local', 'male', array['autism', 'special_needs', 'childcare'], array['Ga', 'English'], 'Tema', 5.6698, -0.0166, 20, 30)
+) v(email, g, s, l, area, lat, lng, km, mx) on u.email = v.email;
+insert into public.worker_availability (worker_id, weekday, start_time, end_time)
+select u.id, d, '08:00', '16:00' from auth.users u, generate_series(1, 5) d where u.email = 'carer@chasecare.local';
+insert into public.worker_availability (worker_id, weekday, start_time, end_time)
+select u.id, d, '12:00', '20:00' from auth.users u, generate_series(1, 6) d where u.email = 'carer2@chasecare.local';
+insert into public.worker_time_off (worker_id, starts_on, ends_on, kind, note)
+select u.id, current_date + 9, current_date + 11, 'leave', 'Family wedding' from auth.users u where u.email = 'carer2@chasecare.local';
+update public.care_clients set required_skills = array['dementia', 'personal_care'], preferred_gender = 'female', languages = array['Twi']
+where id = '00000000-0000-4000-8000-00000000c001';
+update public.care_clients set required_skills = array['autism'], languages = array['English']
+where id = '00000000-0000-4000-8000-00000000c003';
+
+-- Worker documents (local only): Ama mostly in order (first aid expiring soon); Kwame's police check expired, and he sent a new one.
+insert into public.worker_credentials (worker_id, doc_type, reference, issued_on, expires_on, status)
+select u.id, v.t, v.r, v.i, v.e, v.s from auth.users u join (values
+  ('carer@chasecare.local', 'ghana_card', 'GHA-712345678-9', current_date - 900, current_date + 2700, 'verified'),
+  ('carer@chasecare.local', 'police_check', 'PC/ACC/2026/1182', current_date - 200, current_date + 165, 'verified'),
+  ('carer@chasecare.local', 'first_aid', 'FA-55102', current_date - 1070, current_date + 25, 'verified'),
+  ('carer@chasecare.local', 'safeguarding', null, current_date - 100, current_date + 265, 'verified'),
+  ('carer@chasecare.local', 'health_check', null, current_date - 60, current_date + 305, 'verified'),
+  ('carer2@chasecare.local', 'ghana_card', 'GHA-798765432-1', current_date - 400, current_date + 3200, 'verified'),
+  ('carer2@chasecare.local', 'police_check', 'PC/TEM/2025/0410', current_date - 380, current_date - 15, 'verified'),
+  ('carer2@chasecare.local', 'police_check', 'PC/TEM/2026/0921', current_date - 2, current_date + 363, 'pending'),
+  ('carer2@chasecare.local', 'first_aid', 'FA-60331', current_date - 300, current_date + 795, 'verified')
+) v(email, t, r, i, e, s) on u.email = v.email;

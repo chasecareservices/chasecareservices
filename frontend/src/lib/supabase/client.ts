@@ -34,6 +34,16 @@ export function getServerClient(): TypedClient | null {
   });
 }
 
+/** Like getServerClient, but never cached: for answers that must be current (e.g. checking a certificate). */
+export function getLiveServerClient(): TypedClient | null {
+  const config = readConfig();
+  if (!config) return null;
+  return createClient<Database>(config.url, config.key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
+  });
+}
+
 let browserClient: TypedClient | null = null;
 
 /** Client for the browser (forms). Same publishable key; never use the secret key here. */

@@ -134,7 +134,10 @@ export type Database = {
           home_lng: number | null;
           id: string;
           is_active: boolean;
+          languages: string[];
+          preferred_gender: string | null;
           preferred_name: string | null;
+          required_skills: string[];
           source_enquiry_id: string | null;
           updated_at: string;
           updated_by: string | null;
@@ -153,7 +156,10 @@ export type Database = {
           home_lng?: number | null;
           id?: string;
           is_active?: boolean;
+          languages?: string[];
+          preferred_gender?: string | null;
           preferred_name?: string | null;
+          required_skills?: string[];
           source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
@@ -171,7 +177,10 @@ export type Database = {
           home_lng?: number | null;
           id?: string;
           is_active?: boolean;
+          languages?: string[];
+          preferred_gender?: string | null;
           preferred_name?: string | null;
+          required_skills?: string[];
           source_enquiry_id?: string | null;
           updated_at?: string;
           updated_by?: string | null;
@@ -619,6 +628,325 @@ export type Database = {
           },
         ];
       };
+      certificates: {
+        Row: {
+          accrediting_body: string | null;
+          certification_type: Database["public"]["Enums"]["certification_type"];
+          completed_on: string;
+          course_id: string | null;
+          course_title: string;
+          cpd_hours: number | null;
+          enrolment_id: string | null;
+          id: string;
+          issued_at: string;
+          issued_by: string | null;
+          learner_name: string;
+          number: string;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+          user_id: string | null;
+          verify_code: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accrediting_body?: string | null;
+          certification_type?: Database["public"]["Enums"]["certification_type"];
+          completed_on?: string;
+          course_id?: string | null;
+          course_title: string;
+          cpd_hours?: number | null;
+          enrolment_id?: string | null;
+          id?: string;
+          issued_at?: string;
+          issued_by?: string | null;
+          learner_name: string;
+          number?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          user_id?: string | null;
+          verify_code?: string;
+        };
+        Update: {
+          accrediting_body?: string | null;
+          certification_type?: Database["public"]["Enums"]["certification_type"];
+          completed_on?: string;
+          course_id?: string | null;
+          course_title?: string;
+          cpd_hours?: number | null;
+          enrolment_id?: string | null;
+          id?: string;
+          issued_at?: string;
+          issued_by?: string | null;
+          learner_name?: string;
+          number?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          user_id?: string | null;
+          verify_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: true;
+            referencedRelation: "course_enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      community_event_links: {
+        Row: {
+          event_id: string;
+          online_url: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          event_id: string;
+          online_url: string;
+          updated_at?: string;
+        };
+        Update: {
+          event_id?: string;
+          online_url?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_event_links_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: true;
+            referencedRelation: "community_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      community_events: {
+        Row: {
+          capacity: number | null;
+          created_at: string;
+          description: string | null;
+          ends_at: string | null;
+          id: string;
+          image_path: string | null;
+          kind: string;
+          online: boolean;
+          registration_open: boolean;
+          slug: string;
+          speaker: string | null;
+          starts_at: string;
+          status: string;
+          summary: string | null;
+          title: string;
+          topic: string | null;
+          updated_at: string;
+          venue: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          image_path?: string | null;
+          kind?: string;
+          online?: boolean;
+          registration_open?: boolean;
+          slug: string;
+          speaker?: string | null;
+          starts_at: string;
+          status?: string;
+          summary?: string | null;
+          title: string;
+          topic?: string | null;
+          updated_at?: string;
+          venue?: string | null;
+        };
+        Update: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          image_path?: string | null;
+          kind?: string;
+          online?: boolean;
+          registration_open?: boolean;
+          slug?: string;
+          speaker?: string | null;
+          starts_at?: string;
+          status?: string;
+          summary?: string | null;
+          title?: string;
+          topic?: string | null;
+          updated_at?: string;
+          venue?: string | null;
+        };
+        Relationships: [];
+      };
+      course_enrolments: {
+        Row: {
+          completed_at: string | null;
+          course_id: string;
+          enrolled_at: string;
+          enrolled_by: string | null;
+          id: string;
+          source: string;
+          status: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string | null;
+          course_id: string;
+          enrolled_at?: string;
+          enrolled_by?: string | null;
+          id?: string;
+          source?: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          course_id?: string;
+          enrolled_at?: string;
+          enrolled_by?: string | null;
+          id?: string;
+          source?: string;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_enrolments_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "course_enrolments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      course_lessons: {
+        Row: {
+          body: string | null;
+          course_id: string;
+          created_at: string;
+          id: string;
+          minutes: number | null;
+          published: boolean;
+          resource_label: string | null;
+          resource_url: string | null;
+          section: string | null;
+          sort_order: number;
+          title: string;
+          updated_at: string;
+          video_url: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string | null;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          minutes?: number | null;
+          published?: boolean;
+          resource_label?: string | null;
+          resource_url?: string | null;
+          section?: string | null;
+          sort_order?: number;
+          title: string;
+          updated_at?: string;
+          video_url?: string | null;
+        };
+        Update: {
+          body?: string | null;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          minutes?: number | null;
+          published?: boolean;
+          resource_label?: string | null;
+          resource_url?: string | null;
+          section?: string | null;
+          sort_order?: number;
+          title?: string;
+          updated_at?: string;
+          video_url?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      course_quiz_questions: {
+        Row: {
+          correct_option: number;
+          course_id: string;
+          created_at: string;
+          explanation: string | null;
+          id: string;
+          options: string[];
+          question: string;
+          sort_order: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          correct_option: number;
+          course_id: string;
+          created_at?: string;
+          explanation?: string | null;
+          id?: string;
+          options: string[];
+          question: string;
+          sort_order?: number;
+        };
+        Update: {
+          correct_option?: number;
+          course_id?: string;
+          created_at?: string;
+          explanation?: string | null;
+          id?: string;
+          options?: string[];
+          question?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_quiz_questions_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           accreditation_reference: string | null;
@@ -626,6 +954,7 @@ export type Database = {
           audience: Database["public"]["Enums"]["course_audience"];
           category: string | null;
           certification_type: Database["public"]["Enums"]["certification_type"];
+          cpd_hours: number | null;
           created_at: string;
           delivery_mode: Database["public"]["Enums"]["delivery_mode"];
           description: NonNullable<Json>;
@@ -636,6 +965,9 @@ export type Database = {
           image_path: string | null;
           is_signature: boolean;
           learning_outcomes: string[];
+          online_enabled: boolean;
+          pass_mark: number;
+          self_enrol: boolean;
           seo_description: string | null;
           seo_title: string | null;
           slug: string;
@@ -652,6 +984,7 @@ export type Database = {
           audience?: Database["public"]["Enums"]["course_audience"];
           category?: string | null;
           certification_type?: Database["public"]["Enums"]["certification_type"];
+          cpd_hours?: number | null;
           created_at?: string;
           delivery_mode?: Database["public"]["Enums"]["delivery_mode"];
           description?: NonNullable<Json>;
@@ -662,6 +995,9 @@ export type Database = {
           image_path?: string | null;
           is_signature?: boolean;
           learning_outcomes?: string[];
+          online_enabled?: boolean;
+          pass_mark?: number;
+          self_enrol?: boolean;
           seo_description?: string | null;
           seo_title?: string | null;
           slug: string;
@@ -677,6 +1013,7 @@ export type Database = {
           audience?: Database["public"]["Enums"]["course_audience"];
           category?: string | null;
           certification_type?: Database["public"]["Enums"]["certification_type"];
+          cpd_hours?: number | null;
           created_at?: string;
           delivery_mode?: Database["public"]["Enums"]["delivery_mode"];
           description?: NonNullable<Json>;
@@ -687,6 +1024,9 @@ export type Database = {
           image_path?: string | null;
           is_signature?: boolean;
           learning_outcomes?: string[];
+          online_enabled?: boolean;
+          pass_mark?: number;
+          self_enrol?: boolean;
           seo_description?: string | null;
           seo_title?: string | null;
           slug?: string;
@@ -803,6 +1143,103 @@ export type Database = {
             columns: ["enquiry_id"];
             isOneToOne: false;
             referencedRelation: "enquiries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_registrations: {
+        Row: {
+          attend_mode: string;
+          confirmed_at: string | null;
+          created_at: string;
+          email: string | null;
+          event_id: string;
+          full_name: string;
+          id: string;
+          needs: string | null;
+          organisation: string | null;
+          phone: string | null;
+          reminded_at: string | null;
+          source: string;
+          status: string;
+          token: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attend_mode?: string;
+          confirmed_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          event_id: string;
+          full_name: string;
+          id?: string;
+          needs?: string | null;
+          organisation?: string | null;
+          phone?: string | null;
+          reminded_at?: string | null;
+          source?: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Update: {
+          attend_mode?: string;
+          confirmed_at?: string | null;
+          created_at?: string;
+          email?: string | null;
+          event_id?: string;
+          full_name?: string;
+          id?: string;
+          needs?: string | null;
+          organisation?: string | null;
+          phone?: string | null;
+          reminded_at?: string | null;
+          source?: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "community_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_progress: {
+        Row: {
+          completed_at: string;
+          lesson_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string;
+          lesson_id: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string;
+          lesson_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "course_lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_progress_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1398,6 +1835,55 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      quiz_attempts: {
+        Row: {
+          answers: number[];
+          created_at: string;
+          enrolment_id: string;
+          id: string;
+          passed: boolean;
+          score: number;
+          total: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers: number[];
+          created_at?: string;
+          enrolment_id: string;
+          id?: string;
+          passed: boolean;
+          score: number;
+          total: number;
+          user_id: string;
+        };
+        Update: {
+          answers?: number[];
+          created_at?: string;
+          enrolment_id?: string;
+          id?: string;
+          passed?: boolean;
+          score?: number;
+          total?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "course_enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       recruitment_applicants: {
         Row: {
@@ -2105,6 +2591,201 @@ export type Database = {
         };
         Relationships: [];
       };
+      worker_availability: {
+        Row: {
+          created_at: string;
+          end_time: string;
+          id: string;
+          start_time: string;
+          weekday: number;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          end_time: string;
+          id?: string;
+          start_time: string;
+          weekday: number;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          end_time?: string;
+          id?: string;
+          start_time?: string;
+          weekday?: number;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_availability_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      worker_credentials: {
+        Row: {
+          created_at: string;
+          doc_type: string;
+          expires_on: string | null;
+          id: string;
+          issued_on: string | null;
+          note: string | null;
+          reference: string | null;
+          reminder_stage: number;
+          status: string;
+          submitted_by: string | null;
+          title: string | null;
+          updated_at: string;
+          verified_at: string | null;
+          verified_by: string | null;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          doc_type: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          note?: string | null;
+          reference?: string | null;
+          reminder_stage?: number;
+          status?: string;
+          submitted_by?: string | null;
+          title?: string | null;
+          updated_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          doc_type?: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          note?: string | null;
+          reference?: string | null;
+          reminder_stage?: number;
+          status?: string;
+          submitted_by?: string | null;
+          title?: string | null;
+          updated_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_credentials_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      worker_profiles: {
+        Row: {
+          gender: string | null;
+          home_area: string | null;
+          home_lat: number | null;
+          home_lng: number | null;
+          languages: string[];
+          max_hours_week: number | null;
+          notes: string | null;
+          skills: string[];
+          travel_km: number;
+          updated_at: string;
+          updated_by: string | null;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          gender?: string | null;
+          home_area?: string | null;
+          home_lat?: number | null;
+          home_lng?: number | null;
+          languages?: string[];
+          max_hours_week?: number | null;
+          notes?: string | null;
+          skills?: string[];
+          travel_km?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          worker_id: string;
+        };
+        Update: {
+          gender?: string | null;
+          home_area?: string | null;
+          home_lat?: number | null;
+          home_lng?: number | null;
+          languages?: string[];
+          max_hours_week?: number | null;
+          notes?: string | null;
+          skills?: string[];
+          travel_km?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_profiles_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      worker_time_off: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          ends_on: string;
+          id: string;
+          kind: string;
+          note: string | null;
+          starts_on: string;
+          worker_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_on: string;
+          id?: string;
+          kind?: string;
+          note?: string | null;
+          starts_on: string;
+          worker_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_on?: string;
+          id?: string;
+          kind?: string;
+          note?: string | null;
+          starts_on?: string;
+          worker_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "worker_time_off_worker_id_fkey";
+            columns: ["worker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       care_shift_status: {
@@ -2144,6 +2825,10 @@ export type Database = {
       };
     };
     Functions: {
+      cancel_event_registration: {
+        Args: { registration_token: string };
+        Returns: string;
+      };
       care_incident_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2157,6 +2842,47 @@ export type Database = {
           monitor: number;
           to_read: number;
           urgent: number;
+        }[];
+      };
+      care_worker_certificates: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          completed_on: string;
+          course_title: string;
+          worker_id: string;
+        }[];
+      };
+      community_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          registrations_upcoming: number;
+          upcoming_events: number;
+        }[];
+      };
+      complete_lesson: { Args: { lesson: string }; Returns: string };
+      course_outline: {
+        Args: { course: string };
+        Returns: {
+          minutes: number;
+          section: string;
+          title: string;
+        }[];
+      };
+      course_quiz: {
+        Args: { course: string };
+        Returns: {
+          id: string;
+          options: string[];
+          question: string;
+          sort_order: number;
+        }[];
+      };
+      credential_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          expired: number;
+          expiring: number;
+          to_check: number;
         }[];
       };
       current_user_has_role: { Args: { role: string }; Returns: boolean };
@@ -2209,6 +2935,8 @@ export type Database = {
           total: number;
         }[];
       };
+      ensure_forums: { Args: Record<PropertyKey, never>; Returns: undefined };
+      event_places_left: { Args: { event: string }; Returns: number };
       family_message_office: {
         Args: { client: string; message: string };
         Returns: string;
@@ -2242,12 +2970,14 @@ export type Database = {
           worker_first_name: string;
         }[];
       };
+      find_user_id_by_email: { Args: { lookup: string }; Returns: string };
       has_permission: { Args: { perm: string }; Returns: boolean };
       has_staff_role: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_assigned_to: { Args: { client: string }; Returns: boolean };
       is_care_worker: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_family_member: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_family_of: { Args: { client: string }; Returns: boolean };
+      is_learner: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_worker_profile: { Args: { uid: string }; Returns: boolean };
       list_care_workers: {
@@ -2298,6 +3028,20 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      register_for_event: {
+        Args: {
+          attend_mode?: string;
+          consent_given: boolean;
+          email?: string;
+          event: string;
+          full_name: string;
+          needs?: string;
+          organisation?: string;
+          phone?: string;
+          website?: string;
+        };
+        Returns: string;
+      };
       search_site: {
         Args: { max_results?: number; query: string };
         Returns: {
@@ -2308,6 +3052,7 @@ export type Database = {
           url: string;
         }[];
       };
+      self_enrol: { Args: { course: string }; Returns: string };
       set_page_banners: { Args: { banners: Json }; Returns: undefined };
       staff_mfa_required: {
         Args: Record<PropertyKey, never>;
@@ -2328,6 +3073,29 @@ export type Database = {
           website?: string;
         };
         Returns: string;
+      };
+      submit_quiz: {
+        Args: { answers: number[]; course: string };
+        Returns: {
+          certificate_number: string;
+          pass_mark: number;
+          passed: boolean;
+          score: number;
+          total: number;
+        }[];
+      };
+      verify_certificate: {
+        Args: { code: string };
+        Returns: {
+          accrediting_body: string;
+          certification_type: Database["public"]["Enums"]["certification_type"];
+          completed_on: string;
+          course_title: string;
+          cpd_hours: number;
+          learner_name: string;
+          number: string;
+          revoked: boolean;
+        }[];
       };
       wellbeing_counts: {
         Args: Record<PropertyKey, never>;

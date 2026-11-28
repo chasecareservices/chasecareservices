@@ -205,6 +205,12 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
 
         {canEdit && bookable.length > 0 && activeWorkers.length > 0 && (
           <Card title="Book a visit" className="h-fit">
+            <p className="mb-3 text-sm">
+              Not sure who?{" "}
+              <Link href="/admin/matching" className="font-semibold text-brand-700 underline">
+                Find the best care worker
+              </Link>
+            </p>
             <ActionForm action={bookVisit} submitLabel="Book visit" inline>
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-brand-900">

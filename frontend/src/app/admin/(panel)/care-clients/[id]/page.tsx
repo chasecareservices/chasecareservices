@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { inviteFamily, saveAssignments, saveCarePlan, saveClient, setFamilyAccess } from "../actions";
+import { saveClientNeeds } from "../../care-workers/actions";
+import { GenderSelect, LanguageChecks, SkillChecks } from "@/components/availability/MatchingFields";
+import { skillLabel } from "@/lib/matching";
 import { ClientFields } from "../ClientFields";
 import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
 import { ActionForm } from "@/components/admin/ActionForm";
@@ -33,6 +36,7 @@ export default async function CareClientPage({ params, searchParams }: { params:
   return (
     <>
       {saved === "client" && <Notice>Client saved.</Notice>}
+      {saved === "needs" && <Notice>Matching needs saved. They&apos;re used when you find a care worker for this client.</Notice>}
       {saved === "from-enquiry" && <Notice>Client record created from the care request. Next: write the care plan and choose the care team.</Notice>}
       {saved === "plan" && <Notice>Care plan saved. Care workers see it in their portal straight away.</Notice>}
       {saved === "team" && <Notice>Care team saved. Assigned care workers can now see this client in their portal.</Notice>}
@@ -148,6 +152,36 @@ export default async function CareClientPage({ params, searchParams }: { params:
               <p className="text-sm text-muted">Not set. Visit reports can&apos;t be checked against the home until it is. Add it in the details form.</p>
             )}
           </Card>
+
+          <section id="needs" className="scroll-mt-24">
+            <Card title="Matching needs">
+              <p className="text-sm">
+                {client.required_skills.length ? client.required_skills.map(skillLabel).join(", ") : "No special skills recorded."}
+                {client.preferred_gender ? ` · Prefers a ${client.preferred_gender} carer` : ""}
+                {client.languages.length ? ` · Speaks ${client.languages.join(", ")}` : ""}
+              </p>
+              {staff.can("care_ops.view") && (
+                <Link href={`/admin/matching?client=${client.id}`} className="mt-3 inline-flex min-h-11 items-center rounded-full bg-brand-800 px-4 text-sm font-semibold text-white hover:bg-brand-700">
+                  Find a care worker
+                </Link>
+              )}
+              {canEdit && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-brand-800">Edit matching needs</summary>
+                  <div className="mt-3">
+                    <ActionForm action={saveClientNeeds} submitLabel="Save needs" inline>
+                      <input type="hidden" name="client_id" value={client.id} />
+                      <div className="space-y-4">
+                        <SkillChecks name="required_skills" selected={client.required_skills} legend="Skills the care worker needs" />
+                        <GenderSelect name="preferred_gender" value={client.preferred_gender} label="Preferred carer" emptyLabel="No preference" />
+                        <LanguageChecks selected={client.languages} legend="Languages the client speaks" />
+                      </div>
+                    </ActionForm>
+                  </div>
+                </details>
+              )}
+            </Card>
+          </section>
 
           <Card title="Care team">
             {!workers?.length ? (
