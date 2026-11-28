@@ -1038,6 +1038,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      email_templates: {
+        Row: {
+          heading: string | null;
+          key: string;
+          message: string | null;
+          subject: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          heading?: string | null;
+          key: string;
+          message?: string | null;
+          subject?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          heading?: string | null;
+          key?: string;
+          message?: string | null;
+          subject?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
       enquiries: {
         Row: {
           assigned_to: string | null;
@@ -1622,6 +1650,144 @@ export type Database = {
           description?: string | null;
           key?: string;
           section?: string;
+        };
+        Relationships: [];
+      };
+      policies: {
+        Row: {
+          body: string | null;
+          category: string | null;
+          created_at: string;
+          document_url: string | null;
+          id: string;
+          must_read: boolean;
+          published_at: string | null;
+          sort_order: number;
+          status: string;
+          summary: string | null;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string | null;
+          category?: string | null;
+          created_at?: string;
+          document_url?: string | null;
+          id?: string;
+          must_read?: boolean;
+          published_at?: string | null;
+          sort_order?: number;
+          status?: string;
+          summary?: string | null;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Update: {
+          body?: string | null;
+          category?: string | null;
+          created_at?: string;
+          document_url?: string | null;
+          id?: string;
+          must_read?: boolean;
+          published_at?: string | null;
+          sort_order?: number;
+          status?: string;
+          summary?: string | null;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Relationships: [];
+      };
+      policy_acknowledgements: {
+        Row: {
+          acknowledged_at: string;
+          policy_id: string;
+          user_id: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          acknowledged_at?: string;
+          policy_id: string;
+          user_id: string;
+          version: number;
+        };
+        Update: {
+          acknowledged_at?: string;
+          policy_id?: string;
+          user_id?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "policy_acknowledgements_policy_id_fkey";
+            columns: ["policy_id"];
+            isOneToOne: false;
+            referencedRelation: "policies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "policy_acknowledgements_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portal_announcements: {
+        Row: {
+          audience: string;
+          body: string;
+          created_at: string;
+          created_by: string | null;
+          emailed_at: string | null;
+          emailed_count: number | null;
+          expires_at: string | null;
+          id: string;
+          important: boolean;
+          publish_at: string;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience: string;
+          body: string;
+          created_at?: string;
+          created_by?: string | null;
+          emailed_at?: string | null;
+          emailed_count?: number | null;
+          expires_at?: string | null;
+          id?: string;
+          important?: boolean;
+          publish_at?: string;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          audience?: string;
+          body?: string;
+          created_at?: string;
+          created_by?: string | null;
+          emailed_at?: string | null;
+          emailed_count?: number | null;
+          expires_at?: string | null;
+          id?: string;
+          important?: boolean;
+          publish_at?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -2825,6 +2991,7 @@ export type Database = {
       };
     };
     Functions: {
+      acknowledge_policy: { Args: { policy: string }; Returns: number };
       cancel_event_registration: {
         Args: { registration_token: string };
         Returns: string;
@@ -3005,6 +3172,10 @@ export type Database = {
       };
       missed_visit_count: { Args: Record<PropertyKey, never>; Returns: number };
       my_permissions: { Args: Record<PropertyKey, never>; Returns: string[] };
+      my_policies_to_read: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
       newsletter_counts: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -3041,6 +3212,10 @@ export type Database = {
           website?: string;
         };
         Returns: string;
+      };
+      report_stats: {
+        Args: { from_date: string; to_date: string };
+        Returns: Json;
       };
       search_site: {
         Args: { max_results?: number; query: string };

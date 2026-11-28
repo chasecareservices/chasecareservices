@@ -1,4 +1,5 @@
 import "server-only";
+import { getEmailCopy } from "@/lib/email/copy";
 import type { createSecretClient } from "@/lib/supabase/server-auth";
 import { inviteEmail, type InviteKind } from "@/lib/email/invite";
 import { emailTransport, sendEmail } from "@/lib/email/send";
@@ -31,7 +32,7 @@ export async function sendInvitation(
   const { data: settings } = await admin.from("site_settings").select("phone").maybeSingle();
   const sent = await sendEmail({
     to: [p.email],
-    ...inviteEmail({ kind: p.kind, name: p.fullName, link: data.properties.action_link, clientName: p.clientName, officePhone: settings?.phone }),
+    ...inviteEmail({ kind: p.kind, name: p.fullName, link: data.properties.action_link, clientName: p.clientName, officePhone: settings?.phone, copy: await getEmailCopy(`invite_${p.kind}`) }),
   });
   if (!sent.sent) {
     // Don't leave an account nobody can get into: remove it so the office can try again.

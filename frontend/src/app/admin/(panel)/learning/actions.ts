@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/admin/session";
 import { enrolledAlert } from "@/lib/email/alerts";
+import { getEmailCopy } from "@/lib/email/copy";
 import { sendEmail } from "@/lib/email/send";
 import { sendInvitation } from "@/lib/email/send-invite";
 import { createSecretClient } from "@/lib/supabase/server-auth";
@@ -158,7 +159,7 @@ export async function enrolLearner(formData: FormData): Promise<Result> {
   if (error) return { error: "Couldn't enrol them. Please try again." };
   if (!invited) {
     const first = fullName.split(/\s+/)[0];
-    await sendEmail({ to: [email], ...enrolledAlert({ first_name: first, course_title: c.title }, await siteOrigin()) }).catch(() => undefined);
+    await sendEmail({ to: [email], ...enrolledAlert({ first_name: first, course_title: c.title }, await siteOrigin(), await getEmailCopy("course_ready")) }).catch(() => undefined);
   }
   revalidatePath(`/admin/learning/${course}`);
   back(course, invited ? "invited" : "enrolled", "#learners");

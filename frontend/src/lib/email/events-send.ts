@@ -1,4 +1,5 @@
 import "server-only";
+import { getEmailCopy } from "@/lib/email/copy";
 import { sendEmail } from "@/lib/email/send";
 import { eventReminder, registrationConfirmation } from "@/lib/email/events";
 import { siteUrl } from "@/lib/email/notify";
@@ -25,7 +26,7 @@ export async function sendRegistrationConfirmation(registrationId: string) {
     admin.from("community_event_links").select("online_url").eq("event_id", r.event_id).maybeSingle(),
   ]);
   if (!event) return;
-  await sendEmail({ to: [r.email], ...registrationConfirmation({ event, registration: r, onlineUrl: link?.online_url ?? null }, await siteUrl()) });
+  await sendEmail({ to: [r.email], ...registrationConfirmation({ event, registration: r, onlineUrl: link?.online_url ?? null }, await siteUrl(), await getEmailCopy("event_confirmation")) });
 }
 
 /** Reminds everyone still registered (with an email address). Returns how many were sent. */
@@ -39,11 +40,12 @@ export async function sendEventReminders(eventId: string): Promise<{ sent: numbe
   ]);
   if (!event) return { sent: 0, failed: 0, noEmail: 0 };
   const site = await siteUrl();
+  const copy = await getEmailCopy("event_reminder");
   let sent = 0;
   let failed = 0;
   const withEmail = (regs ?? []).filter((r) => r.email);
   for (const r of withEmail) {
-    const res = await sendEmail({ to: [r.email!], ...eventReminder({ event, registration: r, onlineUrl: link?.online_url ?? null }, site) });
+    const res = await sendEmail({ to: [r.email!], ...eventReminder({ event, registration: r, onlineUrl: link?.online_url ?? null }, site, copy) });
     if (res.reason === "not-configured") return { sent: 0, failed: 0, noEmail: 0, notConfigured: true };
     if (res.sent) {
       sent++;

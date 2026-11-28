@@ -1,5 +1,6 @@
 "use server";
 
+import { getEmailCopy } from "@/lib/email/copy";
 import { sendEmail } from "@/lib/email/send";
 import { siteUrl } from "@/lib/email/notify";
 import { cleanEmail, confirmEmail } from "@/lib/newsletter";
@@ -53,7 +54,7 @@ export async function subscribe(_: SubscribeState, formData: FormData): Promise<
     token = data.token;
   }
 
-  const sent = await sendEmail({ to: [email], ...confirmEmail(await siteUrl(), token!, name) });
+  const sent = await sendEmail({ to: [email], ...confirmEmail(await siteUrl(), token!, name, await getEmailCopy("newsletter_confirm")) });
   if (sent.sent) await db.from("newsletter_subscribers").update({ confirm_sent_at: new Date().toISOString() }).eq("email", email);
   return { ok: true, message: DONE };
 }

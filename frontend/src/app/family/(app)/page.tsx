@@ -1,3 +1,4 @@
+import { AnnouncementList } from "@/components/announcements/AnnouncementList";
 import Link from "next/link";
 import { messageOffice } from "@/app/family/actions";
 import { ActionForm } from "@/components/admin/ActionForm";
@@ -10,6 +11,7 @@ export const metadata = { title: "Home" };
 
 export default async function FamilyHome({ searchParams }: { searchParams: Promise<{ client?: string; sent?: string }> }) {
   const [{ client: chosen, sent }, family] = await Promise.all([searchParams, requireFamily()]);
+  const { data: news } = await family.supabase.from("portal_announcements").select("id, title, body, important, publish_at").order("publish_at", { ascending: false }).limit(5);
   const { data: links } = await family.supabase
     .from("care_family_links")
     .select("client_id, relationship, client:care_clients(id, full_name, preferred_name, area)")
@@ -59,6 +61,8 @@ export default async function FamilyHome({ searchParams }: { searchParams: Promi
           </nav>
         )}
       </section>
+
+      <AnnouncementList items={news ?? []} />
 
       <section aria-labelledby="visits-h">
         <h2 id="visits-h" className="text-xl font-bold text-brand-900">

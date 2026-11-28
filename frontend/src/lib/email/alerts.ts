@@ -1,3 +1,4 @@
+import { renderCopy, type Copy } from "@/lib/email/templates";
 /**
  * The wording of alert emails. Kept free of server code so it can be unit tested.
  * Care alerts deliberately leave out health details: those stay in the dashboard.
@@ -5,20 +6,21 @@
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-export function layout(heading: string, rows: [string, string][], button: { label: string; href: string }, note: string) {
+export function layout(heading: string, rows: [string, string][], button: { label: string; href: string }, note: string, intro = "") {
   const html = `<!doctype html><html><body style="margin:0;background:#f7f2fb;font-family:Arial,Helvetica,sans-serif;color:#1d1a22">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden">
 <tr><td style="background:#3b0a5e;padding:18px 24px;color:#fff;font-weight:bold;letter-spacing:3px">CHASE <span style="color:#f89a00;font-weight:normal;letter-spacing:1px;font-size:13px">Care Services</span></td></tr>
 <tr><td style="padding:24px">
 <h1 style="margin:0 0 16px;font-size:20px;color:#3b0a5e">${esc(heading)}</h1>
+${intro ? intro.split(/\n\s*\n/).map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.55">${esc(p.trim())}</p>`).join("") : ""}
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:15px">
 ${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#6b6475;vertical-align:top;white-space:nowrap">${esc(k)}</td><td style="padding:6px 0">${esc(v)}</td></tr>`).join("")}
 </table>
 <p style="margin:24px 0"><a href="${esc(button.href)}" style="display:inline-block;background:#3b0a5e;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold">${esc(button.label)}</a></p>
 <p style="margin:0;font-size:13px;color:#6b6475">${esc(note)}</p>
 </td></tr></table></td></tr></table></body></html>`;
-  const text = `${heading}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n${button.label}: ${button.href}\n\n${note}`;
+  const text = `${heading}\n\n${intro ? `${intro.trim()}\n\n` : ""}${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n${button.label}: ${button.href}\n\n${note}`;
   return { html, text };
 }
 
@@ -121,14 +123,15 @@ export function wellbeingReplyAlert(r: { id: string; reference: string; first_na
 }
 
 /** To someone who already has an account: they've been enrolled on an online course. */
-export function enrolledAlert(p: { first_name: string; course_title: string }, siteUrl: string) {
+export function enrolledAlert(p: { first_name: string; course_title: string }, siteUrl: string, copy?: Partial<Copy> | null) {
+  const c = renderCopy("course_ready", copy, { first_name: p.first_name, course: p.course_title });
   const { html, text } = layout(
-    `Hello ${p.first_name}, your course is ready`,
+    c.heading,
     [["Course", p.course_title]],
     { label: "Start learning", href: `${siteUrl}/learn` },
-    "Sign in with your usual Chase Care email and password. Sent by the ChaseCare Academy.",
+    `${c.message} Sent by the ChaseCare Academy.`,
   );
-  return { subject: `You're enrolled: ${p.course_title}`, html, text };
+  return { subject: c.subject, html, text };
 }
 
 const longDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -138,15 +141,16 @@ const expiryWords = (d: string, today: string) => {
 };
 
 /** To a care worker: a document needs renewing. */
-export function credentialWorkerReminder(p: { first_name: string; items: { label: string; expires_on: string }[]; today: string }, siteUrl: string) {
+export function credentialWorkerReminder(p: { first_name: string; items: { label: string; expires_on: string }[]; today: string }, siteUrl: string, copy?: Partial<Copy> | null) {
   const expired = p.items.some((i) => i.expires_on < p.today);
+  const c = renderCopy(expired ? "document_expired" : "document_expiring", copy, { first_name: p.first_name });
   const { html, text } = layout(
-    `Hello ${p.first_name}, ${expired ? "a document has expired" : "a document needs renewing soon"}`,
+    c.heading,
     p.items.map((i) => [i.label, expiryWords(i.expires_on, p.today)] as [string, string]),
     { label: "Send the new details", href: `${siteUrl}/portal/documents` },
-    `Please renew it and send the new details (and a photo or PDF) in your care worker portal, or bring it to the office.${expired ? " Until it's renewed you may not be booked for visits." : ""} Sent by Chase Care Services.`,
+    `${c.message} Sent by Chase Care Services.`,
   );
-  return { subject: expired ? "Action needed: a document has expired" : "Reminder: please renew your document", html, text };
+  return { subject: c.subject, html, text };
 }
 
 /** To the office: documents expiring or expired today's run found. */
@@ -160,4 +164,16 @@ export function credentialOfficeDigest(p: { items: { worker: string; label: stri
     "The care workers listed have also been emailed a reminder. Sent automatically by the Chase Care website.",
   );
   return { subject: `Worker documents: ${p.items.length} expiring or expired`, html, text };
+}
+
+/** An announcement from the office, emailed to care workers and/or families. */
+export function announcementEmail(p: { title: string; body: string; important: boolean; portal: "/portal" | "/family" }, siteUrl: string) {
+  const { html, text } = layout(
+    p.title,
+    [],
+    { label: "Open your portal", href: `${siteUrl}${p.portal}` },
+    "You can also read this in your Chase Care portal. Sent by the Chase Care office.",
+    p.body,
+  );
+  return { subject: `${p.important ? "Important: " : ""}${p.title}`, html, text };
 }
