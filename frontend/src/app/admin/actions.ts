@@ -8,3 +8,10 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
+
+/** Signed out automatically after a period with no activity (Security settings). */
+export async function signOutIdle() {
+  const supabase = await createAuthClient();
+  await supabase.auth.signOut();
+  redirect("/admin/login?error=idle");
+}

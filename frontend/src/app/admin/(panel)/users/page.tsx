@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { inviteStaff, setActive, updateRoles } from "./actions";
 import { Card, Notice, PageHeader, adminButton, adminButtonSecondary, adminInput, formatDateTime } from "@/components/admin/ui";
 import { requirePermission } from "@/lib/admin/session";
@@ -115,6 +116,9 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     {p.profile?.full_name || "(no name)"} {self && <span className="text-sm font-normal text-muted">(you)</span>}
                   </h2>
                   <p className="text-sm text-muted">{p.auth?.email ?? "Email hidden"}</p>
+                  <Link href={`/admin/security?user=${p.id}`} className="text-sm font-medium text-brand-700 underline">
+                    Sign-in history
+                  </Link>
                   <p className="mt-1 flex flex-wrap gap-2 text-xs">
                     <span className={`rounded-full px-2 py-0.5 font-semibold ${active ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-700"}`}>
                       {active ? "Active" : "Deactivated"}

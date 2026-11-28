@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminNav, type AdminNavGroup } from "@/components/admin/AdminNav";
+import { IdleSignOut } from "@/components/admin/IdleSignOut";
 import { LogoMark } from "@/components/LogoMark";
 import { signOut } from "@/app/admin/actions";
 import { requireStaff } from "@/lib/admin/session";
@@ -7,6 +8,9 @@ import { RESOURCES } from "@/lib/admin/resources";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const staff = await requireStaff();
+
+  const { data: security } = await staff.supabase.rpc("security_options");
+  const idleMinutes = Number(security?.[0]?.staff_idle_minutes ?? 30);
 
   let newEnquiries = 0;
   if (staff.can("enquiries.view")) {
@@ -119,6 +123,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         ...(staff.can("reports.view") ? [{ label: "Reports", href: "/admin/reports" }] : []),
         ...(staff.can("settings.view") ? [{ label: "Site settings", href: "/admin/settings" }] : []),
         ...(staff.can("users.view") ? [{ label: "Staff & roles", href: "/admin/users" }] : []),
+        ...(staff.can("users.view") ? [{ label: "Security & sign-ins", href: "/admin/security" }] : []),
+        ...(staff.can("users.view") ? [{ label: "Data requests", href: "/admin/data-requests" }] : []),
         ...(staff.can("audit.view") ? [{ label: "Activity log", href: "/admin/audit" }] : []),
       ],
     },
@@ -126,6 +132,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
 
   return (
     <div className="lg:grid lg:min-h-screen lg:grid-cols-[16rem_1fr]">
+      <IdleSignOut minutes={idleMinutes} />
       <aside className="relative flex items-center justify-between gap-4 bg-brand-900 px-4 py-3 text-white lg:sticky lg:top-0 lg:block lg:h-screen lg:overflow-y-auto lg:px-5 lg:py-6">
         <Link href="/admin" className="flex items-center gap-2.5">
           <LogoMark inverted className="h-9 w-auto" />
